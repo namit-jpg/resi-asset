@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PaymentPlanIsRequiredBeforeTokenAmount</fullName>
+    <active>true</active>
+    <description>Checked only when the payment plan or token amount is set or changed, so unrelated saves (unit tagging, booking form link) on older records are not blocked.</description>
+    <errorConditionFormula>AND(
+ISNULL(Token_Amount__c),
+NOT(ISBLANK(Payment_Plan__c)),
+OR(ISNEW(), ISCHANGED(Payment_Plan__c), ISCHANGED(Token_Amount__c))
+)</errorConditionFormula>
+    <errorDisplayField>Token_Amount__c</errorDisplayField>
+    <errorMessage>Token amount is required before adding payment plan</errorMessage>
+</ValidationRule>

@@ -1,0 +1,30 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "title" : "errorMessage",
+      "description" : "Details of any error that occurred during the process, such as a failure to send the email or create the lead record.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "leadId" : {
+      "title" : "leadId",
+      "description" : "The unique Salesforce Record ID of the newly created Lead.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "successMessage" : {
+      "title" : "successMessage",
+      "description" : "A confirmation message indicating that the lead record was created successfully and the brochure email has been dispatched.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

@@ -1,0 +1,24 @@
+<template>
+    <div class="canvas">
+        <div class="backdrop" aria-hidden="true">
+            <span class="glow glow_a"></span>
+            <span class="glow glow_b"></span>
+            <span class="glow glow_c"></span>
+            <svg class="mark mark_hero" viewBox="410 310 620 820" xmlns="http://www.w3.org/2000/svg">
+                <path d="M655 327H785Q805 327 815 350L1008 885Q1015 910 993 913L860 866Q838 857 830 835L720 495L610 835Q602 857 580 866L447 913Q425 910 432 885L625 350Q635 327 655 327Z"></path>
+                <path d="M641 891Q720 870 800 891Q765 1030 720 1112Q675 1030 641 891Z"></path>
+            </svg>
+            <svg class="mark mark_side" viewBox="410 310 620 820" xmlns="http://www.w3.org/2000/svg">
+                <path d="M655 327H785Q805 327 815 350L1008 885Q1015 910 993 913L860 866Q838 857 830 835L720 495L610 835Q602 857 580 866L447 913Q425 910 432 885L625 350Q635 327 655 327Z"></path>
+                <path d="M641 891Q720 870 800 891Q765 1030 720 1112Q675 1030 641 891Z"></path>
+            </svg>
+            <svg class="mark mark_low" viewBox="410 310 620 820" xmlns="http://www.w3.org/2000/svg">
+                <path d="M655 327H785Q805 327 815 350L1008 885Q1015 910 993 913L860 866Q838 857 830 835L720 495L610 835Q602 857 580 866L447 913Q425 910 432 885L625 350Q635 327 655 327Z"></path>
+                <path d="M641 891Q720 870 800 891Q765 1030 720 1112Q675 1030 641 891Z"></path>
+            </svg>
+        </div>
+        <div class="content">
+            <slot></slot>
+        </div>
+    </div>
+</template>

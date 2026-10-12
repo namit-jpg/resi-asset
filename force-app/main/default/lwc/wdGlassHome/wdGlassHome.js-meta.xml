@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>WarpDrive Glass Home</masterLabel>
+    <description>Frosted-glass residential sales home: KPIs, inventory by project, lead funnel and recent bookings.</description>
+    <targets>
+        <target>lightning__HomePage</target>
+        <target>lightning__AppPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__HomePage,lightning__AppPage">
+            <property name="eyebrow" type="String" label="Eyebrow text" default="Nikoo Homes · Residential sales"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

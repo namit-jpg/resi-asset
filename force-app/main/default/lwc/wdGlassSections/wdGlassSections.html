@@ -1,0 +1,75 @@
+<template>
+    <template for:each={rows} for:item="section">
+        <section key={section.key} class="wd-glass card">
+            <div class="section-bar">
+                <button
+                    type="button"
+                    class="section-head"
+                    data-label={section.label}
+                    aria-expanded={section.ariaExpanded}
+                    onclick={handleToggle}
+                >
+                    <span class={section.chevronClass} aria-hidden="true"></span>
+                    <span class="wd-section-title">{section.label}</span>
+                    <span class="section-count">{section.filled}</span>
+                </button>
+                <template lwc:if={section.canEdit}>
+                    <button
+                        type="button"
+                        class="edit-btn"
+                        data-label={section.label}
+                        title={section.editTitle}
+                        onclick={handleEdit}
+                    >
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                        <span>Edit</span>
+                    </button>
+                </template>
+            </div>
+            <template lwc:if={section.isEditing}>
+                <lightning-record-edit-form
+                    record-id={recordId}
+                    object-api-name={objectApiName}
+                    record-type-id={recordTypeId}
+                    onsubmit={handleSubmit}
+                    onsuccess={handleSaved}
+                    onerror={handleError}
+                >
+                    <lightning-messages></lightning-messages>
+                    <div class={section.gridClass}>
+                        <template for:each={section.fields} for:item="f">
+                            <div key={f.key} class="field field_edit">
+                                <lightning-input-field field-name={f.api}></lightning-input-field>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="section-actions">
+                        <button type="button" class="wd-btn wd-btn_ghost" onclick={handleCancel}>Cancel</button>
+                        <lightning-button variant="brand" type="submit" label="Save" disabled={saving}></lightning-button>
+                    </div>
+                </lightning-record-edit-form>
+            </template>
+            <template lwc:elseif={section.isOpen}>
+                <dl class={section.gridClass} data-label={section.label} ondblclick={handleEdit}>
+                    <template for:each={section.fields} for:item="f">
+                        <div key={f.key} class="field">
+                            <dt class="label">{f.label}</dt>
+                            <dd class={f.valueClass}>
+                                <template lwc:if={f.isRecordLink}>
+                                    <a href="#" class="link" data-id={f.linkId} onclick={handleOpenRecord}>{f.text}</a>
+                                </template>
+                                <template lwc:elseif={f.isHref}>
+                                    <a href={f.href} class="link" target="_blank" rel="noopener">{f.text}</a>
+                                </template>
+                                <template lwc:elseif={f.isBoolean}>
+                                    <span class={f.boolClass}><span class="bool-dot"></span>{f.text}</span>
+                                </template>
+                                <template lwc:else>{f.text}</template>
+                            </dd>
+                        </div>
+                    </template>
+                </dl>
+            </template>
+        </section>
+    </template>
+</template>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Archive_For_In_Days__c</fullName>
+    <description>Number of days to archive this lead before a follow-up notification is triggered.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Enter the number of days to archive this lead. A follow-up notification will be sent to the owner once this period elapses.</inlineHelpText>
+    <label>Archive For (in days)</label>
+    <precision>4</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

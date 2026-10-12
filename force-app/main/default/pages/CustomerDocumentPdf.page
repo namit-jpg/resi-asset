@@ -1,0 +1,302 @@
+<apex:page controller="CustomerDocumentController" renderAs="pdf" applyHtmlTag="false" applyBodyTag="false"
+           showHeader="false" sidebar="false" standardStylesheets="false" cache="false">
+<!--
+  Welcome / Allotment / Car Parking letters for a booking, in the "Customer Document Generator" design.
+  /apex/CustomerDocumentPdf?id=<Booking__c Id>&doc=welcome|allotment|parking
+  The PDF renderer is CSS 2.1 only: layout uses tables, and the header and footer are running elements.
+-->
+<html>
+<head>
+<style type="text/css">
+    @page {
+        size: A4;
+        margin: 32mm 18mm 27mm 18mm;
+        @top-center { content: element(hd); }
+        @bottom-center { content: element(ft); }
+    }
+    body { font-family: sans-serif; font-size: 9pt; line-height: 1.5; color: #2a2a2a; margin: 0; }
+    .hd { position: running(hd); padding-top: 11mm; }
+    .ft { position: running(ft); padding-bottom: 8mm; }
+    .pg:before { content: counter(page); }
+    .pgs:before { content: counter(pages); }
+
+    table { border-collapse: collapse; }
+    .hdl { border-bottom: 0.3mm solid #b39b6a; padding-bottom: 3.5mm; }
+    .hdt { width: 100%; }
+    .hdt td { vertical-align: bottom; }
+    .hdt img { height: 11mm; }
+    .hdr { text-align: right; font-size: 6.8pt; line-height: 1.5; color: #6b6b6b; }
+    .ftl { border-top: 0.2mm solid #e4dfd3; padding-top: 2.5mm; }
+    .ftt { width: 100%; font-size: 6.6pt; line-height: 1.5; color: #6b6b6b; }
+    .ftt td { vertical-align: middle; }
+    .ftt img { height: 7mm; }
+    .ftt b { color: #2a2a2a; }
+    .ftr { text-align: right; white-space: nowrap; }
+    .muted { color: #9a9380; }
+
+    .ttl { margin: 6mm 0 3mm 0; }
+    .eyebrow { font-size: 7pt; letter-spacing: 2pt; color: #8a7440; text-transform: uppercase; }
+    h1 { font-family: serif; font-weight: bold; font-size: 20pt; line-height: 1.15; letter-spacing: 2pt;
+         text-transform: uppercase; margin: 1mm 0 0 0; }
+    .meta { width: 100%; font-size: 8pt; color: #6b6b6b; margin-bottom: 2mm; }
+    .meta b { color: #2a2a2a; font-weight: normal; }
+    .meta td.r { text-align: right; }
+
+    h3 { font-size: 7.2pt; font-weight: bold; letter-spacing: 1.4pt; text-transform: uppercase; color: #8a7440;
+         margin: 5mm 0 1.2mm 0; padding-bottom: 1mm; border-bottom: 0.2mm solid #e4dfd3; }
+    p { margin: 0 0 2.6mm 0; }
+
+    .kv { width: 100%; table-layout: fixed; }
+    .kv td { padding: 1.1mm 0; border-bottom: 0.15mm solid #eee9dd; vertical-align: top; }
+    .kv td.k { color: #6b6b6b; width: 24%; }
+    .kv td.v { text-align: right; width: 22%; }
+    .kv td.g { width: 8%; border-bottom: 0; }
+    .kv td.wide { text-align: right; }
+
+    .fin { width: 100%; }
+    .fin td { padding: 1.3mm 0; border-bottom: 0.15mm solid #eee9dd; }
+    .fin td.a { text-align: right; }
+    .fin tr.t td { font-weight: bold; border-top: 0.3mm solid #2a2a2a; border-bottom: 0; }
+
+    .terms p { font-size: 8.3pt; margin: 0 0 2mm 0; }
+    .note { font-size: 7pt; color: #6b6b6b; margin-top: 2mm; }
+    .sig { margin-top: 7mm; page-break-inside: avoid; }
+    .sig p { margin: 0; }
+    .bx td { width: 44mm; height: 16mm; border: 0.2mm dashed #b8b09a; text-align: center; vertical-align: middle;
+             font-size: 6.5pt; color: #9a9380; }
+    .bx td.sp { width: 5mm; border: 0; }
+    .sigt { margin: 2mm 0; }
+    .sign { color: #6b6b6b; }
+    .na { margin-top: 55mm; text-align: center; color: #6b6b6b; }
+    .na h1 { font-size: 15pt; color: #2a2a2a; }
+    .brk { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<!-- Running header and footer: must come before the content. -->
+<div class="hd"><div class="hdl">
+    <table class="hdt"><tr>
+        <td><img src="{!$Resource.WD_Doc_Logo}" alt="{!v['COMPANY_NAME']}"/></td>
+        <td class="hdr">
+            <apex:outputText value="{!v['COMPANY_ADDRESS']}" rendered="{!v['COMPANY_ADDRESS'] != '—'}"/>
+            <apex:outputPanel rendered="{!hasContactLine}"><br/>{!v['COMPANY_PHONE']} | {!v['COMPANY_EMAIL']}</apex:outputPanel>
+        </td>
+    </tr></table>
+</div></div>
+<div class="ft"><div class="ftl">
+    <table class="ftt"><tr>
+        <td style="width:10mm"><img src="{!$Resource.WD_Doc_Icon}" alt=""/></td>
+        <td>
+            <b>{!v['COMPANY_NAME']}</b>
+            <apex:outputPanel rendered="{!v['COMPANY_ADDRESS'] != '—'}"><br/>{!v['COMPANY_ADDRESS']}</apex:outputPanel>
+            <apex:outputPanel rendered="{!hasContactLine}"><br/>{!v['COMPANY_PHONE']} | {!v['COMPANY_EMAIL']}<apex:outputText value=" | {!v['COMPANY_WEBSITE']}" rendered="{!v['COMPANY_WEBSITE'] != '—'}"/></apex:outputPanel>
+        </td>
+        <td class="ftr">Page <span class="pg"></span> of <span class="pgs"></span><br/><span class="muted">Computer-generated document</span></td>
+    </tr></table>
+</div></div>
+
+<apex:outputPanel layout="none" rendered="{!NOT(found)}">
+    <div class="na"><h1>Booking not found</h1><p>Open this document from a booking record.</p></div>
+</apex:outputPanel>
+
+<!-- ===================== Welcome Letter ===================== -->
+<apex:outputPanel layout="none" rendered="{!found && isWelcome}">
+    <div class="ttl"><div class="eyebrow">Customer communication</div><h1>Welcome Letter</h1></div>
+    <table class="meta"><tr>
+        <td>Date: <b>{!v['LETTER_DATE']}</b></td><td class="r">Booking ID: <b>{!v['BOOKING_ID']}</b></td>
+    </tr></table>
+
+    <h3>Customer</h3>
+    <table class="kv">
+        <tr><td class="k">Primary applicant</td><td class="v">{!v['PRIMARY_APPLICANT_NAME']}</td><td class="g"></td>
+            <td class="k">Co-applicant</td><td class="v">{!v['CO_APPLICANT_NAME']}</td></tr>
+        <tr><td class="k">Phone</td><td class="v">{!v['CUSTOMER_PHONE']}</td><td class="g"></td>
+            <td class="k">Email</td><td class="v">{!v['CUSTOMER_EMAIL']}</td></tr>
+        <tr><td class="k">Correspondence address</td><td class="wide" colspan="4">{!v['CUSTOMER_ADDRESS']}</td></tr>
+    </table>
+
+    <p style="margin-top:6mm"><b>Subject: Welcome to {!v['PROJECT_NAME']}</b></p>
+    <p>Dear {!v['PRIMARY_APPLICANT_NAME']},</p>
+    <p>Thank you for choosing {!v['PROJECT_NAME']}. On behalf of everyone at {!v['COMPANY_NAME']}, we are pleased to welcome you
+       and to confirm that your booking has been received and recorded.</p>
+    <p>Your booking is for Unit {!v['UNIT_NUMBER']} in {!v['TOWER_BLOCK']}, on Floor {!v['FLOOR']}: a {!v['CONFIGURATION']} residence
+       at {!v['PROJECT_ADDRESS']}. The details of your booking are set out below for your records.</p>
+
+    <h3>Unit and booking</h3>
+    <table class="kv">
+        <tr><td class="k">Project</td><td class="v">{!v['PROJECT_NAME']}</td><td class="g"></td>
+            <td class="k">Tower / Block</td><td class="v">{!v['TOWER_BLOCK']}</td></tr>
+        <tr><td class="k">Unit number</td><td class="v">{!v['UNIT_NUMBER']}</td><td class="g"></td>
+            <td class="k">Floor</td><td class="v">{!v['FLOOR']}</td></tr>
+        <tr><td class="k">Configuration</td><td class="v">{!v['CONFIGURATION']}</td><td class="g"></td>
+            <td class="k">Carpet area</td><td class="v">{!v['CARPET_AREA']}</td></tr>
+        <tr><td class="k">Booking date</td><td class="v">{!v['BOOKING_DATE']}</td><td class="g"></td>
+            <td class="k">Booking ID</td><td class="v">{!v['BOOKING_ID']}</td></tr>
+        <tr><td class="k">Project address</td><td class="wide" colspan="4">{!v['PROJECT_ADDRESS']}</td></tr>
+    </table>
+
+    <div class="brk"></div>
+    <h3>Financial summary</h3>
+    <table class="fin">
+        <tr><td>Agreement value</td><td class="a">{!v['AGREEMENT_VALUE']}</td></tr>
+        <tr><td>Booking amount</td><td class="a">{!v['BOOKING_AMOUNT']}</td></tr>
+        <tr><td>Amount paid</td><td class="a">{!v['AMOUNT_PAID']}</td></tr>
+        <tr class="t"><td>Outstanding amount</td><td class="a">{!v['OUTSTANDING_AMOUNT']}</td></tr>
+    </table>
+    <p class="note">Applicable taxes and the full consideration are stated in your Allotment Letter.</p>
+
+    <h3>What happens next</h3>
+    <p>We will issue your Allotment Letter and share the Agreement for Sale for your review. Please keep the following in mind:</p>
+    <p><b>Documentation.</b> Please send the identity, address and other documents requested by your relationship manager,
+       so that your file is complete.</p>
+    <p><b>Payments.</b> Payments are due as per your payment plan. Please make them only through the modes and accounts
+       notified by {!v['COMPANY_NAME']}.</p>
+    <p><b>Agreement.</b> The Agreement for Sale will be shared with you for review and execution. Our team will guide you
+       through each step.</p>
+
+    <h3>Your relationship manager</h3>
+    <table class="kv">
+        <tr><td class="k">Name</td><td class="v">{!v['RM_NAME']}</td><td class="g"></td>
+            <td class="k">Phone</td><td class="v">{!v['RM_PHONE']}</td></tr>
+        <tr><td class="k">Email</td><td class="v">{!v['RM_EMAIL']}</td><td class="g"></td><td class="k"></td><td class="v"></td></tr>
+    </table>
+
+    <p style="margin-top:5mm">Your relationship manager is your first point of contact for any question about your booking.
+       We look forward to welcoming you home.</p>
+    <p>Warm regards,</p>
+</apex:outputPanel>
+
+<!-- ===================== Allotment Letter ===================== -->
+<apex:outputPanel layout="none" rendered="{!found && isAllotment}">
+    <div class="ttl"><div class="eyebrow">Official allotment</div><h1>Allotment Letter</h1></div>
+    <table class="meta"><tr>
+        <td>Date: <b>{!v['LETTER_DATE']}</b></td><td class="r">Booking ID: <b>{!v['BOOKING_ID']}</b></td>
+    </tr></table>
+
+    <p>Based on the application submitted and the records available with {!v['COMPANY_NAME']} as on {!v['LETTER_DATE']},
+       we confirm that Unit {!v['UNIT_NUMBER']} in {!v['TOWER_BLOCK']} of {!v['PROJECT_NAME']} has been allotted to {!v['APPLICANTS']}.</p>
+
+    <h3>Allottee details</h3>
+    <table class="kv">
+        <tr><td class="k">Primary applicant</td><td class="v">{!v['PRIMARY_APPLICANT_NAME']}</td><td class="g"></td>
+            <td class="k">Co-applicant</td><td class="v">{!v['CO_APPLICANT_NAME']}</td></tr>
+        <tr><td class="k">Phone</td><td class="v">{!v['CUSTOMER_PHONE']}</td><td class="g"></td>
+            <td class="k">Email</td><td class="v">{!v['CUSTOMER_EMAIL']}</td></tr>
+        <tr><td class="k">Correspondence address</td><td class="wide" colspan="4">{!v['CUSTOMER_ADDRESS']}</td></tr>
+    </table>
+
+    <h3>Booking reference</h3>
+    <table class="kv">
+        <tr><td class="k">Booking ID</td><td class="v">{!v['BOOKING_ID']}</td><td class="g"></td>
+            <td class="k">Booking date</td><td class="v">{!v['BOOKING_DATE']}</td></tr>
+        <tr><td class="k">Application number</td><td class="v">{!v['APPLICATION_NUMBER']}</td><td class="g"></td><td class="k"></td><td class="v"></td></tr>
+    </table>
+
+    <h3>Project details</h3>
+    <table class="kv">
+        <tr><td class="k">Project</td><td class="v">{!v['PROJECT_NAME']}</td><td class="g"></td>
+            <td class="k">Tower / Block</td><td class="v">{!v['TOWER_BLOCK']}</td></tr>
+        <tr><td class="k">Unit number</td><td class="v">{!v['UNIT_NUMBER']}</td><td class="g"></td>
+            <td class="k">Floor</td><td class="v">{!v['FLOOR']}</td></tr>
+        <tr><td class="k">Configuration</td><td class="v">{!v['CONFIGURATION']}</td><td class="g"></td>
+            <td class="k">Carpet area</td><td class="v">{!v['CARPET_AREA']}</td></tr>
+        <tr><td class="k">Project RERA number</td><td class="v">{!v['PROJECT_RERA_NUMBER']}</td><td class="g"></td>
+            <td class="k">Balcony area</td><td class="v">{!v['BALCONY_AREA']}</td></tr>
+        <tr><td class="k">Saleable area</td><td class="v">{!v['SALEABLE_AREA']}</td><td class="g"></td><td class="k"></td><td class="v"></td></tr>
+        <tr><td class="k">Project address</td><td class="wide" colspan="4">{!v['PROJECT_ADDRESS']}</td></tr>
+    </table>
+
+    <h3>Financial details</h3>
+    <table class="fin">
+        <tr><td>Basic sale consideration</td><td class="a">{!v['BASIC_SALE_CONSIDERATION']}</td></tr>
+        <tr><td>Other charges</td><td class="a">{!v['OTHER_CHARGES']}</td></tr>
+        <tr><td>Applicable taxes</td><td class="a">{!v['TAXES']}</td></tr>
+        <tr class="t"><td>Total consideration</td><td class="a">{!v['TOTAL_CONSIDERATION']}</td></tr>
+        <tr><td>Booking amount</td><td class="a">{!v['BOOKING_AMOUNT']}</td></tr>
+        <tr><td>Amount received till date</td><td class="a">{!v['AMOUNT_PAID']}</td></tr>
+        <tr class="t"><td>Balance amount payable</td><td class="a">{!v['BALANCE_AMOUNT']}</td></tr>
+    </table>
+
+    <div class="brk"></div>
+    <h3>Payment details</h3>
+    <table class="kv">
+        <tr><td class="k">Payment plan</td><td class="v">{!v['PAYMENT_PLAN']}</td><td class="g"></td>
+            <td class="k">Next payment due date</td><td class="v">{!v['NEXT_PAYMENT_DATE']}</td></tr>
+        <tr><td class="k">Next payment amount</td><td class="v">{!v['NEXT_PAYMENT_AMOUNT']}</td><td class="g"></td><td class="k"></td><td class="v"></td></tr>
+    </table>
+
+    <h3>Terms of allotment</h3>
+    <div class="terms">
+        <p><b>1. Allotment.</b> This letter confirms the allotment of the Unit to the Allottee(s) on the basis of the booking and
+           application records available as on {!v['LETTER_DATE']}.</p>
+        <p><b>2. Governing documents.</b> {!clauseGoverning}</p>
+        <p><b>3. Payments.</b> The Allottee(s) shall pay all amounts in accordance with the Payment Plan, on or before the due dates
+           intimated by the Company, and only through the modes and accounts notified by it.</p>
+        <p><b>4. Documentation.</b> The Allottee(s) shall provide the identity, address and other documents requested by the Company
+           and keep their correspondence details current.</p>
+        <p><b>5. Modification, cancellation and transfer.</b> Any request to modify, cancel or transfer this allotment must be made in
+           writing and is subject to the Company's approval and to the governing documents. No such request is effective until
+           confirmed in writing by the Company.</p>
+        <p><b>6. Project terms.</b> {!clauseProjectTerms}</p>
+        <p><b>7. Applicable law.</b> {!clauseLaw}</p>
+        <p><b>8. Records.</b> Please notify us in writing of any discrepancy in the details above so that the records can be reviewed.</p>
+    </div>
+</apex:outputPanel>
+
+<!-- ===================== Car Parking Letter ===================== -->
+<apex:outputPanel layout="none" rendered="{!found && isParking && NOT(parkingApplicable)}">
+    <div class="na"><h1>Not Applicable</h1><p>Parking has not been purchased or allotted for this booking.</p></div>
+</apex:outputPanel>
+<apex:outputPanel layout="none" rendered="{!found && isParking && parkingApplicable}">
+    <div class="ttl"><div class="eyebrow">Parking allocation</div><h1>Car Parking Allotment Letter</h1></div>
+    <table class="meta"><tr>
+        <td>Date: <b>{!v['LETTER_DATE']}</b></td><td class="r">Booking ID: <b>{!v['BOOKING_ID']}</b></td>
+    </tr></table>
+
+    <p>We confirm that the parking described below has been allotted to {!v['APPLICANTS']} in connection with
+       Unit {!v['UNIT_NUMBER']} at {!v['PROJECT_NAME']}.</p>
+
+    <h3>Customer and project</h3>
+    <table class="kv">
+        <tr><td class="k">Primary applicant</td><td class="v">{!v['PRIMARY_APPLICANT_NAME']}</td><td class="g"></td>
+            <td class="k">Project</td><td class="v">{!v['PROJECT_NAME']}</td></tr>
+        <tr><td class="k">Co-applicant</td><td class="v">{!v['CO_APPLICANT_NAME']}</td><td class="g"></td>
+            <td class="k">Tower / Block</td><td class="v">{!v['TOWER_BLOCK']}</td></tr>
+        <tr><td class="k">Booking ID</td><td class="v">{!v['BOOKING_ID']}</td><td class="g"></td>
+            <td class="k">Residential unit</td><td class="v">{!v['UNIT_NUMBER']}</td></tr>
+    </table>
+
+    <h3>Parking details</h3>
+    <table class="kv">
+        <tr><td class="k">Parking type</td><td class="v">{!v['PARKING_TYPE']}</td><td class="g"></td>
+            <td class="k">Slot number</td><td class="v">{!v['PARKING_SLOT_NUMBER']}</td></tr>
+        <tr><td class="k">Parking level</td><td class="v">{!v['PARKING_LEVEL']}</td><td class="g"></td>
+            <td class="k">Number of spaces</td><td class="v">{!v['PARKING_COUNT']}</td></tr>
+    </table>
+
+    <h3>Terms</h3>
+    <div class="terms">
+        <p><b>1. Allocation.</b> The parking above is allotted to the Allottee(s) and stays associated with Unit {!v['UNIT_NUMBER']}.</p>
+        <p><b>2. Usage.</b> The parking is for the parking of vehicles only and is subject to the parking rules of the Project,
+           as updated from time to time.</p>
+        <p><b>3. Project terms.</b> {!clauseParkingTerms}</p>
+        <p><b>4. Applicable law.</b> {!clauseParkingLaw}</p>
+    </div>
+</apex:outputPanel>
+
+<!-- Signature block, on every letter that has content. -->
+<apex:outputPanel layout="none" rendered="{!found && (NOT(isParking) || parkingApplicable)}">
+    <div class="sig">
+        <p>For <b>{!v['COMPANY_NAME']}</b></p>
+        <table class="bx sigt"><tr>
+            <td>Digital Signature Placeholder</td><td class="sp"></td><td>Company Seal Placeholder</td>
+        </tr></table>
+        <apex:outputPanel layout="none" rendered="{!v['AUTHORIZED_SIGNATORY_NAME'] != '—'}"><b>{!v['AUTHORIZED_SIGNATORY_NAME']}</b><br/></apex:outputPanel>
+        <span class="sign">{!v['AUTHORIZED_SIGNATORY_DESIGNATION']}</span>
+    </div>
+</apex:outputPanel>
+
+</body>
+</html>
+</apex:page>

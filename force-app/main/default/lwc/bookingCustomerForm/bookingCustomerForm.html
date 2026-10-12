@@ -1,0 +1,127 @@
+<template>
+    <div class="stage" aria-hidden="true">
+        <svg class="mark" viewBox="0 0 400 260" focusable="false">
+            <polygon points="40,240 200,20 360,240" class="mark-a"></polygon>
+            <polygon points="120,240 260,60 400,240" class="mark-b"></polygon>
+        </svg>
+    </div>
+
+    <header class="topbar">
+        <div class="brand">
+            <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <polygon points="2,21 12,3 22,21"></polygon>
+            </svg>
+            <span class="brand-name">Nikoo Homes</span>
+            <span class="brand-sep" aria-hidden="true"></span>
+            <span class="brand-crumb">Booking form</span>
+        </div>
+        <template lwc:if={headerRef}>
+            <span class="ref">{headerRef}</span>
+        </template>
+    </header>
+
+    <main class="app">
+        <template lwc:if={loading}>
+            <div class="card state-card" role="status">
+                <span class="spinner" aria-hidden="true"></span>
+                <p>Loading your booking form…</p>
+            </div>
+        </template>
+
+        <template lwc:if={loadError}>
+            <div class="card state-card" role="alert">
+                <h1 class="card__title">We couldn't open this booking form</h1>
+                <p class="muted">{loadError}</p>
+            </div>
+        </template>
+
+        <template lwc:if={ready}>
+            <template lwc:if={isConfirmation}>
+                <c-bcf-confirmation context={context} data={data} payment={payment} submitted-at={submittedAt}></c-bcf-confirmation>
+            </template>
+            <template lwc:else>
+                <nav class="steps" aria-label="Booking form steps">
+                    <template for:each={stepper} for:item="s">
+                        <button
+                            key={s.id}
+                            type="button"
+                            class={s.className}
+                            data-id={s.id}
+                            disabled={s.disabled}
+                            aria-current={s.ariaCurrent}
+                            onclick={handleStepClick}
+                        >
+                            <span class="step-num" aria-hidden="true">
+                                <template lwc:if={s.done}>✓</template>
+                                <template lwc:else>{s.number}</template>
+                            </span>
+                            <span class="step-label">{s.label}</span>
+                        </button>
+                    </template>
+                </nav>
+
+                <div class="step-body" onfieldchange={handleFieldChange} onformaction={handleFormAction}>
+                    <template lwc:if={isDetails}>
+                        <c-bcf-details data={data} errors={errors}></c-bcf-details>
+                    </template>
+                    <template lwc:if={isApplicants}>
+                        <c-bcf-applicants data={data} errors={errors}></c-bcf-applicants>
+                    </template>
+                    <template lwc:if={isKyc}>
+                        <c-bcf-kyc data={data} errors={errors} token={linkToken}></c-bcf-kyc>
+                    </template>
+                    <template lwc:if={isPayment}>
+                        <c-bcf-payment context={context} payment={payment} errors={errors} token={linkToken}></c-bcf-payment>
+                    </template>
+                    <template lwc:if={isSign}>
+                        <c-bcf-sign context={context} data={data} payment={payment} errors={errors}></c-bcf-sign>
+                    </template>
+                </div>
+
+                <div class="actions">
+                    <div class="actions-left">
+                        <template lwc:if={showBack}>
+                            <button type="button" class="btn btn_ghost" onclick={handleBack}>← Back</button>
+                        </template>
+                        <button type="button" class="btn btn_ghost" onclick={handleSaveExit}>Save and exit</button>
+                        <span class="saved" aria-live="polite">{savedLabel}</span>
+                    </div>
+                    <button type="button" class="btn btn_primary" onclick={handleContinue} disabled={continueDisabled}>
+                        {continueLabel} →
+                    </button>
+                </div>
+            </template>
+        </template>
+    </main>
+
+    <template lwc:if={showSavedModal}>
+        <div class="modal-backdrop" onclick={closeSavedModal}>
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="saved-title" onclick={stopClick}>
+                <div class="modal__head">
+                    <h2 class="modal__title" id="saved-title">Progress saved</h2>
+                </div>
+                <div class="modal__body">
+                    <p>Your answers are saved. Reopen the link on any device to pick up exactly where you left off.</p>
+                    <div class="notice">The link stays valid for 30 days from when it was shared.</div>
+                </div>
+                <div class="modal__foot">
+                    <button type="button" class="btn btn_primary" onclick={closeSavedModal}>Continue later</button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template lwc:if={hasToasts}>
+        <div class="toasts" aria-live="polite">
+            <template for:each={toasts} for:item="t">
+                <div key={t.id} class={t.className} role="status">
+                    <div>
+                        <p class="toast-title">{t.title}</p>
+                        <p class="toast-body">{t.body}</p>
+                    </div>
+                    <button type="button" class="icon-btn" data-id={t.id} onclick={dismissToast} aria-label="Dismiss">×</button>
+                </div>
+            </template>
+        </div>
+    </template>
+</template>

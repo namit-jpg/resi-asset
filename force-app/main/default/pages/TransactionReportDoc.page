@@ -1,0 +1,351 @@
+<apex:page controller="TransactionReportController" showHeader="false" sidebar="false" contentType="application/msword;charset=UTF-8;Transaction_Report_{!bookingId}.doc;">
+   <html>
+      <head>
+          
+          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+         <style>
+            body {
+               font-family: Arial, sans-serif;
+               font-size: 12pt;
+               margin: 40px;
+            }
+            h1 {
+               text-align: center;
+               font-size: 16pt;
+               font-weight: bold;
+               margin-bottom: 15px;
+            }
+            h2 {
+               font-size: 12pt;
+               font-weight: bold;
+               margin: 18px 0 10px;
+            }
+            table {
+               border-collapse: collapse;
+               width: 100%;
+               margin-bottom: 15px;
+            }
+            .info-table td {
+               padding: 4px 6px;
+               font-size: 9pt;
+               vertical-align: top;
+            }
+            .info-table td.label {
+               width: 32%;
+               font-weight: bold;
+            }
+            .data-table th,
+            .data-table td {
+               border: 1px solid #000;
+               padding: 6px;
+               font-size: 9pt;
+               vertical-align: middle;
+            }
+            .data-table th {
+               background-color: #f0f0f0;
+               font-weight: 700;
+            }
+            .signature-block {
+               margin-top: 40px;
+               width: 100%;
+               text-align: center;
+               font-weight: bold;
+               font-size: 7pt;
+            }
+            .signature-block td {
+               padding-top: 40px;
+            }
+            .colon-middle {
+               width: 0.2cm;
+            }
+            .data-field-medium {
+               width: 6cm;
+            }
+            .data-field-small {
+               width: 4cm;
+            }
+         </style>
+      </head>
+      <body>
+         <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+         <div style="text-align:right; font-size:9pt; margin-bottom:10px;">
+            DATE: {!wrapper.currentDate}
+         </div>
+
+         <h1>TRANSACTION FORM</h1>
+         <br/>
+
+         <!-- CUSTOMER INFO -->
+         <table class="info-table" style="border:none;">
+            <tr>
+               <td class="label">PROJECT</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.project}</td>
+            </tr>
+            <tr>
+               <td class="label">CUSTOMER NAME</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.customerName}</td>
+            </tr>
+                <apex:repeat value="{!wrapper.coApplicants}" var="co">
+                    <tr>
+                        <td class="label" style="vertical-align:top;">CO-APPLICANT {!co.coApplicantNumber}</td>
+                        <td class="colon-middle">:</td>
+                        <td style="border:none;">
+                            <apex:outputText value="{!co.value}"/>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            <tr>
+               <td class="label">CUSTOMER PAN NO.</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.customerPan}</td>
+            </tr>
+            <tr>
+               <td class="label">DATE OF BIRTH</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.dateOfBirth}</td>
+            </tr>
+            <tr>
+               <td class="label">CODE NO.</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.codeNo}</td>
+            </tr>
+            <tr>
+               <td class="label" style="font-weight:bold; vertical-align:top;">ADDRESS</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.address}</td>
+            </tr>
+            <tr>
+               <td class="label">PREFERRED CONTACT NO.</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.contactNo}</td>
+            </tr>
+            <tr>
+               <td class="label">EMAIL ADDRESS</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.email}</td>
+            </tr>
+            <tr>
+               <td class="label">BOOKING DATE</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.bookingDate}</td>
+            </tr>
+            <tr>
+               <td class="label">BOOKING FORM REMARKS</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.bookingRemarks}</td>
+            </tr>
+         </table>
+         <br/>
+
+         <!-- PROPERTY DETAILS -->
+         <table class="info-table" style="border:none;">
+            <tr>
+               <td class="label">UNIT NO.</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-medium" style="border:none;">{!wrapper.unitNo}</td>
+               <td class="label">TOWER</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-small" style="border:none;">{!wrapper.tower}</td>
+            </tr>
+            <tr>
+               <td class="label">TYPE</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-medium" style="border:none;">{!wrapper.type}</td>
+               <td class="label">SUPER BUILT-UP AREA</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-small" style="border:none;">{!wrapper.superBuiltUpArea}</td>
+            </tr>
+            <tr>
+               <td class="label">FLOOR</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-medium" style="border:none;">{!wrapper.floor}</td>
+               <td class="label">TERRACE AREA</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-small" style="border:none;">{!wrapper.terraceArea}</td>
+            </tr>
+            <tr>
+               <td class="label">CARPET AREA</td>
+               <td class="colon-middle">:</td>
+               <td class="data-field-medium" style="border:none;">{!wrapper.carpetArea}</td>
+            </tr>
+         </table>
+         <br/>
+
+         <!-- PRICE DETAILS -->
+          <table class="info-table" style="border:none;">
+              <tr>
+                  <td class="label">TOTAL PRICE</td>
+                  <td class="colon-middle">:</td>
+                  <td style="border:none;">
+                       <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.grandTotal}" />
+                      </apex:outputText>
+                      &nbsp;(
+                      <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.totalLandConstPrice}" />
+                      </apex:outputText>
+                      &nbsp;+&nbsp;
+                      <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.totalOtherCost}" />
+                      </apex:outputText>
+                      )
+                  </td>
+              </tr>
+          </table>
+
+         <!-- DISCOUNT DETAILS -->
+         <table class="info-table" style="border:none;">
+            <tr>
+               <td class="label">PAY PLAN DISCOUNT VALUE</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">
+                  <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                     <apex:param value="{!wrapper.payPlanDiscount}" />
+                  </apex:outputText>
+               </td>
+            </tr>
+            <tr>
+               <td class="label">COUNTER DISCOUNT VALUE</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">
+                  <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                     <apex:param value="{!wrapper.counterDiscount}" />
+                  </apex:outputText>
+               </td>
+            </tr>
+         </table>
+         <br/>
+
+         <!-- SALE CONSIDERATION -->
+         <h2>SALE CONSIDERATION BREAKUP</h2>
+         <table class="data-table">
+            <tr>
+               <th style="text-align:left;">ACCOUNT HEAD</th>
+               <th style="text-align:right;">CHARGE AMOUNT</th>
+            </tr>
+            <apex:repeat value="{!wrapper.saleConsideration}" var="sc">
+               <tr>
+                  <td style="text-align:left;">
+                     <apex:outputText value="{!IF(sc.isTotal, '<b>' + sc.accountHead + '</b>', sc.accountHead)}" escape="false"/>
+                  </td>
+                  <td style="text-align:right;">
+                     <apex:outputText rendered="{!sc.isTotal}" escape="false" value="<b>&#8377; {0,number,#,##,##0.00}</b>">
+                        <apex:param value="{!sc.amount}" />
+                     </apex:outputText>
+                     <apex:outputText rendered="{!!sc.isTotal}" value="&#8377; {0,number,#,##,##0.00}">
+                        <apex:param value="{!sc.amount}" />
+                     </apex:outputText>
+                  </td>
+               </tr>
+            </apex:repeat>
+         </table>
+         <br/>
+
+         <!-- OTHER CHARGES -->
+         <h2>OTHER CHARGES BREAKUP</h2>
+         <table class="data-table">
+            <tr>
+               <th style="text-align:left;">ACCOUNT HEAD</th>
+               <th style="text-align:right;">CHARGE AMOUNT</th>
+            </tr>
+            <apex:repeat value="{!wrapper.otherCharges}" var="oc">
+               <tr>
+                  <td style="text-align:left;">
+                     <apex:outputText value="{!IF(oc.isTotal, '<b>' + oc.accountHead + '</b>', oc.accountHead)}" escape="false"/>
+                  </td>
+                  <td style="text-align:right;">
+                     <apex:outputText rendered="{!oc.isTotal}" escape="false" value="<b>&#8377; {0, number, ##,##,###.00}</b>">
+                        <apex:param value="{!oc.amount}" />
+                     </apex:outputText>
+                     <apex:outputText rendered="{!!oc.isTotal}" value="&#8377; {0, number, ##,##,###.00}">
+                        <apex:param value="{!oc.amount}" />
+                     </apex:outputText>
+                  </td>
+               </tr>
+            </apex:repeat>
+         </table>
+         <br/>
+         
+         <!-- PAYMENT PLAN -->
+          <table class="info-table" style="border:none;">
+              <tr>
+                  <td class="label">NET PRICE</td>
+                  <td class="colon-middle">:</td>
+                  <td style="border:none;">
+                      <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.grandTotal}" />
+                      </apex:outputText>
+                      &nbsp;(
+                      <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.totalLandConstPrice}" />
+                      </apex:outputText>
+                      &nbsp;+&nbsp;
+                      <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                          <apex:param value="{!wrapper.totalOtherCost}" />
+                      </apex:outputText>
+                      )
+                  </td>
+              </tr>
+          </table>
+
+         <!-- PAYMENT PLAN -->
+         <table class="info-table" style="border:none;">
+            <tr>
+               <td class="label">PAYMENT PLAN</td>
+               <td class="colon-middle">:</td>
+               <td style="border:none;">{!wrapper.paymentPlan}</td>
+            </tr>
+         </table>
+
+         <!-- MODE OF BOOKING -->
+         <table class="info-table" style="border:none;">
+            <tr>
+                <td class="label">MODE OF BOOKING</td>
+                <td class="colon-middle">:</td>
+                <td style="border:none;">{!wrapper.modeOfPayment}</td>
+            </tr>
+        </table>
+        <br/>
+        
+        <apex:outputPanel rendered="{!wrapper.isBrokerage}">
+            <h2>BROKERAGE DETAILS</h2>
+            <table class="info-table" style="border:none;">
+                <tr>
+                    <td class="label">TOTAL BROKERAGE</td>
+                    <td class="colon-middle">:</td>
+                    <td style="border:none;">
+                        <apex:outputText value="&#8377; {0, number, ##,##,###.00}">
+                            <apex:param value="{!wrapper.totalBrokerage}" />
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </table>
+            <table class="data-table">
+                <tr>
+                    <th style="text-align:left;">NAME</th>
+                    <th style="text-align:right;">CONTACT NO.</th>
+                </tr>
+                <apex:repeat value="{!wrapper.brokerageList}" var="br">
+                    <tr>
+                        <td style="text-align:left;">{!br.name}</td>
+                        <td style="text-align:right;">{!br.contact}</td>
+                    </tr>
+                </apex:repeat>
+            </table>
+        </apex:outputPanel>
+        <br/>
+
+         <!-- SIGNATURES -->
+         <table class="signature-block" style="border:none; width:100%; margin:0; padding:0;">
+            <tr>
+               <td>Booked By</td>
+               <td>Authorized Signatory (MKTG)</td>
+               <td>Authorized Signatory (COMM)</td>
+               <td>Director</td>
+            </tr>
+         </table>
+      </body>
+   </html>
+</apex:page>

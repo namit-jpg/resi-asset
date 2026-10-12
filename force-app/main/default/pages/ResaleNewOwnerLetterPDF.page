@@ -1,0 +1,281 @@
+<apex:page standardController="Opportunity" extensions="ResaleDocumentController" renderAs="pdf" applyHtmlTag="true" showHeader="false" sidebar="false">
+<html>
+<head>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+    @bottom-left {
+      content: "WarpDrive Tech Works | New Owner Welcome Letter | {!opp.Name}";
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9pt;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    line-height: 1.45;
+    background-color: #ffffff;
+  }
+
+  .brand-banner {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .brand-banner table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .brand-title {
+    font-size: 16pt;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    margin: 0;
+  }
+  .brand-sub {
+    font-size: 8pt;
+    color: #cbd5e1;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .brand-logo {
+    width: 44mm;
+    vertical-align: middle;
+    padding-right: 10px;
+  }
+  .brand-logo div {
+    background-color: #ffffff;
+    padding: 4px 6px;
+    border-radius: 3px;
+  }
+  .brand-logo img {
+    height: 10mm;
+  }
+  .brand-doc-type {
+    text-align: right;
+    vertical-align: middle;
+  }
+  .doc-badge {
+    background-color: #ffffff;
+    color: #0f2b5c;
+    font-weight: bold;
+    font-size: 10pt;
+    padding: 5px 12px;
+    border-radius: 3px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .date-block {
+    text-align: right;
+    font-weight: bold;
+    color: #0f2b5c;
+    margin-bottom: 12px;
+    font-size: 8.5pt;
+  }
+
+  .salutation {
+    font-size: 10.5pt;
+    font-weight: bold;
+    color: #0f2b5c;
+    margin-bottom: 10px;
+  }
+
+  .letter-body {
+    font-size: 9pt;
+    line-height: 1.55;
+    color: #1e293b;
+    margin-bottom: 12px;
+  }
+
+  .section-header {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    font-size: 9pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+  }
+
+  table.grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+    border: 1px solid #cbd5e1;
+  }
+  table.grid-table td {
+    padding: 5px 8px;
+    font-size: 8.5pt;
+    border: 1px solid #cbd5e1;
+    vertical-align: middle;
+  }
+  table.grid-table td.lbl {
+    width: 25%;
+    background-color: #f8fafc;
+    color: #334155;
+    font-weight: 600;
+  }
+  table.grid-table td.val {
+    width: 25%;
+    font-weight: bold;
+    color: #0f2b5c;
+  }
+
+  .closing-block {
+    margin-top: 20px;
+    font-size: 9pt;
+    color: #0f2b5c;
+  }
+
+  .sig-table {
+    width: 100%;
+    margin-top: 25px;
+    border-collapse: collapse;
+  }
+  .sig-table td {
+    vertical-align: top;
+    font-size: 8.5pt;
+  }
+  .sig-line {
+    border-top: 1.5px solid #0f2b5c;
+    width: 80%;
+    margin-bottom: 4px;
+  }
+  .seal-circle {
+    border: 1px dashed #94a3b8;
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    text-align: center;
+    line-height: 75px;
+    font-size: 7.5pt;
+    color: #64748b;
+    float: right;
+  }
+
+  .footer-note {
+    margin-top: 20px;
+    font-size: 8pt;
+    color: #64748b;
+    border-top: 1px solid #cbd5e1;
+    padding-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand-banner">
+    <table>
+      <tr>
+        <td class="brand-logo"><div><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works"/></div></td>
+        <td>
+          <div class="brand-title">WARPDRIVE TECH WORKS</div>
+          <div class="brand-sub">Residential Resale Assistance &amp; Ownership Desk</div>
+        </td>
+        <td class="brand-doc-type">
+          <div class="doc-badge">WELCOME / NEW OWNER LETTER</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="date-block">
+    <strong>Document No:</strong> WELCOME-{!opp.Name} &nbsp;|&nbsp; <strong>Date:</strong> {!todayFormatted}
+  </div>
+
+  <div class="salutation">
+    Dear {!IF(ISBLANK(newBuyer.Name), opp.Buyer_Name__c, newBuyer.Name)},
+  </div>
+
+  <div class="letter-body">
+    <p>
+      <strong>Congratulations on becoming a proud owner at {!projectName}.</strong>
+      We confirm the registered transfer and allotment of <strong>{!opp.Interested_Unit__r.BHK_Configuration__c}</strong>,
+      Unit No. <strong>{!unitName}</strong>, of Chargeable Area <strong>{!chargeableArea}</strong>
+      on Floor <strong>{!opp.Interested_Unit__r.Floor__r.Name}</strong> of Tower <strong>{!towerName}</strong>.
+    </p>
+    <p>
+      Thank you for placing your valued trust in us. We hope to exceed your expectations in terms of service,
+      community living, and support in the days to come. At <strong>WarpDrive Tech Works</strong>, we are committed to providing
+      an exceptional homeownership experience.
+    </p>
+    <p>
+      We welcome you to our community and look forward to a long and happy relationship.
+    </p>
+    <p style="font-weight: bold; color: #0f2b5c; font-size: 9.5pt; margin-top: 8px;">
+      Welcome to the WarpDrive family.
+    </p>
+  </div>
+
+  <div class="section-header">REGISTERED PROPERTY &amp; TRANSFER DETAILS</div>
+  <table class="grid-table">
+    <tr>
+      <td class="lbl">Project Name</td><td class="val">{!projectName}</td>
+      <td class="lbl">Tower / Block</td><td class="val">{!towerName}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Unit No.</td><td class="val">{!unitName}</td>
+      <td class="lbl">Floor</td><td class="val">{!opp.Interested_Unit__r.Floor__r.Name}</td>
+    </tr>
+    <tr>
+      <td class="lbl">BHK Configuration</td><td class="val">{!opp.Interested_Unit__r.BHK_Configuration__c}</td>
+      <td class="lbl">Chargeable Area</td><td class="val">{!chargeableArea}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Original Booking No.</td><td class="val">{!originatingBookingName}</td>
+      <td class="lbl">Resale Transaction No.</td><td class="val">{!opp.Name}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Transfer Date</td><td class="val">{!todayFormatted}</td>
+      <td class="lbl">Final Agreed Resale Value</td><td class="val">{!agreedValueFormatted}</td>
+    </tr>
+  </table>
+
+  <div class="closing-block">
+    <strong>Warm Regards,</strong><br/>
+    From <strong>WarpDrive Tech Works Customer Care &amp; Ownership Desk</strong>
+  </div>
+
+  <table class="sig-table">
+    <tr>
+      <td style="width:65%;">
+        <div class="sig-line"></div>
+        <strong>Authorized Signatory</strong><br/>
+        Name: {!opp.Owner.Name}<br/>
+        Designation: Customer Support Lead<br/>
+        For WarpDrive Tech Works
+      </td>
+      <td style="width:35%; text-align:right;">
+        <div class="seal-circle">Company Seal</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="footer-note">
+    <strong>WarpDrive Tech Works</strong> &nbsp;|&nbsp; Official system-generated document.
+  </div>
+
+</body>
+</html>
+</apex:page>

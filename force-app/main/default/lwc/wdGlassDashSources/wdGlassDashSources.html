@@ -1,0 +1,33 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Lead source performance</h2>
+                <p class="panel-kicker">{kicker}</p>
+            </div>
+            <ul class="legend">
+                <li><span class="swatch swatch_leads"></span>Enquiries</li>
+                <li><span class="swatch swatch_converted"></span>Converted</li>
+            </ul>
+        </header>
+        <template lwc:if={hasRows}>
+            <ul class="rows">
+                <template for:each={rows} for:item="r">
+                    <li key={r.label} class="hit row" tabindex="0" data-index={r.index}
+                        onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                        <span class="row-label">{r.label}</span>
+                        <span class="row-track">
+                            <span class="row-leads" style={r.leadsStyle}>
+                                <span class="row-converted" style={r.convertedStyle}></span>
+                            </span>
+                        </span>
+                        <span class="row-value num"><strong>{r.leads}</strong><span class={r.rateClass}>{r.rate}</span><span class="booked">{r.booked}</span></span>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:else>
+            <p class="empty">No enquiries in {periodLabel} yet.</p>
+        </template>
+    </section>
+</template>

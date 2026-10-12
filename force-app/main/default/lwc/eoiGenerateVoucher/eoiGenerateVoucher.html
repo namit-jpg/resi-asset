@@ -1,0 +1,95 @@
+<template>
+    <lightning-quick-action-panel header="Generate EOI voucher">
+        <template lwc:if={loading}>
+            <div class="spinner"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">{error}</div>
+        </template>
+
+        <template lwc:if={ctx}>
+            <dl class="facts">
+                <template for:each={applicantFacts} for:item="f">
+                    <div key={f.key} class="fact">
+                        <dt>{f.label}</dt>
+                        <dd>{f.value}</dd>
+                    </div>
+                </template>
+            </dl>
+
+            <template lwc:if={blocked}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_small" role="alert">{ctx.blockReason}</div>
+            </template>
+
+            <template lwc:if={showForm}>
+                <div class="grid">
+                    <lightning-combobox
+                        label="Voucher type"
+                        value={voucherType}
+                        options={typeOptions}
+                        onchange={handleType}
+                        required
+                    ></lightning-combobox>
+                    <lightning-input
+                        type="number"
+                        label="EOI amount (₹)"
+                        value={amount}
+                        data-field="amount"
+                        onchange={handleChange}
+                        min="1"
+                        step="1"
+                        required
+                    ></lightning-input>
+                    <lightning-combobox
+                        label="Preferred configuration"
+                        value={configuration}
+                        options={configurationOptions}
+                        data-field="configuration"
+                        onchange={handleChange}
+                    ></lightning-combobox>
+                    <lightning-input
+                        type="date"
+                        label="Pay by"
+                        value={validUntil}
+                        data-field="validUntil"
+                        onchange={handleChange}
+                        date-style="medium"
+                        required
+                    ></lightning-input>
+                </div>
+                <lightning-textarea
+                    label="Remarks"
+                    value={remarks}
+                    data-field="remarks"
+                    onchange={handleChange}
+                    max-length="2000"
+                ></lightning-textarea>
+            </template>
+
+            <template lwc:if={hasExisting}>
+                <p class="slds-text-title_caps slds-m-top_medium slds-m-bottom_x-small">Vouchers on this lead</p>
+                <ul class="existing">
+                    <template for:each={existingVouchers} for:item="v">
+                        <li key={v.id}>
+                            <a href="#" data-id={v.id} onclick={handleOpenVoucher}>{v.name}</a>
+                            <span>{v.project} · {v.amountLabel}</span>
+                            <span class="status">{v.status}</span>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+        </template>
+
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button
+                class="slds-m-left_x-small"
+                variant="brand"
+                label="Generate voucher"
+                onclick={handleSubmit}
+                disabled={submitDisabled}
+            ></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

@@ -1,0 +1,9 @@
+/* Highlight Total Row */
+.lightning-datatable tr.total-row {
+    background-color: #f5f3ff !important;
+    font-weight: 700 !important;
+    color: #2e1065 !important;
+}
+.lightning-datatable tr.total-row td {
+    border-top: 2px solid #c4b5fd !important;
+}

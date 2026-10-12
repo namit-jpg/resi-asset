@@ -1,0 +1,153 @@
+@import 'c/wdGlassStyles';
+
+.card {
+    padding: 1.2rem 1.3rem 1.2rem;
+}
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.refresh {
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    font-size: 1rem;
+    color: var(--wd-ink-soft);
+    cursor: pointer;
+}
+
+.refresh:hover,
+.refresh:focus-visible {
+    background: #fff;
+    color: var(--wd-green-deep);
+}
+
+.quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.9rem 0 0.4rem;
+}
+
+.chip {
+    padding: 0.4rem 0.85rem;
+    border: 1px solid rgba(0, 153, 51, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.65);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--wd-green-deep);
+    cursor: pointer;
+}
+
+.chip:hover,
+.chip:focus-visible {
+    background: rgba(0, 153, 51, 0.1);
+}
+
+.loading {
+    position: relative;
+    min-height: 4rem;
+}
+
+.group {
+    margin: 1rem 0 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--wd-muted);
+}
+
+.timeline {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--wd-line);
+}
+
+.item:last-child {
+    border-bottom: 0;
+}
+
+.icon {
+    width: 10px;
+    height: 10px;
+    margin-top: 0.35rem;
+    border-radius: 50%;
+    background: #9aa5b5;
+}
+
+.icon_task {
+    background: var(--wd-green);
+}
+
+.icon_call {
+    background: #1b9ad6;
+}
+
+.icon_email {
+    background: #8a63d2;
+}
+
+.icon_event {
+    background: #f28b1c;
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.subject {
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--wd-ink);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.subject:hover,
+.subject:focus-visible {
+    color: var(--wd-green-deep);
+    text-decoration: underline;
+}
+
+.meta {
+    font-size: 0.78rem;
+    color: var(--wd-muted);
+}
+
+.when {
+    font-size: 0.78rem;
+    color: var(--wd-ink-soft);
+    white-space: nowrap;
+}
+
+.when_overdue {
+    color: var(--wd-bad);
+    font-weight: 600;
+}
+
+.empty {
+    margin: 1rem 0 0.25rem;
+    font-size: 0.88rem;
+    color: var(--wd-muted);
+}

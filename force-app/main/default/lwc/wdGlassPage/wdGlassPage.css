@@ -1,0 +1,36 @@
+@import 'c/wdGlassStyles';
+
+.list {
+    padding: 0.4rem 0.5rem 0.75rem;
+}
+
+.list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.1rem 1.4rem 1rem;
+    border-bottom: 1px solid var(--wd-line);
+}
+
+.list-tools {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.list-body {
+    position: relative;
+    min-height: 8rem;
+}
+
+@media (max-width: 600px) {
+    .list-tools {
+        width: 100%;
+    }
+
+    .list-tools .wd-select {
+        width: 100%;
+    }
+}

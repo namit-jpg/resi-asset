@@ -1,0 +1,113 @@
+/*
+ * Shared chart tokens for the glass sales dashboard.
+ * Import into a chart stylesheet with: @import 'c/wdGlassDashStyles';
+ * Palette validated for CVD separation against the canvas surface (#f4fbf7).
+ */
+@import 'c/wdGlassStyles';
+
+:host {
+    --dash-booked: #16a34a;
+    --dash-collected: #2f5f9e;
+    --dash-held: #eb6834;
+    --dash-neutral: rgba(20, 48, 90, 0.2);
+    --dash-track: rgba(20, 48, 90, 0.06);
+    --dash-grid: rgba(20, 48, 90, 0.07);
+    --dash-ramp-1: #5dbd88;
+    --dash-ramp-2: #36a56a;
+    --dash-ramp-3: #1a8a4e;
+    --dash-ramp-4: #0e6c3a;
+    --dash-ramp-5: #08502a;
+}
+
+/*
+ * The dashboard draws ~15 large glass surfaces. A live backdrop-filter on each one is
+ * re-sampled on every scroll frame and hover, which made the page lag, so panels here use
+ * a static frosted fill instead. The canvas glows behind are already soft, so it looks the same.
+ */
+.wd-glass {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.6) 100%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    contain: layout paint;
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.35rem 1.5rem 1.4rem;
+    box-sizing: border-box;
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.15rem;
+}
+
+.panel-kicker {
+    margin: 0.3rem 0 0;
+    font-size: 0.85rem;
+    color: var(--wd-muted);
+}
+
+.panel-kicker strong {
+    font-weight: 600;
+    color: var(--wd-ink);
+}
+
+.legend {
+    display: flex;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.8rem;
+    color: var(--wd-ink-soft);
+}
+
+.legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.empty {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 8rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.35);
+    font-size: 0.9rem;
+    color: var(--wd-muted);
+    text-align: center;
+}
+
+.hit {
+    cursor: default;
+    outline: none;
+}
+
+.hit:focus-visible {
+    outline: 2px solid var(--wd-green);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.num {
+    font-variant-numeric: tabular-nums;
+}

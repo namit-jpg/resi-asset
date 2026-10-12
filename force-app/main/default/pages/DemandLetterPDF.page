@@ -1,0 +1,431 @@
+<apex:page controller="DemandLetterPDFController" action="{!markDemandLetterSent}" showHeader="false" sidebar="false" contentType="{!contentType}">
+   <apex:pageMessages />
+    <html>
+      <head>
+         <style>
+            body {
+               font-family: Arial, sans-serif;
+               font-size: 12pt;
+               margin: 40px;
+            }
+            h1 {
+               text-align: center;
+               font-size: 16pt;
+               font-weight: bold;
+               margin-bottom: 15px;
+            }
+            h2 {
+               font-size: 12pt;
+               font-weight: bold;
+               margin: 18px 0 10px;
+            }
+            table {
+               border-collapse: collapse;
+               width: 100%;
+               margin-bottom: 15px;
+            }
+            .info-table td {
+               padding: 4px 6px;
+               font-size: 9pt;
+               vertical-align: top;
+               border: 1px solid black;
+               width: 50%;
+            }
+            .info-table td.label {
+               font-weight: bold;
+            }
+            .data-table th,
+            .data-table td {
+               border: 1px solid #000;
+               padding: 6px;
+               font-size: 9pt;
+               vertical-align: middle;
+            }
+            .data-table th {
+               background-color: #f0f0f0;
+               font-weight: 700;
+            }
+            .signature-block {
+               margin-top: 40px;
+               width: 100%;
+               text-align: center;
+               font-weight: bold;
+               font-size: 7pt;
+            }
+            .signature-block td {
+               padding-top: 40px;
+            }
+            .colon-middle {
+               width: 0.2cm;
+            }
+            .data-field-medium {
+               width: 6cm;
+            }
+            .data-field-small {
+               width: 4cm;
+            }
+            .signature {
+            margin-top: 20px;
+            line-height: 1.8;
+            font-size: 11pt;
+            }
+            .section {
+            font-size: 10pt;
+            }
+            .small-width{
+                width: 25%;
+            }
+            .custom-table td {
+               padding: 4px;
+               font-size: 9pt;
+               vertical-align: middle;
+               border: 1px solid black;
+               width: 95%;
+            }
+            .custom-table td.label {
+               font-weight: bold;
+            }
+         </style>
+      </head>
+        
+      <body>
+          <div style="{!IF(ISBLANK(contentType), 'display:none;', '')}">
+              
+        <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+        <h1 >DEMAND LETTER/TAX INVOICE</h1>
+         <br/>
+         
+         <div style="text-align:left; font-size: 10pt; margin-bottom:20px;">
+            DATE: {!demandLetter.header.dated}
+         </div>
+         
+         <table style="width:100%; border: none">
+          <tr>
+            <!-- Left side: two vertical boxes -->
+            <td style="width:60%; vertical-align:top;">
+                
+                 <!-- CUSTOMER INFO -->
+                 <table class="custom-table">
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>Demand/Tax Invoice No: {!demandLetter.header.demandInvoiceNo}</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>CIN:</strong> {!demandLetter.header.CIN}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>PAN:</strong> {!demandLetter.header.PAN}</td>
+                    </tr>
+                 </table>
+                 
+                 <!-- CUSTOMER INFO -->
+                 <table class="custom-table">
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Mr / Mrs.</strong> {!demandLetter.customerDetails.applicantName}</td>
+                    </tr>
+                     <apex:repeat value="{!demandLetter.customerDetails.coApplicants}" var="co">
+                         <tr>
+                             <td style="vertical-align:middle;">{!co.value}</td>
+                         </tr>
+                     </apex:repeat>
+                     <tr>
+                       <td style="vertical-align: middle;"><strong>Address:</strong> {!demandLetter.customerDetails.address}</td>
+                    </tr>
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Preferred Contacts:</strong> {!demandLetter.customerDetails.phone}</td>
+                    </tr>
+                    <tr rowspan="2">
+                       <td style="vertical-align: middle;"><strong>Other Contacts:</strong> {!OtherContactNumbers} </td>
+                    </tr>
+                    <!--<tr>
+                       <td style="vertical-align: middle;"><strong>Preferred Contact No:</strong> {!demandLetter.customerDetails.preferredContactNo}</td>
+                    </tr> -->
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>GST:</strong> {!demandLetter.customerDetails.GSTIN}</td>
+                    </tr>
+                 </table>
+            </td>
+            <td style="width:40%; vertical-align:middle;">
+                <!-- CUSTOMER INFO -->
+                 <table class="custom-table">
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>RERA:</strong> {!demandLetter.header.RERA}</td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle;"><strong>GSTIN:</strong> {!demandLetter.header.GST}</td>
+                    </tr>
+                 </table>
+                 
+                 <!-- PROJECT INFO -->
+                 <table class="custom-table">
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Project:</strong> {!demandLetter.customerDetails.project}</td>
+                    </tr>
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Subproject:</strong> {!demandLetter.customerDetails.subProject}</td>
+                    </tr>
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Unit No.:</strong> {!demandLetter.customerDetails.unitNo}</td>
+                    </tr>
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>SBA:</strong> {!demandLetter.customerDetails.SBA} Sq Ft</td>
+                    </tr>
+                    <tr>
+                       <td style="vertical-align: middle;"><strong>Carpet Area:</strong>{!demandLetter.customerDetails.carpetArea} Sq Ft</td>
+                    </tr>
+                 </table>
+            </td>
+          </tr>
+        </table>
+         
+        <!-- Letter Body -->
+         <div class="section">
+            <p>
+                <strong>Dear Sir / Madam,
+                </strong>
+            </p>
+            <br/>
+            <p>
+                <strong>Sub: Installment due towards completion of the event "{!demandLetter.milestone.name}" in {!demandLetter.milestone.subProject}
+                </strong>
+            </p>
+            <br/>
+            <p> With reference to the subject cited above, we are pleased to inform you that the event "{!demandLetter.milestone.name}" has been completed, against which an installment has fallen due in line with the mutually agreed payment schedule. The amounts payable and the due dates are indicated in the table below.
+            </p>
+         </div>
+         <br/>
+         
+         <!-- Amounts -->
+         <div class="section">
+            <p><strong>DUE DATE:</strong> {!demandLetter.milestone.dueDate}</p>
+         </div>
+         <br/>
+
+        <!-- SALE CONSIDERATION -->
+        <table class="data-table">
+            <tr>
+               <td colspan="6" style="vertical-align: middle; text-align: left">
+                  <p>
+                     <strong>AMOUNT DUE FROM CURRENT INSTALLMENT :</strong>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <th style="vertical-align: middle; text-align: center; width: 8%;">Sl No.</th>
+               <th style="vertical-align: middle; text-align: center; width: 25%;">Description</th>
+               <th style="vertical-align: middle; text-align: center">SAC No</th>
+               <th style="vertical-align: middle; text-align: center">Amount Due [A]</th>
+               <th style="vertical-align: middle; text-align: center">Amount Paid [B]</th>
+               <th style="vertical-align: middle; text-align: center">Balance Payable [A - B]</th>
+            </tr>
+            
+            <apex:repeat value="{!demandLetter.milestone.currentLineItems}" var="item">
+                <tr>
+                   <td style="text-align:center">{!item.serialNo}</td>
+                   <td style="text-align:left">{!item.description}</td>
+                   <td style="text-align:center">{!item.SACNo}</td>
+                   <td style="text-align:right">
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!item.amountA}" />
+                      </apex:outputText>
+                   </td>
+                   <td style="text-align:right">
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!item.amountB}" />
+                      </apex:outputText>
+                   </td>
+                   <td style="text-align:right">
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!item.balance}" />
+                      </apex:outputText>
+                   </td>
+                </tr>
+            </apex:repeat>
+        
+            <!-- Totals -->
+            <tr>
+               <td></td>
+               <td style="text-align:right;" colspan="2"><b>Total Amount Due :</b></td>
+               <td style="text-align:right">
+                  <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                     <apex:param value="{!demandLetter.milestone.totalAmountA}" />
+                  </apex:outputText>
+               </td>
+               <td style="text-align:right">
+                   <b>
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!demandLetter.milestone.totalAmountB}" />
+                      </apex:outputText>
+                   </b>
+               </td>
+               <td style="text-align:right">
+                   <b>
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!demandLetter.milestone.totalBalance}" />
+                      </apex:outputText>
+                   </b>
+               </td>
+            </tr>
+            
+            
+            
+            
+            <apex:outputPanel rendered="{!demandLetter.milestone.isPreviousDues}">
+            <!-- Spacer row -->
+            <tr><td colspan="6" style="height:20px; border:none;"></td></tr>
+            <tr><td colspan="6" style="height:20px; border:none;"></td></tr>
+                <tr>
+                   <td colspan="6" style="vertical-align: middle; text-align: left">
+                      <p>
+                         <strong>AMOUNT DUE FROM PREVIOUS INSTALLMENT :</strong>
+                      </p>
+                   </td>
+                </tr>
+                <tr>
+                   <th style="vertical-align: middle; text-align: center; width: 8%;">Sl No.</th>
+                   <th style="vertical-align: middle; text-align: center; width: 25%;">Description</th>
+                   <th style="vertical-align: middle; text-align: center">SAC No</th>
+                   <th style="vertical-align: middle; text-align: center">Amount Due [A]</th>
+                   <th style="vertical-align: middle; text-align: center">Amount Paid [B]</th>
+                   <th style="vertical-align: middle; text-align: center">Balance Payable [A - B]</th>
+                </tr>
+                <apex:repeat value="{!demandLetter.milestone.previousLineItems}" var="item">
+                    <tr>
+                       <td style="text-align:center">{!item.serialNo}</td>
+                       <td style="text-align:left">{!item.description}</td>
+                       <td style="text-align:center">{!item.SACNo}</td>
+                       <td style="text-align:right">
+                          <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                             <apex:param value="{!item.amountA}" />
+                          </apex:outputText>
+                       </td>
+                       <td style="text-align:right">
+                          <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                             <apex:param value="{!item.amountB}" />
+                          </apex:outputText>
+                       </td>
+                       <td style="text-align:right">
+                          <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                             <apex:param value="{!item.balance}" />
+                          </apex:outputText>
+                       </td>
+                    </tr>
+                </apex:repeat>
+                <!-- Totals -->
+                <tr>
+                   <td></td>
+                   <td style="text-align:right;" colspan="2"><b>Total Amount Due :</b></td>
+                   <td style="text-align:right">
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!demandLetter.milestone.totalPrevAmountA}" />
+                      </apex:outputText>
+                   </td>
+                   <td style="text-align:right">
+                       <b>
+                          <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                             <apex:param value="{!demandLetter.milestone.totalPrevAmountB}" />
+                          </apex:outputText>
+                       </b>
+                   </td>
+                   <td style="text-align:right">
+                       <b>
+                          <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                             <apex:param value="{!demandLetter.milestone.totalPrevBalance}" />
+                          </apex:outputText>
+                       </b>
+                   </td>
+                </tr>
+            </apex:outputPanel>
+            <!-- Net Totals -->
+            <tr>
+               <td></td>
+               <td style="text-align:right;" colspan="2"><b>Net Amount Due :</b></td>
+               <td style="text-align:right">
+                  <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                     <apex:param value="{!demandLetter.milestone.totalNetAmountA}" />
+                  </apex:outputText>
+               </td>
+               <td style="text-align:right">
+                   <b>
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!demandLetter.milestone.totalNetAmountB}" />
+                      </apex:outputText>
+                   </b>
+               </td>
+               <td style="text-align:right">
+                   <b>
+                      <apex:outputText value=" &#8377; {0,number,#,##,##,##0.00}">
+                         <apex:param value="{!demandLetter.milestone.totalNetBalance}" />
+                      </apex:outputText>
+                   </b>
+               </td>
+            </tr>
+        </table>
+         <br/>
+         <!-- Payment Instructions -->
+         <div class="section">
+            <p>
+               Therefore, we request you to make the aforesaid payments on or before the due dates in order to avoid interest accrual on delayed payments.
+            </p>
+            <p>
+               Further, payments may be made by bank drafts or MICR cheques favouring <strong>"WarpDrive Tech Works"</strong>.
+            </p>
+         </div>
+         
+         <!-- Footer Notes -->
+         <div class="footer-notes section">
+            <p><strong>Please note:</strong></p>
+            <ol>
+               <li>This demand does not include interest amounts accrued if any.</li>
+               <li>Applicable TDS is to be deducted from the payments as per the provision of the Income Tax Act. Necessary Challan and Form 16B are to be furnished.</li>
+               <li>Non-MICR cheques will not be accepted.</li>
+            </ol>
+         </div>
+         <br/>
+          <!-- Show error message if any -->
+          <apex:outputPanel rendered="{!NOT(ISBLANK(errorMessage))}">
+              <apex:pageMessage severity="error" summary="{!errorMessage}" />
+          </apex:outputPanel>
+          
+          <!-- Show bank details table if no error -->
+          <apex:outputPanel rendered="{!ISBLANK(errorMessage)}">
+              <!-- Bank Details -->
+              <table class="data-table" border="1" cellpadding="5" cellspacing="0">
+                  <tr>
+                      <td style="vertical-align: middle;" class="small-width">Account Name:</td>
+                      <td style="vertical-align: middle;"><apex:outputField value="{!bankAccountRecord.Company_Name__c}"/> </td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: middle;" class="small-width">Bank Name:</td>
+                      <td style="vertical-align: middle;"> {!bankAccountRecord.Bank_Name__c}</td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: middle;" class="small-width">Account No:</td>
+                      <td style="vertical-align: middle;"> {!bankAccountRecord.Name}</td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: middle;" class="small-width">IFSC Code:</td>
+                      <td style="vertical-align: middle;"> {!bankAccountRecord.IFSC_Code__c}</td>
+                  </tr>
+                  <tr>
+                      <td style="vertical-align: middle;" class="small-width">Branch Address:</td>
+                      <td style="vertical-align: middle;">
+                          <apex:outputText value="{!bankAccountRecord.Branch_Address__Street__s}"/><br/>
+                          <apex:outputText value="{!bankAccountRecord.Branch_Address__City__s}, {!bankAccountRecord.Branch_Address__StateCode__s}"/><br/>
+                          <apex:outputText value="{!bankAccountRecord.Branch_Address__CountryCode__s}"/><apex:outputText value="{!bankAccountRecord.Branch_Address__PostalCode__s}"/>
+                      </td>
+                  </tr>
+              </table>
+          </apex:outputPanel>
+          <br/>
+         <!-- Signature -->
+         <div class="signature">
+            Thanking you,<br/>
+            Yours faithfully,<br/>
+            <strong>For WARPDRIVE TECH WORKS</strong><br/><br/><br/>
+            <p style="margin-top:40px;">______________________________</p>
+            <p><b>Authorised Signatory.</b></p>
+         </div>
+          </div>
+      </body>
+   </html>
+</apex:page>

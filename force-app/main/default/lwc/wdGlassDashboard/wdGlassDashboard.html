@@ -1,0 +1,126 @@
+<template>
+    <c-wd-glass-canvas>
+        <div class="dash">
+            <header class="wd-hero">
+                <div>
+                    <p class="wd-eyebrow">{eyebrow}</p>
+                    <h1 class="wd-title">Sales performance</h1>
+                    <p class="wd-subtitle">{subtitle}</p>
+                </div>
+                <div class="controls">
+                    <div class="segmented" role="group" aria-label="Period">
+                        <template for:each={periodOptions} for:item="o">
+                            <button key={o.value} type="button" class={o.cls} aria-pressed={o.pressed}
+                                data-value={o.value} onclick={handlePeriod}>{o.label}</button>
+                        </template>
+                    </div>
+                    <button type="button" class="wd-btn wd-btn_ghost refresh" onclick={handleRefresh} title="Refresh">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"></path></svg>
+                        <span class="refresh-label">Refresh</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="wd-glass filters" aria-label="Dashboard filters">
+                <template lwc:if={isCustom}>
+                    <lightning-input class="filter filter_date" type="date" label="From" name="fromDate"
+                        value={fromDate} max={toDate} onchange={handleDate}></lightning-input>
+                    <lightning-input class="filter filter_date" type="date" label="To" name="toDate"
+                        value={toDate} min={fromDate} onchange={handleDate}></lightning-input>
+                </template>
+                <template for:each={filterControls} for:item="f">
+                    <lightning-combobox key={f.name} class="filter" name={f.name} label={f.label}
+                        value={f.value} options={f.options} onchange={handleFilter}></lightning-combobox>
+                </template>
+                <template lwc:if={hasActiveFilters}>
+                    <button type="button" class="clear" onclick={handleClearFilters}>Clear filters ({activeFilterCount})</button>
+                </template>
+            </section>
+
+            <template lwc:if={error}>
+                <div class="wd-error" role="alert">{error}</div>
+            </template>
+
+            <template lwc:if={data}>
+                <div class={bodyClass}>
+                    <div class="tiles">
+                        <template for:each={data.tiles} for:item="t">
+                            <c-wd-glass-dash-tile key={t.key} tile={t} months={data.months}
+                                previous-label={data.previousLabel} ontip={handleTip}></c-wd-glass-dash-tile>
+                        </template>
+                    </div>
+
+                    <div class="grid">
+                        <div class="span-8">
+                            <c-wd-glass-dash-columns heading="Sales target vs actual" kicker={targetKicker}
+                                months={targetMonths} show-target value-label="Booked" unit-label="unit"
+                                empty-text={targetEmptyText} ontip={handleTip}></c-wd-glass-dash-columns>
+                        </div>
+                        <div class="span-4"><c-wd-glass-dash-collection collection={data.collection} ontip={handleTip}></c-wd-glass-dash-collection></div>
+
+                        <div class="span-8"><c-wd-glass-dash-trend months={data.months} ontip={handleTip}></c-wd-glass-dash-trend></div>
+                        <div class="span-4">
+                            <c-wd-glass-dash-bars heading="Pipeline by stage" kicker={pipelineKicker} rows={data.pipeline}
+                                noun="open deal" show-value tone="neutral"
+                                empty-text="No open residential opportunities match these filters." ontip={handleTip}></c-wd-glass-dash-bars>
+                        </div>
+
+                        <div class="span-6"><c-wd-glass-dash-funnel funnel={data.funnel} period-label={data.periodLabel} ontip={handleTip}></c-wd-glass-dash-funnel></div>
+                        <div class="span-6"><c-wd-glass-dash-sources sources={data.sources} period-label={data.periodLabel} ontip={handleTip}></c-wd-glass-dash-sources></div>
+
+                        <div class="span-12"><c-wd-glass-dash-projects projects={data.projects} period-label={data.periodLabel}></c-wd-glass-dash-projects></div>
+
+                        <div class="span-7"><c-wd-glass-dash-leaders leaders={data.leaders} period-label={data.periodLabel} ontip={handleTip}></c-wd-glass-dash-leaders></div>
+                        <div class="span-5">
+                            <c-wd-glass-dash-bars heading="Lost opportunity reasons" kicker={lostKicker} groups={lostGroups}
+                                tone="held" empty-text={lostEmptyText} ontip={handleTip}></c-wd-glass-dash-bars>
+                        </div>
+
+                        <div class="span-7"><c-wd-glass-dash-inventory inventory={data.inventory} ontip={handleTip}></c-wd-glass-dash-inventory></div>
+                        <div class="span-5">
+                            <c-wd-glass-dash-columns heading="Booking cancellation trend" kicker={cancelKicker}
+                                months={cancelMonths} format="count" value-label="Cancelled" unit-label="booking" tone="held"
+                                empty-text="No bookings were cancelled in the last 12 months." ontip={handleTip}></c-wd-glass-dash-columns>
+                        </div>
+
+                        <div class="span-7"><c-wd-glass-dash-heat days={data.days} ontip={handleTip}></c-wd-glass-dash-heat></div>
+                        <div class="span-5"><c-wd-glass-dash-agenda visits={data.visits} cold-leads={data.coldLeads}></c-wd-glass-dash-agenda></div>
+                    </div>
+                </div>
+            </template>
+            <template lwc:elseif={loading}>
+                <div class="skeleton" aria-hidden="true">
+                    <div class="tiles">
+                        <span class="wd-glass sk sk_tile"></span>
+                        <span class="wd-glass sk sk_tile"></span>
+                        <span class="wd-glass sk sk_tile"></span>
+                        <span class="wd-glass sk sk_tile"></span>
+                    </div>
+                    <div class="grid">
+                        <span class="wd-glass sk sk_panel span-8"></span>
+                        <span class="wd-glass sk sk_panel span-4"></span>
+                    </div>
+                </div>
+            </template>
+
+            <template lwc:if={loading}>
+                <lightning-spinner alternative-text="Loading dashboard" size="small"></lightning-spinner>
+            </template>
+
+            <div class={tipClass} style={tipStyle} role="tooltip">
+                <template lwc:if={tip}>
+                    <p class="tip-title">{tip.title}</p>
+                    <template for:each={tip.lines} for:item="l">
+                        <p key={l.label} class="tip-line">
+                            <span class="tip-key">
+                                <template lwc:if={l.color}><span class="tip-swatch" style={l.swatchStyle}></span></template>
+                                {l.label}
+                            </span>
+                            <span class="tip-value">{l.value}</span>
+                        </p>
+                    </template>
+                </template>
+            </div>
+        </div>
+    </c-wd-glass-canvas>
+</template>

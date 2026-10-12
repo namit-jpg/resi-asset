@@ -1,0 +1,155 @@
+<apex:page controller="PaymentLedgerController"
+           contentType="application/msword; charset=UTF-8;#{!ledgerFileName}"
+           showHeader="false" sidebar="false">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 10pt; margin: 40px; }
+        h1 { text-align: center; font-size: 20pt; font-weight: bold; margin-bottom: 15px; }
+        h2 { font-size: 14pt; text-align: center; font-weight: bold; margin: 15px 0 10px; }
+        .header-table, .ledger-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .header-table td { padding: 8px 6px 6px 6px; font-size: 7pt; }
+        .ledger-table th, .ledger-table td { border: 1px solid #000; padding: 8px 6px 6px 6px; font-size: 7pt; }
+        .ledger-table th { background-color: #f0f0f0; text-align: center; }
+    </style>
+</head>
+<body>
+    <!-- BOM character to force Word UTF-8 detection -->
+    &#65279;
+
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+    <h1>WarpDrive Tech Works</h1>
+    <h2>Sales Customer Ledger</h2>
+
+    <!-- Header Table -->
+    <table class="header-table">
+        <tr>
+            <td><b>Project Name:</b> {!ledgerStatement.content['Project Name']}</td>
+            <td><b>Sub Project:</b> {!ledgerStatement.content['Sub Project']}</td>
+        </tr>
+        <tr>
+            <td><b>Customer Name:</b> {!ledgerStatement.content['Customer Name']}</td>
+            <td><b>Unit No.:</b> {!ledgerStatement.content['Unit No.']}</td>
+        </tr>
+        <tr>
+            <td><b>Co-Applicant/s:</b> {!ledgerStatement.content['Co-Applicant/s']}</td>
+            <td><b>SBA:</b> {!ledgerStatement.content['SBA']} / <b>Carpet Area:</b> {!ledgerStatement.content['Carpet Area']}</td>
+        </tr>
+        <tr>
+            <td><b>Customer GSTIN:</b> {!ledgerStatement.content['Customer GSTIN']}</td>
+            <td><b>Company GSTIN:</b> {!ledgerStatement.content['Company GSTIN']}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><b>Mailing Address:</b> {!ledgerStatement.content['Mailing Address']}</td>
+        </tr>
+        <tr>
+            <td><b>Phone:</b> {!ledgerStatement.content['Phone']}</td>
+            <td><b>For the Period:</b> {!ledgerStatement.content['For the Period']}</td>
+        </tr>
+    </table>
+
+    <!-- Ledger Table -->
+    <table class="ledger-table">
+        <tr>
+            <th style="width: 5%;">SL</th>
+            <th style="width: 12%;">Date</th>
+            <th style="width: 12%;">Demand Date</th>
+            <th style="width: 30%;">Description</th>
+            <th style="width: 18%;">Debit</th>
+            <th style="width: 18%;">Credit</th>
+            <th style="width: 18%;">Balance</th>
+        </tr>
+
+        <apex:repeat value="{!ledgerStatement.entry}" var="entry">
+            <tr>
+                <td style="text-align:center;">{!entry.sortOrder}</td>
+                <td style="text-align:center;">
+                    <apex:outputText value="{0,date,dd MMM yyyy}">
+                        <apex:param value="{!entry.entryDate}" />
+                    </apex:outputText>
+                </td>
+                <td style="text-align:center;">
+                    <apex:outputText value="{0,date,dd MMM yyyy}">
+                        <apex:param value="{!entry.demandDate}" />
+                    </apex:outputText>
+                </td>
+                <td style="text-align:left;">{!entry.particulars}</td>
+                <td style="text-align:right;">
+                    <apex:outputText rendered="{!entry.debit != 0}" value="&#8377; {0,number,###,##0.00}">
+                        <apex:param value="{!entry.debit}" />
+                    </apex:outputText>
+                </td>
+                <td style="text-align:right;">
+                    <apex:outputText rendered="{!entry.credit != 0}" value="&#8377; {0,number,###,##0.00}">
+                        <apex:param value="{!entry.credit}" />
+                    </apex:outputText>
+                </td>
+                <td style="text-align:right;">
+                    <apex:outputText value="&#8377; {0,number,##,##,##0.00}">
+                        <apex:param value="{!entry.balance}" />
+                    </apex:outputText>
+                </td>
+            </tr>
+        </apex:repeat>
+
+        <!-- Interest Outstanding as on Closing Date -->
+        <tr>
+            <td style="text-align:center;"><apex:outputText value="{!ledgerStatement.entry.size + 1}" /></td>
+            <td style="text-align:center;">
+                <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                    <apex:param value="{!ledgerStatement.closingDate}" />
+                </apex:outputText>
+            </td>
+            <td></td>
+            <td><b>Interest Outstanding as on&nbsp;
+                <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                    <apex:param value="{!ledgerStatement.closingDate}" />
+                </apex:outputText>
+            </b></td>
+            <td style="text-align:right;"><b>
+                <apex:outputText value="&#8377; {0,number,###,##0.00}">
+                    <apex:param value="{!ledgerStatement.totalInterest}" />
+                </apex:outputText>
+            </b></td>
+            <td style="text-align:right;"> </td>
+            <td style="text-align:right;"> </td>
+        </tr>
+
+        <!-- Closing Balance (INCLUDES interest outstanding) -->
+        <tr>
+            <td style="text-align:center;"><apex:outputText value="{!ledgerStatement.entry.size + 2}" /></td>
+            <td style="text-align:center;">
+                <apex:outputText value="{0,date,dd-MMM-yyyy}">
+                    <apex:param value="{!ledgerStatement.closingDate}" />
+                </apex:outputText>
+            </td>
+            <td></td>
+            <td><b>Closing Balance</b></td>
+
+            <!-- Debits include interest -->
+            <td style="text-align:right;"><b>
+                <apex:outputText value="&#8377; {0,number,###,##0.00}">
+                    <apex:param value="{!ledgerStatement.totalDebitsInclInterest}" />
+                </apex:outputText>
+            </b></td>
+
+            <!-- Credits unchanged -->
+            <td style="text-align:right;"><b>
+                <apex:outputText value="&#8377; {0,number,###,##0.00}">
+                    <apex:param value="{!ledgerStatement.totalCredits}" />
+                </apex:outputText>
+            </b></td>
+
+            <!-- Balance includes interest -->
+            <td style="text-align:right;"><b>
+                <apex:outputText value="&#8377; {0,number,##,##,##0.00}">
+                    <apex:param value="{!ledgerStatement.totalBalanceInclInterest}" />
+                </apex:outputText>
+            </b></td>
+        </tr>
+    </table>
+
+</body>
+</html>
+</apex:page>

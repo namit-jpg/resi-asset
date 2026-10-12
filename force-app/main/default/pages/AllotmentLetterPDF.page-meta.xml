@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <availableInTouch>false</availableInTouch>
+    <confirmationTokenRequired>false</confirmationTokenRequired>
+    <description>Generates a professionally formatted PDF version of the residential unit Allotment Letter for customers by Palladium Constructions Pvt. Ltd. Includes project address, allottee details, unit specifications, terms and conditions, payment schedule, and other indicative charges. Intended for use in customer documentation workflows or as part of CRM integration.</description>
+    <label>Allotment Letter PDF</label>
+</ApexPage>

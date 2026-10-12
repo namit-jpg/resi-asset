@@ -1,0 +1,130 @@
+<apex:page controller="DocumentGenerationController" action="{!updateReminderDates}" showHeader="false" sidebar="false" 
+           contentType="application/msword#ERP_Reminder2_{!bps.Name}.doc; charset=UTF-8">
+    
+    <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 12pt; margin: 40px; }
+                h1 { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 15px; }
+                table { border-collapse: collapse; width: 100%; margin-bottom: 15px; }
+                .data-table th, .data-table td { border: 1px solid #000; padding: 6px; font-size: 9pt; vertical-align: middle; }
+                .data-table th { background-color: #f0f0f0; font-weight: 700; }
+            </style>
+        </head>
+        <body>
+            <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+            <h1>Reminder - 2</h1>
+            
+            <p style="text-align:left;">
+                <strong>Date:</strong> <apex:outputText value="{0,date,dd/MM/yyyy}">
+                    <apex:param value="{!TODAY()}" />
+                </apex:outputText>
+            </p>
+            
+            <p>
+                <strong>{!bps.Booking__r.Account_Id__r.Salutation}</strong> 
+                <strong>{!bps.Booking__r.Account_Id__r.Name}</strong>
+            </p>
+            
+            <p>
+                <strong>Address:</strong> <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingStreet}"/><br/>
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingCity}"/>,  
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingState}"/><br/>
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingPostalCode}"/>
+            </p>
+            
+            <p>
+                <strong>Sub: PAYMENT OVERDUE </strong>
+                <strong>
+                    <apex:outputText value="&#8377;{0,number,#,##,##0.00}">
+                        <apex:param value="{!bps.Installment_Amount__c}" />
+                    </apex:outputText>
+                </strong>
+                <strong> AS ON </strong>
+                <strong>
+                    <apex:outputText value="{0,date,dd/MM/yyyy}">
+                        <apex:param value="{!bps.Payment_Due_Date__c}" />
+                    </apex:outputText>
+                </strong>
+                <strong> AGAINST YOUR BOOKING/ALLOTMENT OF '{!bps.Booking__r.Project__r.Name}', Tower {!bps.Booking__r.Unit_Id__r.Tower__r.Name}, Unit: {!bps.Booking__r.Unit_Id__r.Name}.</strong>
+            </p>
+            
+            <p>Dear Sir/Madam,</p>
+            
+            <p>
+                With reference to your above booking/allotment of unit in <strong>{!bps.Booking__r.Project__r.Name}</strong>, please note that the following are outstanding as given below:
+            </p>
+            
+            <table class="data-table" border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Sl. No.</th>
+                        <th>Particulars</th>
+                        <th>Amount (Rs.)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:center;">1.</td>
+                        <td>Previous Dues</td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                                <apex:param value="{!reminderData.previousOutstanding}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">2.</td>
+                        <td>Current Principal Amount</td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                                <apex:param value="{!bps.Installment_Amount__c}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align:center;">3.</td>
+                        <td>Total Interest on delayed payments<br />(As on 
+                            <apex:outputText value="{0,date,dd/MM/yyyy}">
+                                <apex:param value="{!TODAY()}" />
+                            </apex:outputText>)
+                        </td>
+                        <td style="text-align:right;">
+                            <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                                <apex:param value="{!bps.Booking__r.TotalInterestOutstandingFromLedger__c}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="text-align:right; font-weight:bold;">Total Amount Overdue</td>
+                        <td style="text-align:right; font-weight:bold;">
+                            <apex:outputText value="&#8377; {0,number,#,##,##0.00}">
+                                <apex:param value="{!reminderData.TotalamountOverDue}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <p>(Amount In Words: Rs. {!reminderData.amountInwords})</p>
+            
+            <p>
+                You are therefore requested to kindly remit the above amount immediately to avoid further accrual of interest. You are advised that all payments be made on or before the due dates.<br/>
+                <b>Payment may please be made by bank draft or MICR Cheques favouring 'WarpDrive Tech Works'</b>
+            </p>
+            
+            <p>
+                In case you have already sent the payments to us, we request you to disregard this letter as you will appreciate our endeavour to provide efficient services.<br/>
+                Thanking you and assuring you of our best services at all times.
+            </p>
+            
+            <p><b>Yours faithfully,</b><br/>
+               <b>For WARPDRIVE TECH WORKS</b><br/><br/>
+            </p>
+            <p style="margin-top:40px;">______________________________</p>
+            <p><b>Authorised Signatory.</b></p>
+        </body>
+    </html>
+</apex:page>

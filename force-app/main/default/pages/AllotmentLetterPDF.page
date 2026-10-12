@@ -1,0 +1,305 @@
+<apex:page controller="AllotmentLetterController" renderAs="pdf" applyBodyTag="false" docType="html-5.0" showHeader="false">
+    <head>
+        <style type="text/css">
+            @page {
+                size: A4;
+                margin: 2cm;
+            }
+            body {
+                font-family: 'Arial', sans-serif;
+                font-size: 11pt;
+                color: #333;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .header h1 {
+                margin: 0;
+                font-size: 14pt;
+                font-weight: bold;
+            }
+            .header p {
+                margin: 2px 0;
+                font-size: 11pt;
+            }
+            .title {
+                text-align: center;
+                font-size: 12pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 20px 0;
+            }
+            .address-section {
+                width: 100%;
+                margin: 20px 0;
+            }
+            .address-section td {
+                vertical-align: top;
+                font-size: 11pt;
+            }
+            .subject {
+                font-weight: bold;
+            }
+            .section {
+                margin-top: 15px;
+            }
+            .section p, .section li {
+                text-align: justify;
+                line-height: 1.5;
+            }
+            .terms-list {
+                padding-left: 20px;
+            }
+            .terms-list li {
+                margin-bottom: 15px;
+            }
+            .crm-contact-section {
+                margin-top: 15px;
+                margin-bottom: 20px;
+            }
+            .crm-contact-table td {
+                padding: 2px 0;
+                vertical-align: top;
+            }
+            .crm-contact-table td:first-child {
+                padding-right: 10px;
+            }
+            .page-break {
+                page-break-before: always;
+                height: 1px;
+                display:block;
+            }
+            .schedule-title {
+                font-size: 14pt;
+                font-weight: bold;
+                text-align: center;
+                margin: 20px 0;
+                text-decoration: underline;
+            }
+            .schedule-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+                page-break-inside: avoid;
+            }
+            .schedule-table th, .schedule-table td {
+                border: 1px solid #000;
+                padding: 8px;
+                text-align: left;
+            }
+            .schedule-table th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="header">
+            <img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works" style="height:12mm;"/>
+            <h1>M/s. WarpDrive Tech Works,</h1>
+            <p>“{!bookingRecord.Project__r.Name}”</p>
+            <p>No 1, Dr. Raj Kumar Road, Opp. Sheraton Hotel</p>
+            <p>Rajajinagar, Bangalore - 560010</p>
+        </div>
+        <div class="title">ALLOTMENT LETTER</div>
+        <table class="address-section">
+            <tr>
+                <td style="width: 60%;">
+                    To:<br/>
+                    <strong>{!bookingRecord.Account_Id__r.Name}</strong><br/>
+                    <apex:outputText value="{!bookingRecord.Account_Id__r.BillingStreet}"/><br/>
+                    <apex:outputText value="{!bookingRecord.Account_Id__r.BillingCity}, {!bookingRecord.Account_Id__r.BillingState}"/><br/>
+                    <apex:outputText value="{!bookingRecord.Account_Id__r.BillingPostalCode}"/><br/>
+                    Ph: <apex:outputText value="{!bookingRecord.Account_Id__r.Phone}"/>
+                </td>
+                <td style="width: 40%; text-align: right;">
+                    Date : {!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}
+                </td>
+            </tr>
+        </table>
+        <div class="section">
+             <p>Dear
+                <apex:outputText value="{!IF(NOT(ISBLANK(bookingRecord.Account_Id__r.Name)),
+                                             TRIM(RIGHT(bookingRecord.Account_Id__r.Name,
+                                                 LEN(bookingRecord.Account_Id__r.Name) - FIND(' ', bookingRecord.Account_Id__r.Name)
+                                             )),
+                                             'Customer'
+                                           )}"
+                />,
+            </p>
+            <p><span class="subject">Sub: Allotment of residential unit in the Project known as “{!bookingRecord.Unit_Id__r.Tower__r.Name}” (RERA Registration Number PRAM/KA/RERA/1251/309/PR/190412/002524) in “{!bookingRecord.Project__r.Name}” situated at No.1, Dr. Raj Kumar Road, Opp. Sheraton Hotel, Rajajinagar, Bangalore-560010.</span></p>
+            <p>With reference to your application bearing No. ____ we, M/s. WarpDrive Tech Works (hereinafter referred to as “WarpDrive” or “the Company”), inform you that you have been allotted Apartment No.{!bookingRecord.Unit_Id__r.Name} on Floor No. {!bookingRecord.Unit_Id__r.Floor__r.Name} in multistoried residential apartment building known as {!bookingRecord.Unit_Id__r.Tower__r.Name} in “{!bookingRecord.Project__r.Name}” comprising of Carpet area {!bookingRecord.Unit_Id__r.Carpet_Area__c} sq.ft. Balcony ___ along with right to use {!parkingCount} nos of car parks etc.</p>
+            <p>The Unit details, other indicative charges, the payment schedule etc. are specified in detail in Schedule I attached to this Allotment Letter.</p>
+            <p>The said allotment in your favour shall be subject to your fulfillment of the ‘Terms &amp; Conditions’ stipulated in the Application Form, this Allotment Letter, Agreement for Sale and other documents that may be required to be executed by you.</p>
+        </div>
+        <div class="title" style="margin-top: 30px;">TERMS &amp; CONDITIONS</div>
+        <ol class="terms-list">
+            <li>The Allottee(s) confirms that prior to seeking this Allotment Letter pertaining to the Unit from the Company, he/she/they have inspected the site where the Project is constructed along with the ownership records and other related documents including but not limited to the title, permissions, sanctions and all other requisite approvals etc., obtained by M/s. WarpDrive Tech Works (“the Company”) and hereby acknowledges that the Company has readily provided all information and clarifications as required. The Allottee(s) has/have relied solely on his/her/their personal judgment in deciding to apply for purchase of the Unit. Further, the Allottee(s) is/are satisfied about the title of the Company related to the Project and is also content with the right, title and interest of the Company to sell the Unit and receive the Total Price (as mentioned in Schedule I herein below).</li>
+            <li>The Allottee(s) has/have also satisfied himself/herself/themselves in respect of all information, explanations, clarifications, representations (including but not limited to the website/marketing material) solicited by him/her/them regarding the Project, Unit, progress of the Project, amenities, specifications, payment schedule etc., from the representatives of the Company and has/have understood the same and has thereafter sought this Allotment Letter from the Company.</li>
+            <li>As indicated at the time of booking, the additional expenses towards external electrification, water &amp; sanitary charges, service charges for property assessment, khata transfer, stamp duty, registration &amp; legal fee etc. will be payable by Allottee(s),on demand at actuals. The Allottee(s) shall be solely liable to pay differential amount due to change in levies, if any, in accordance with statutory norms, regulations, etc from time to time until completion of the Project and the Company shall not be responsible for the same in any manner whatsoever.</li>
+            <li>Upon issuance of this Allotment letter, the Allottee(s) shall be solely liable to pay the Total Price and the other indicative charges (as specified in Schedule I) together with the applicable GST and other government levies, along with all milestone payments falling due at prevailing rates in force, which are subject to change from time to time, time being of the essence.</li>
+            <li>The Allottee(s) is aware that as per Finance Bill of 2013, TDS is applicable on sale of immoveable property wherein the sale consideration of the property exceeds or is equal to Rs.50,00,000 (Rupees Fifty Lakhs), the Allottee(s) while making payments shall deduct Tax at rate of 1% of the property cost and tax so deducted shall be deposited into the Central Government account through any of the authorized bank branches using the e-Tax payment option available at NSDL. Copies of the Form 26QB, TDS Challan and Form 16B shall be handed over to Company.
+                <p style="padding-left: 20px;">
+                    Please note that above mentioned amount shall vary periodically as per prevailing norms. Please find below details of the Company for depositing TDS:<br/>
+                    PAN: AAECP5444J<br/>
+                    Address:<br/>
+                    M/s. WarpDrive Tech Works<br/>
+                    WD HQ 20/22A, 3rd Main, 37th A Cross Rd, 8th Block, Jayanagar,<br/>
+                    Bengaluru, Karnataka 560070
+                </p>
+            </li>
+            <li>The Allottee(s) acknowledges and agrees that the Company at its option is entitled to cancel the allotment of the Unit at any time if payment of any amount due and payable by the Allottee(s) is not made as per this Allotment Letter and/or if the Agreement to Sale of the Unit is not signed and registered within 30 (thirty) days from the date of issue of this Allotment Letter. In such an event the Company shall be entitled to forfeit an amount of Rs.10,00,000/-(Rupees Ten Lakhs Only) from and out of the Initial Booking Amount tendered by the Allottee along with the Application Form and the Company shall refund the balance money to the Allottee without any interest. It is further informed, agreed and accepted by the Allotee that, in the event of Allottee opting to cancel the booking of the Unit, at any time before the execution of the Agreement For Sale, the Company shall be entitled to forfeit an amount of Rs.10,00,000/- (Rupees Ten Lakhs Only) from and out of the Initial Booking Amount tendered by the Allottee along with the Application form and the Company shall refund the balance money to the Allottee without any interest.</li>
+            <li>All payments are to be made by the Allottee(s)within the due dates mentioned in this Allotment Letter. All delayed payments will attract interest at the rate of State Bank of India’s highest marginal cost of lending prevailing at the time of “due date” plus 2% thereon, calculated till the date of payment.</li>
+            <li>Tentative building maintenance charges per month calculated for financial year will become payable by the Allottee(s)at actuals on demand. This will be in addition to the maintenance deposit/ corpus fund as indicated in the cost sheet.</li>
+            <li>Allotment of the Units valid subject to realization of the Initial Booking Amount and submission of duly signed Power of Attorney by the Allottee(s), as the case may be.</li>
+            <li>The Company shall informed the Allottee(s) that, the Company has received occupancy certificate for the Project dated 28.03.2024 bearing no. JDTP(S)/ADTP/OC/20/2023-24, and possession of the Unit shall be handed over to the Allottee(s)upon payment of entire Sale Consideration &amp; Other Charges by the Seller and registration of the Sale Deed.</li>
+            <li>The Allottee(s) agree not to do or omit to do any act, deed or thing or behave inappropriately or correspond or communicate in a manner that would in any manner affect or prejudice or defame the Project, OBW or the Company or its associates or representatives. In the event, the Allottee(s) does or omits to do any such act, deed or thing then it shall constitute an event of default and the Company shall be entitled to cancel the allotment of the Unit and forfeit an amount of Rs. 10,00,000/- (Rupees Ten Lakhs Only) from the Initial Booking Amount, and shall refund the balance without any interest to the Allottee(s).</li>
+            <li>This Allotment Letter shall be governed, interpreted by and construed in accordance with the Laws of India. The Courts at Bengaluru alone shall have exclusive jurisdiction over all matters arising out of or relating to this Letter of Allotment.</li>
+            <li>The Allottee(s) confirm that the terms and conditions as stated in the Application Form and this Allotment Letter are understood and duly accepted by the Allottee(s) and he/she/they have agreed to strictly abide by the same.</li>
+        </ol>
+
+        <div class="section">
+            <p><strong>Please ensure to strictly comply with the terms of this Allotment. Our Customer Relationship Management team can be contacted for any queries or assistance on the following coordinates:</strong></p>
+            <div class="crm-contact-section">
+                <table class="crm-contact-table">
+                    <tr>
+                        <td>Board Line:</td>
+                        <td>080- 33580700</td>
+                    </tr>
+                    <tr>
+                        <td>Email:</td>
+                        <td>crm.bangalore@phoenixmills.com</td>
+                    </tr>
+                </table>
+            </div>
+            <p>Thank you for choosing WarpDrive Tech Works.</p>
+            <p>We assure you our best services as always.</p>
+        </div>
+
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; margin-top: 40px;">
+            <tbody>
+                <tr>
+                    <td style="width: 50%; vertical-align: top;">
+                        <p style="margin:0;">Yours Sincerely,</p>
+                        <p style="margin:0;">For M/s WarpDrive Tech Works,</p>
+                        
+                        <div style="height: 40px;">&nbsp;</div>
+                        
+                        <div style="border-bottom: 1px solid black; width: 250px;"></div>
+                        <p style="margin: 5px 0 0 0;">Authorised Signatory.</p>
+                    </td>
+                    <td style="width: 50%;">&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table border="0" cellpadding="0" cellspacing="0" style="width: 100%; margin-top: 50px; border-top: 1px solid #ccc; padding-top: 20px;">
+            <tbody>
+                <tr>
+                    <td style="width: 50%; vertical-align: top;">
+                        <p style="margin:0;">We hereby accept the allotment and terms contained herein:</p>
+
+                        <div style="height: 40px;">&nbsp;</div>
+
+                        <div style="border-bottom: 1px solid black; width: 250px;"></div>
+                        
+                        <p style="margin: 15px 0 0 0;">Date:</p>
+                        <p style="margin: 5px 0 0 0;">Place: Bengaluru</p>
+                    </td>
+                    <td style="width: 50%;">&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+
+
+        <div class="page-break">&nbsp;</div>
+        
+        <div class="schedule-title">Schedule I</div>
+
+        <h3 style="font-weight: bold;">Unit Details</h3>
+        <table class="schedule-table">
+             <tr>
+                <td style="width: 50%;">Project</td>
+                <td style="width: 50%;">{!bookingRecord.Project__r.Name}</td>
+            </tr>
+            <tr>
+                <td>Block</td>
+                <td>{!bookingRecord.Unit_Id__r.Tower__r.Name}</td>
+            </tr>
+            <tr>
+                <td>Unit no.</td>
+                <td>{!bookingRecord.Unit_Id__r.Name}</td>
+            </tr>
+            <tr>
+                <td>Unit type</td>
+                <td>{!bookingRecord.Unit_Id__r.BHK_Configuration__c} BHK</td>
+            </tr>
+            <tr>
+                <td>RERA Carpet Area of the unit(Sq.ft)</td>
+                <td> {!bookingRecord.Unit_Id__r.Carpet_Area__c} </td>
+            </tr>
+            <tr>
+                <td>Right to use Car Parks(nos.)</td>
+                <td>{!parkingCount}</td>
+            </tr>
+            <tr>
+                <td>Base cost</td>
+                <td>Rs. _______.00/-</td>
+            </tr>
+            <tr>
+                <td>Total flat cost (Including other indicative charges)</td>
+                <td>Rs. {!bookingRecord.Final_Amount__c}.00/-</td>
+            </tr>
+        </table>
+        <p style="font-size: 9pt;">*Areas are tentative and subject to variation.<br/>*Cost for excessive differential area shall be charged extra</p>
+
+        <h3 style="font-weight: bold; margin-top: 20px;">Other Indicative Charges</h3>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Charge Types</th>
+                    <th>Amount (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Club Membership Fee</td><td>____.00</td></tr>
+                <tr><td>BESCOM &amp; BWSSB Charges</td><td>____.00</td></tr>
+                <tr><td>Maintenance Deposit</td><td>____.00</td></tr>
+                <tr><td>Legal Fees</td><td>____.00</td></tr>
+                <tr><td>CGST-CGST 9% Others</td><td>____.00</td></tr>
+                <tr><td>SGST-SGST 9% Others</td><td>____.00</td></tr>
+                <tr><td><strong>Total</strong></td><td><strong>______.00</strong></td></tr>
+            </tbody>
+        </table>
+
+        <h3 style="font-weight: bold; margin-top: 20px;">Payment Schedule</h3>
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>Sl.No</th>
+                    <th>Payment Event</th>
+                    <th>Amount (Rs.)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>On Booking</td><td>_______.00</td></tr>
+                <tr><td>2</td><td>On Possession</td><td>______.00</td></tr>
+                <tr><td colspan="2"><strong>Total cost</strong></td><td><strong>_______.00</strong></td></tr>
+            </tbody>
+        </table>
+
+        <div class="section" style="font-size: 9pt; margin-top: 20px;">
+            <p><strong>Note:</strong></p>
+            <ul style="padding-left: 15px;">
+                <li>Cheques are to be drawn in favor of “M/s. WarpDrive Tech Works”</li>
+                <li>CGST is calculated at 9% on BESCOM &amp; BWSSB charges, Club Membership and legal fees. The aforesaid rate of percentage of CGST is subject to changes as per Goods and Service Tax Act.</li>
+                <li>SGST is calculated at 9% on BESCOM &amp; BWSSB charges, Club Membership and legal fees. The aforesaid rate of percentage of SGST is subject to changes as per Goods and Service Tax Act</li>
+                <li>All the taxes have been calculated based on the prevailing rules, and at such prescribed rates, same are subject to change, as and when the statutory authorities revise the taxes.Any future taxes and duties levied by the statutory authorities, due to revision in the provision of the Act/rule and/or by enactment of new Act/Rule, be payable by the Allottee as applicable.</li>
+                <li>Allottee(s) to bear the cost of stamp duty and registration fee payable on the Agreement to Sell and the Sale deed as may be demanded by the department of Stamps and registration, Government of Karnataka from time to time.</li>
+            </ul>
+        </div>
+
+    </body>
+</apex:page>

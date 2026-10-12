@@ -1,0 +1,49 @@
+<template>
+    <c-wd-glass-canvas>
+        <header class="wd-hero">
+            <div>
+                <p class="wd-eyebrow">{eyebrow}</p>
+                <h1 class="wd-title">{title}</h1>
+                <p class="wd-subtitle">{subtitle}</p>
+            </div>
+            <div class="wd-actions">
+                <button type="button" class="wd-btn wd-btn_ghost" onclick={handleListViews}>List views</button>
+                <button type="button" class="wd-btn wd-btn_ghost" onclick={handleRefresh}>Refresh</button>
+                <button type="button" class="wd-btn wd-btn_primary" onclick={handleNew}>{newLabel}</button>
+            </div>
+        </header>
+
+        <template lwc:if={error}>
+            <div class="wd-error" role="alert">{error}</div>
+        </template>
+
+        <c-wd-glass-kpis kpis={kpis}></c-wd-glass-kpis>
+
+        <section class="wd-glass list">
+            <header class="list-head">
+                <h2 class="wd-section-title">{viewLabel}<span class="wd-section-count">{countLabel}</span></h2>
+                <div class="list-tools">
+                    <input
+                        class="wd-input"
+                        type="search"
+                        placeholder={searchPlaceholder}
+                        aria-label="Search records"
+                        value={searchTerm}
+                        oninput={handleSearch}
+                    />
+                    <select class="wd-select" aria-label="Choose list view" onchange={handleView}>
+                        <template for:each={viewOptions} for:item="v">
+                            <option key={v.value} value={v.value} selected={v.selected}>{v.label}</option>
+                        </template>
+                    </select>
+                </div>
+            </header>
+            <div class="list-body">
+                <template lwc:if={loading}>
+                    <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                </template>
+                <c-wd-glass-table columns={columns} rows={filteredRows} empty-message={emptyMessage}></c-wd-glass-table>
+            </div>
+        </section>
+    </c-wd-glass-canvas>
+</template>

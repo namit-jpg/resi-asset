@@ -1,0 +1,186 @@
+<template>
+    <section class="wd-glass card">
+        <!-- Top Status Bar -->
+        <header class="head">
+            <div class="head-title">
+                <span class="pulsing-emerald-dot"></span>
+                <h2 class="wd-section-title">MCube Telephony</h2>
+            </div>
+            <button class="ghost-pill-btn" onclick={toggleHistory} title="View Recent Calls &amp; Audio Recordings">
+                <span class="pill-icon">🕒</span> Recent ({recentCallsCount})
+            </button>
+        </header>
+
+        <!-- RECENT CALLS DRAWER (EXPANDABLE) -->
+        <template if:true={showHistory}>
+            <div class="history-drawer animate-slide-down">
+                <div class="drawer-header">
+                    <span class="drawer-title">Call History &amp; Recordings</span>
+                    <button class="drawer-close-btn" onclick={toggleHistory}>✕</button>
+                </div>
+                <template if:true={hasRecentCalls}>
+                    <div class="history-list">
+                        <template for:each={recentCalls} for:item="call">
+                            <div key={call.id} class="history-item">
+                                <div class="history-info">
+                                    <div class="call-type-row">
+                                        <span class="call-type-icon">{call.typeIcon}</span>
+                                        <span class="call-status-bold">{call.status}</span>
+                                        <span class="call-dur">({call.duration}m)</span>
+                                    </div>
+                                    <div class="call-meta-line">{call.formattedTime} · {call.targetPhone}</div>
+                                </div>
+                                <template if:true={call.recordingUrl}>
+                                    <a href={call.recordingUrl} target="_blank" rel="noopener noreferrer" class="rec-link">
+                                        ▶ Audio
+                                    </a>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+                <template if:false={hasRecentCalls}>
+                    <p class="empty-history-text">No recorded calls logged yet.</p>
+                </template>
+            </div>
+        </template>
+
+        <!-- CTI BODY -->
+        <div class="cti-body">
+            <!-- STATE 1: IDLE (EXECUTIVE CONTACT STRIP) -->
+            <template if:true={isIdle}>
+                <div class="contact-dock">
+                    <div class="contact-strip">
+                        <div class="contact-avatar">
+                            <span>👤</span>
+                        </div>
+                        <div class="contact-details">
+                            <div class="contact-name-row">
+                                <span class="contact-name">{contactName}</span>
+                                <template if:true={leadSource}>
+                                    <span class="source-chip">{leadSource}</span>
+                                </template>
+                            </div>
+                            <div class="contact-sub-row">
+                                <span class="phone-display">{selectedPhone}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Multi-phone toggle if multiple numbers exist -->
+                    <template if:true={hasMultiplePhones}>
+                        <div class="phone-toggle-row">
+                            <template for:each={phoneOptions} for:item="opt">
+                                <button 
+                                    key={opt.number} 
+                                    class={opt.btnClass} 
+                                    data-number={opt.number} 
+                                    onclick={handleSelectPhone}>
+                                    {opt.label}: {opt.number}
+                                </button>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- Click-to-dial action button -->
+                    <button class="wd-btn wd-btn_primary dial-btn" onclick={startCall}>
+                        <span class="btn-dial-icon">📞</span>
+                        <span class="btn-dial-text">Click-to-Dial ({selectedPhone})</span>
+                    </button>
+
+                    <div class="bridge-footnote">
+                        <span class="bridge-glyph">⚡</span>
+                        <span>Cloud PBX: Bridges executive phone to customer</span>
+                    </div>
+                </div>
+            </template>
+
+            <!-- STATE 2: RINGING / DIALING -->
+            <template if:true={isRinging}>
+                <div class="ringing-dock">
+                    <div class="radar-box">
+                        <div class="radar-ring r1"></div>
+                        <div class="radar-ring r2"></div>
+                        <span class="radar-center-icon">📡</span>
+                    </div>
+                    <div class="ringing-heading">Dialing Customer...</div>
+                    <div class="ringing-phone">{selectedPhone}</div>
+                    <div class="ringing-meta">Connecting via MCube Telephony PBX</div>
+                    <button class="wd-btn wd-btn_ghost cancel-call-btn" onclick={cancelCall}>Cancel</button>
+                </div>
+            </template>
+
+            <!-- STATE 3: CONNECTED CALL -->
+            <template if:true={isConnected}>
+                <div class="active-call-dock">
+                    <div class="timer-pill">
+                        <span class="live-dot"></span>
+                        <span class="timer-text">{callDurationFormatted}</span>
+                    </div>
+                    <div class="active-name">{contactName}</div>
+                    <div class="active-phone">{selectedPhone}</div>
+
+                    <!-- Animated Audio Waveform -->
+                    <div class="waveform">
+                        <span class="w-bar b1"></span>
+                        <span class="w-bar b2"></span>
+                        <span class="w-bar b3"></span>
+                        <span class="w-bar b4"></span>
+                        <span class="w-bar b5"></span>
+                        <span class="w-bar b6"></span>
+                    </div>
+                    <div class="call-quality-text">HD Encrypted Voice · Recording Active 🔴</div>
+
+                    <div class="call-controls-row">
+                        <button class={muteButtonClass} onclick={toggleMute}>{muteLabel}</button>
+                        <button class={holdButtonClass} onclick={toggleHold}>{holdLabel}</button>
+                        <button class="wd-btn end-call-btn" onclick={endCall}>🔴 End Call</button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- STATE 4: DISPOSITION FORM -->
+            <template if:true={isDisposition}>
+                <div class="disposition-dock">
+                    <div class="disp-header">
+                        <span class="disp-badge">Call Finished ({callDurationFormatted})</span>
+                        <span class="disp-title">Log Disposition</span>
+                    </div>
+
+                    <div class="disp-field">
+                        <label class="disp-label">Outcome *</label>
+                        <select class="glass-select" onchange={handleDispositionChange}>
+                            <option value="SV Scheduled" selected>Site Visit Scheduled (Qualified)</option>
+                            <option value="Follow-up Required">Follow-up Required</option>
+                            <option value="Interested - Sent Brochure">Interested - Sent Brochure</option>
+                            <option value="Not Reachable / Busy">Not Reachable / Busy</option>
+                            <option value="Budget / Location Mismatch">Budget / Location Mismatch</option>
+                            <option value="Call Back Later">Call Back Later</option>
+                        </select>
+                    </div>
+
+                    <template if:true={isFollowUpSelected}>
+                        <div class="disp-field">
+                            <label class="disp-label">Schedule Next Follow-Up *</label>
+                            <input 
+                                type="datetime-local" 
+                                class="glass-input" 
+                                value={nextFollowUpDateTime} 
+                                onchange={handleFollowUpDateChange} />
+                        </div>
+                    </template>
+
+                    <div class="disp-field">
+                        <label class="disp-label">Notes</label>
+                        <textarea class="glass-textarea" rows="2" onchange={handleNotesChange} value={callNotes}></textarea>
+                    </div>
+
+                    <button class="wd-btn wd-btn_primary save-disp-btn" onclick={saveCallLog}>
+                        <template if:true={isSaving}>Saving...</template>
+                        <template if:false={isSaving}>💾 Save Log &amp; Update Lead</template>
+                    </button>
+                </div>
+            </template>
+        </div>
+    </section>
+</template>

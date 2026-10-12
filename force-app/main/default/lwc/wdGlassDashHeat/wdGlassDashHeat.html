@@ -1,0 +1,43 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Site visit rhythm</h2>
+                <p class="panel-kicker">{kicker}</p>
+            </div>
+            <div class="scale" aria-hidden="true">
+                <span>Fewer</span>
+                <span class="cell cell_0"></span>
+                <span class="cell cell_1"></span>
+                <span class="cell cell_2"></span>
+                <span class="cell cell_3"></span>
+                <span class="cell cell_4"></span>
+                <span>More</span>
+            </div>
+        </header>
+        <div class="heat" role="img" aria-label={ariaLabel}>
+            <div class="months">
+                <template for:each={monthLabels} for:item="m">
+                    <span key={m.key} class="month-label">{m.label}</span>
+                </template>
+            </div>
+            <div class="weekdays">
+                <span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span><span>Sun</span>
+            </div>
+            <div class="grid">
+                <template for:each={cells} for:item="c">
+                    <span key={c.key} class={c.cellClass} tabindex="0" data-index={c.index}
+                        onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}></span>
+                </template>
+            </div>
+        </div>
+        <ul class="stats">
+            <template for:each={stats} for:item="s">
+                <li key={s.label} class="stat">
+                    <span class="stat-value num">{s.value}</span>
+                    <span class="stat-label">{s.label}</span>
+                </li>
+            </template>
+        </ul>
+    </section>
+</template>

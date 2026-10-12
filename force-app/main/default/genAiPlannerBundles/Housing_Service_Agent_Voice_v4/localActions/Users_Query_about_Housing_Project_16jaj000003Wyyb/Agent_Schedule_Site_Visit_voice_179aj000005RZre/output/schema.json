@@ -1,0 +1,30 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varLeadId" : {
+      "title" : "varLeadId",
+      "description" : "LeadId",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "varProjectId" : {
+      "title" : "varProjectId",
+      "description" : "Project",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    },
+    "varVisitDateTime" : {
+      "title" : "varVisitDateTime",
+      "description" : "Time",
+      "lightning:type" : "lightning__dateTimeStringType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : false,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

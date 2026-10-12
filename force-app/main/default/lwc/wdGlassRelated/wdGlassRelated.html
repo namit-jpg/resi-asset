@@ -1,0 +1,36 @@
+<template>
+    <template for:each={populated} for:item="list">
+        <section key={list.key} class="wd-glass card">
+            <header class="head">
+                <h2 class="wd-section-title">{list.label}<span class="wd-section-count">{list.count}</span></h2>
+                <button type="button" class="view-all" data-list={list.relatedListId} onclick={handleViewAll}>View all</button>
+            </header>
+            <template lwc:if={list.hasRecords}>
+                <ul class="rows">
+                    <template for:each={list.rows} for:item="row">
+                        <li key={row.id} class="row">
+                            <a href="#" class="title" data-id={row.id} onclick={handleOpen}>{row.title}</a>
+                            <span class="meta">{row.meta}</span>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+            <template lwc:else>
+                <p class="empty">{list.emptyText}</p>
+            </template>
+        </section>
+    </template>
+
+    <template lwc:if={hasEmpty}>
+        <section class="wd-glass card">
+            <h2 class="wd-section-title">Nothing linked yet</h2>
+            <div class="chips">
+                <template for:each={emptyLists} for:item="list">
+                    <button key={list.key} type="button" class="chip" data-list={list.relatedListId} onclick={handleViewAll}>
+                        {list.label}
+                    </button>
+                </template>
+            </div>
+        </section>
+    </template>
+</template>

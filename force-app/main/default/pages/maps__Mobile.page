@@ -1,0 +1,7 @@
+<apex:page controller="maps.MapsLegacyCheck" docType="html-5.0" showheader="false" sidebar="false" standardStyleSheets="false">
+
+	<c:Oops rendered="{!useMapsOopsPage}" />
+    <c:MapsMobile rendered="{!useMapsMobilePage}" />
+    <c:MapsV2 rendered="{!useMapsV2Page}" />
+
+</apex:page>

@@ -1,0 +1,8 @@
+/* Totals row styling */
+.dtTotalRow {
+    font-weight: bold !important;
+    background-color: #ffe699 !important; /* light yellow */
+    color: black !important;
+    overflow-wrap: break-word;
+    white-space: pre-line;
+}

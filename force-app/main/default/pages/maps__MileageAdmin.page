@@ -1,0 +1,49 @@
+<apex:page controller="maps.MileageAdminController"
+    title="{!pageTitle}"
+    docType="html-5.0"
+    standardstylesheets="false"
+    sidebar="false"
+    extensions="maps.UserAJAXResources"
+>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    </head>
+
+    <apex:slds />
+
+    <apex:outputPanel rendered="{!NOT(hasAccess)}">
+        <body>
+            <c:MileageAdminNoAccess />
+        </body>
+    </apex:outputPanel>
+
+    <apex:outputPanel rendered="{!hasAccess}">
+        <!-- Labels -->
+        <c:MileageAdminShared />
+        <c:SLDS />
+        <c:Shared />
+
+        <c:MileageAdminDesktop rendered="{!NOT(isMobile)}" />
+        <c:MileageAdminMobile rendered="{!isMobile}" />
+
+        <script>
+            MASystem.Labels = {
+                MileageAdminShared: { ...MASystem.MileageAdminSharedLabels },
+                MapsShared: { ...MASystem.SharedLabels },
+                ...MASystem.SLDSLabels,
+                ...MASystem.getAppLabels()
+            };
+
+            delete MASystem.MileageAdminSharedLabels;
+            delete MASystem.SharedLabels;
+            delete MASystem.SLDSLabels;
+
+            MASystem.ViewData = JSON.parse("{!JSENCODE(viewData)}");
+            MASystem.ViewData.sessionId = '{!$Api.Session_ID}';
+        </script>
+
+        <body>
+            <div id="appRoot"></div>
+        </body>
+    </apex:outputPanel>
+</apex:page>

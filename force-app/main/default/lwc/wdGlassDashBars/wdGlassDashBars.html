@@ -1,0 +1,37 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">{heading}</h2>
+                <p class="panel-kicker">{kicker}</p>
+            </div>
+        </header>
+        <template lwc:if={hasRows}>
+            <template for:each={sections} for:item="s">
+                <div key={s.key} class="group">
+                    <template lwc:if={s.title}>
+                        <p class="group-title">{s.title}</p>
+                    </template>
+                    <template lwc:if={s.hasRows}>
+                        <ul class="rows">
+                            <template for:each={s.rows} for:item="r">
+                                <li key={r.key} class="hit row" tabindex="0" data-group={s.index} data-index={r.index}
+                                    onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                                    <span class="row-label" title={r.label}>{r.label}</span>
+                                    <span class="row-track"><span class={barClass} style={r.style}></span></span>
+                                    <span class="row-value num"><strong>{r.primary}</strong><span class="sub">{r.secondary}</span></span>
+                                </li>
+                            </template>
+                        </ul>
+                    </template>
+                    <template lwc:else>
+                        <p class="group-empty">{s.emptyText}</p>
+                    </template>
+                </div>
+            </template>
+        </template>
+        <template lwc:else>
+            <p class="empty">{emptyText}</p>
+        </template>
+    </section>
+</template>

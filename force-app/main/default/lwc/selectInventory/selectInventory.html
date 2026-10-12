@@ -1,0 +1,30 @@
+<template>
+    <lightning-quick-action-panel header="Select Inventory">
+        <div class="si-body">
+            <p class="si-sub">{subtitle}</p>
+            <template lwc:if={lockedReason}>
+                <div class="si-error" role="status">{lockedReason}</div>
+            </template>
+            <template lwc:if={error}>
+                <div class="si-error" role="alert">{error}</div>
+            </template>
+            <template lwc:if={ready}>
+                <c-tower-explorer
+                    mode="select"
+                    current-unit-id={context.unitId}
+                    initial-project-id={context.projectId}
+                    initial-tower-id={context.towerId}
+                    onunitselect={handleUnitSelect}
+                ></c-tower-explorer>
+            </template>
+            <template lwc:else>
+                <lightning-spinner lwc:if={recordId} alternative-text="Loading" size="small"></lightning-spinner>
+            </template>
+        </div>
+        <div slot="footer" class="si-footer">
+            <span class="si-sel">{selectionText}</span>
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button variant="brand" label="Save" disabled={saveDisabled} onclick={handleSave}></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

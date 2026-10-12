@@ -1,0 +1,76 @@
+<apex:page controller="DocumentGenerationController" showHeader="false" sidebar="false" 
+    contentType="application/msword#CancellationRefund_{!booking.Name}.doc; charset=UTF-8">
+
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 40px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        p {
+            margin-bottom: 0.5cm;
+        }
+        br{
+            margin-bottom: 0.2cm;
+        }
+        h3{
+            font-weight: 600;
+            text-align: center;
+            text-decoration: underline;
+        }
+        li{
+            margin-bottom: 1cm;
+        }
+        </style>
+</head>
+<body>
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+    <p style="text-align: right;">Date: <strong>{!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}</strong></p>
+    <p>
+        <strong>{!booking.Account_Id__r.Salutation}</strong>, <strong>{!booking.Account_Id__r.Name}</strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingStreet}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingCity}, {!booking.Account_Id__r.BillingState}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingPostalCode}"/></strong><br/>
+        Ph No: <strong><apex:outputText value="{!booking.Account_Id__r.Phone}"/></strong> <br/>
+    </p>
+    <br/>
+    <p>Dear</p>
+    <p>
+        <b>Sub: Refund towards Flat No. <strong>{!booking.Unit_Id__r.Name}</strong> at "<strong>{!booking.Project__r.Name}</strong>".<br/>
+        Ref: Cancellation Letter Dated <strong><apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Booking_Cancellation_Date__c}" /></apex:outputText></strong>.
+    </b>
+    </p>
+    <p>
+        With reference to the above subject and our final cancellation letter dated <strong><apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Booking_Cancellation_Date__c}" /></apex:outputText></strong> for booking of Flat No. <strong>{!booking.Unit_Id__r.Name}</strong> at "<strong>{!booking.Project__r.Name}</strong>", located at <strong>{!booking.Project__r.Address__c}</strong>.
+    </p>
+    <p>We have refunded your booking amount of Rs.______/-  post deducting the cancelation charges vide RTGS No. ___________dated _____ of Rs.______/- (Rupees _________ Only).
+    </p>
+    <p>
+        The above payment is full and final settlement towards the Flat No. <strong>{!booking.Unit_Id__r.Name}</strong> at "<strong>{!booking.Project__r.Name}</strong>" and further you will have no claim against M/s. WarpDrive Tech Works.
+    </p>
+    <p>
+        Please note the Official documents issued by M/s. WarpDrive Tech Works, will stand null and void. 
+    </p>
+    <p>
+        Kindly acknowledge the receipt of the same.
+    </p>
+    <p>
+        Thanking you, <br/><br/>
+        Yours faithfully, 
+    </p>
+    <p>
+        <b>For M/s. WarpDrive Tech Works,<br/><br/><br/><br/>
+        Authorized Signatory
+        </b>
+    </p>
+</body>
+</html>
+</apex:page>

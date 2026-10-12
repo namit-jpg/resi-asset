@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Archive_Notification_Sent__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicates whether the archive follow-up notification has been sent.</description>
+    <label>Archive Notification Sent</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

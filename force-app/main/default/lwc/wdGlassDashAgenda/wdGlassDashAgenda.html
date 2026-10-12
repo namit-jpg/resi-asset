@@ -1,0 +1,55 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Up next</h2>
+                <p class="panel-kicker">Visits on the calendar and leads that need a call</p>
+            </div>
+        </header>
+
+        <h3 class="list-title">Site visits · next 2 weeks</h3>
+        <template lwc:if={hasVisits}>
+            <ul class="items">
+                <template for:each={visitsView} for:item="v">
+                    <li key={v.id}>
+                        <button type="button" class="item" data-id={v.id} onclick={handleOpen}>
+                            <span class="date">
+                                <span class="date-day num">{v.day}</span>
+                                <span class="date-month">{v.month}</span>
+                            </span>
+                            <span class="body">
+                                <span class="title">{v.title}</span>
+                                <span class="meta">{v.meta}</span>
+                            </span>
+                            <span class={v.chipClass}>{v.chip}</span>
+                        </button>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:else>
+            <p class="quiet">No visits scheduled. A good week to fill the calendar.</p>
+        </template>
+
+        <h3 class="list-title">Going cold · no touch in 7+ days</h3>
+        <template lwc:if={hasCold}>
+            <ul class="items">
+                <template for:each={coldView} for:item="l">
+                    <li key={l.id}>
+                        <button type="button" class="item" data-id={l.id} onclick={handleOpen}>
+                            <span class="avatar" aria-hidden="true">{l.initials}</span>
+                            <span class="body">
+                                <span class="title">{l.title}</span>
+                                <span class="meta">{l.meta}</span>
+                            </span>
+                            <span class={l.chipClass}>{l.chip}</span>
+                        </button>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:else>
+            <p class="quiet">Every open lead has been touched this week.</p>
+        </template>
+    </section>
+</template>

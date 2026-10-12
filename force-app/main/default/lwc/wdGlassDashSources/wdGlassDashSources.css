@@ -1,0 +1,88 @@
+@import 'c/wdGlassDashStyles';
+
+.swatch_leads {
+    background: #a6dcbc;
+}
+
+.swatch_converted {
+    background: var(--dash-ramp-4);
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) 8.4rem;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.42rem 0.35rem;
+    border-radius: 10px;
+}
+
+.row:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.row-label {
+    overflow: hidden;
+    font-size: 0.88rem;
+    color: var(--wd-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row-track {
+    height: 14px;
+}
+
+/* The converted share sits inside the enquiry bar, left aligned, with a 2px surface gap. */
+.row-leads {
+    display: flex;
+    height: 100%;
+    border-radius: 4px;
+    background: #a6dcbc;
+    overflow: hidden;
+    transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.row-converted {
+    display: block;
+    height: 100%;
+    background: var(--dash-ramp-4);
+    box-shadow: 2px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+.row-value {
+    display: flex;
+    justify-content: flex-end;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--wd-ink);
+}
+
+.row-value strong {
+    font-weight: 600;
+}
+
+.rate {
+    min-width: 2.4rem;
+    font-size: 0.75rem;
+    color: var(--wd-muted);
+    text-align: right;
+}
+
+.rate_best {
+    font-weight: 700;
+    color: var(--wd-green-deep);
+}
+.booked {
+    min-width: 3rem;
+    font-size: 0.75rem;
+    color: var(--wd-ink-soft);
+    text-align: right;
+}

@@ -1,0 +1,147 @@
+@import 'c/wdGlassDashStyles';
+
+.gauge {
+    position: relative;
+    width: 11rem;
+    height: 11rem;
+    margin: 0 auto 1.2rem;
+}
+
+.ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.ring-track,
+.ring-value {
+    fill: none;
+    stroke-width: 11;
+}
+
+.ring-track {
+    stroke: var(--dash-track);
+}
+
+.ring-value {
+    stroke: var(--dash-booked);
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.gauge-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.gauge-value {
+    font-size: 2.4rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--wd-ink);
+}
+
+.gauge-pct {
+    font-size: 1.1rem;
+    color: var(--wd-ink-soft);
+}
+
+.gauge-caption {
+    max-width: 7.5rem;
+    margin-top: 0.35rem;
+    font-size: 0.74rem;
+    color: var(--wd-muted);
+}
+
+.ageing-head {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--wd-ink-soft);
+}
+
+.ageing-head strong {
+    color: var(--wd-bad);
+    font-weight: 600;
+}
+
+.buckets {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.bucket {
+    display: grid;
+    grid-template-columns: 4.2rem minmax(0, 1fr) 4.5rem;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.32rem 0;
+}
+
+.bucket-label {
+    font-size: 0.8rem;
+    color: var(--wd-ink-soft);
+}
+
+.bucket-track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--dash-track);
+    overflow: hidden;
+}
+
+.bucket-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+}
+
+/* Older debt reads hotter: amber to deep red. */
+.bucket-fill_0 {
+    background: #e3a008;
+}
+
+.bucket-fill_1 {
+    background: #e07a1f;
+}
+
+.bucket-fill_2 {
+    background: #d4502a;
+}
+
+.bucket-fill_3 {
+    background: #b42d2a;
+}
+
+.bucket-value {
+    font-size: 0.8rem;
+    color: var(--wd-ink);
+    text-align: right;
+}
+
+.upcoming {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: auto 0 0;
+    padding-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--wd-muted);
+}
+
+.upcoming-dot {
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--dash-collected);
+}

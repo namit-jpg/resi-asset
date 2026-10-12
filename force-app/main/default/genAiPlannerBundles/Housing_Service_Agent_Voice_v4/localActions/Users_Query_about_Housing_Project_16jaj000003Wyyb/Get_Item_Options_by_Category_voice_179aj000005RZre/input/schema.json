@@ -1,0 +1,14 @@
+{
+  "required" : [ "categoryName" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "categoryName" : {
+      "title" : "Category Name",
+      "description" : "Take the input from the instruction",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

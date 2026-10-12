@@ -1,0 +1,328 @@
+<apex:page standardController="Opportunity" extensions="ResaleDocumentController" renderAs="pdf" applyHtmlTag="true" showHeader="false" sidebar="false">
+<html>
+<head>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+    @bottom-left {
+      content: "WarpDrive Tech Works | Resale Payment Receipt | {!opp.Name}";
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9pt;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    background-color: #ffffff;
+  }
+
+  .brand-banner {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .brand-banner table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .brand-title {
+    font-size: 16pt;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    margin: 0;
+  }
+  .brand-sub {
+    font-size: 8pt;
+    color: #cbd5e1;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .brand-logo {
+    width: 44mm;
+    vertical-align: middle;
+    padding-right: 10px;
+  }
+  .brand-logo div {
+    background-color: #ffffff;
+    padding: 4px 6px;
+    border-radius: 3px;
+  }
+  .brand-logo img {
+    height: 10mm;
+  }
+  .brand-doc-type {
+    text-align: right;
+    vertical-align: middle;
+  }
+  .doc-badge {
+    background-color: #ffffff;
+    color: #0f2b5c;
+    font-weight: bold;
+    font-size: 10pt;
+    padding: 5px 12px;
+    border-radius: 3px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .meta-table {
+    width: 100%;
+    margin-bottom: 12px;
+    border-collapse: collapse;
+  }
+  .meta-table td {
+    font-size: 8.5pt;
+  }
+
+  .section-header {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    font-size: 9pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px 8px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+  }
+
+  table.grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    border: 1px solid #cbd5e1;
+  }
+  table.grid-table td {
+    padding: 5px 8px;
+    font-size: 8.5pt;
+    border: 1px solid #cbd5e1;
+    vertical-align: middle;
+  }
+  table.grid-table td.lbl {
+    width: 25%;
+    background-color: #f8fafc;
+    color: #334155;
+    font-weight: 600;
+  }
+  table.grid-table td.val {
+    width: 25%;
+    font-weight: bold;
+    color: #0f2b5c;
+  }
+
+  .boxes-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 10px 0;
+    margin-bottom: 10px;
+  }
+  .party-box {
+    border: 1.5px solid #0f2b5c;
+    border-radius: 4px;
+    padding: 8px 12px;
+    background-color: #f8fafc;
+  }
+  .box-label {
+    font-size: 7.5pt;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .box-val {
+    font-size: 10pt;
+    font-weight: bold;
+    color: #0f2b5c;
+  }
+
+  .sig-table {
+    width: 100%;
+    margin-top: 25px;
+    border-collapse: collapse;
+  }
+  .sig-table td {
+    vertical-align: top;
+    font-size: 8.5pt;
+  }
+  .sig-line {
+    border-top: 1.5px solid #0f2b5c;
+    width: 80%;
+    margin-bottom: 4px;
+  }
+  .seal-circle {
+    border: 1px dashed #94a3b8;
+    border-radius: 50%;
+    width: 75px;
+    height: 75px;
+    text-align: center;
+    line-height: 75px;
+    font-size: 7.5pt;
+    color: #64748b;
+    float: right;
+  }
+
+  .footer-note {
+    margin-top: 20px;
+    font-size: 8pt;
+    color: #64748b;
+    border-top: 1px solid #cbd5e1;
+    padding-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand-banner">
+    <table>
+      <tr>
+        <td class="brand-logo"><div><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works"/></div></td>
+        <td>
+          <div class="brand-title">WARPDRIVE TECH WORKS</div>
+          <div class="brand-sub">Residential Resale Assistance &amp; Transfer Desk</div>
+        </td>
+        <td class="brand-doc-type">
+          <div class="doc-badge">PAYMENT RECEIPT</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table class="meta-table">
+    <tr>
+      <td>
+        <strong>Receipt No:</strong> {!IF(NOT(ISBLANK(receiptRecord)), receiptRecord.Name, 'REC-' + opp.Name)}<br/>
+        <strong>Payment Date:</strong> {!IF(NOT(ISBLANK(receiptRecord.Payment_Date__c)), receiptRecord.Payment_Date__c, todayFormatted)}
+      </td>
+      <td style="text-align:right;">
+        <strong>Opportunity Ref:</strong> {!opp.Name}<br/>
+        <strong>Receipt Status:</strong> {!IF(NOT(ISBLANK(receiptRecord.Receipt_Status__c)), receiptRecord.Receipt_Status__c, 'Approved')}
+      </td>
+    </tr>
+  </table>
+
+  <div class="section-header">Buyer &amp; Previous Owner Details</div>
+  <table class="boxes-table">
+    <tr>
+      <td style="width:50%; padding:0;">
+        <div class="party-box">
+          <div class="box-label">New Owner (Buyer)</div>
+          <div class="box-val">{!IF(ISBLANK(newBuyer.Name), opp.Buyer_Name__c, newBuyer.Name)}</div>
+        </div>
+      </td>
+      <td style="width:50%; padding:0;">
+        <div class="party-box">
+          <div class="box-label">Previous Owner (Seller)</div>
+          <div class="box-val">{!IF(ISBLANK(previousOwner.Name), 'Current Registered Owner', previousOwner.Name)}</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="section-header">Property Details</div>
+  <table class="grid-table">
+    <tr>
+      <td class="lbl">Project</td><td class="val">{!projectName}</td>
+      <td class="lbl">Tower</td><td class="val">{!towerName}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Unit</td><td class="val">{!unitName}</td>
+      <td class="lbl">Floor</td><td class="val">{!opp.Interested_Unit__r.Floor__r.Name}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Configuration</td><td class="val">{!opp.Interested_Unit__r.BHK_Configuration__c}</td>
+      <td class="lbl">Chargeable Area</td><td class="val">{!chargeableArea}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Original Booking No.</td><td class="val">{!originatingBookingName}</td>
+      <td class="lbl">Resale Transaction No.</td><td class="val">{!opp.Name}</td>
+    </tr>
+  </table>
+
+  <apex:outputPanel rendered="{!NOT(ISBLANK(receiptRecord))}">
+    <div class="section-header">Transaction &amp; Payment Record</div>
+    <table class="grid-table">
+      <tr>
+        <td class="lbl" style="width:35%;">Payment Amount</td>
+        <td class="val" style="width:65%;">INR {!receiptRecord.Payment_Amount__c}</td>
+      </tr>
+      <tr>
+        <td class="lbl">Payment Mode</td>
+        <td class="val">{!receiptRecord.Payment_Mode__c}</td>
+      </tr>
+      <tr>
+        <td class="lbl">Transaction Reference / Ref No.</td>
+        <td class="val">{!receiptRecord.Transaction_Reference__c}</td>
+      </tr>
+      <tr>
+        <td class="lbl">Payment Remarks</td>
+        <td class="val">{!receiptRecord.Remarks__c}</td>
+      </tr>
+    </table>
+  </apex:outputPanel>
+
+  <div class="section-header">Financial &amp; Cumulative Summary</div>
+  <table class="grid-table">
+    <tr>
+      <td class="lbl" style="width:35%;">Final Agreed Resale Value</td>
+      <td class="val" style="width:65%;">{!agreedValueFormatted}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Total Amount Received to Date</td>
+      <td class="val">{!amountReceivedFormatted}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Outstanding Amount Remaining</td>
+      <td class="val">{!outstandingAmountFormatted}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Overall Payment Status</td>
+      <td class="val">{!IF(opp.Full_Payment_Received__c, 'FULL PAYMENT RECEIVED', 'PARTIAL PAYMENT / RECEIVED')}</td>
+    </tr>
+  </table>
+
+  <table class="sig-table">
+    <tr>
+      <td style="width:40%;">
+        <div class="sig-line"></div>
+        <strong>Buyer Acknowledgment</strong><br/>
+        Name: {!IF(ISBLANK(newBuyer.Name), opp.Buyer_Name__c, newBuyer.Name)}<br/>
+        Date: {!todayFormatted}
+      </td>
+      <td style="width:35%;">
+        <div class="sig-line"></div>
+        <strong>Authorized Signatory</strong><br/>
+        Name: {!opp.Owner.Name}<br/>
+        For WarpDrive Tech Works
+      </td>
+      <td style="width:25%; text-align:right;">
+        <div class="seal-circle">Company Seal</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="footer-note">
+    <strong>WarpDrive Tech Works Accounts &amp; Finance Desk</strong> &nbsp;|&nbsp; Official system-generated payment receipt.
+  </div>
+
+</body>
+</html>
+</apex:page>

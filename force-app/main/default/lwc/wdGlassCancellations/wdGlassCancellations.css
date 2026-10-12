@@ -1,0 +1,100 @@
+@import 'c/wdGlassStyles';
+
+.card {
+    padding: 1.2rem 1.3rem 1.1rem;
+}
+
+.head {
+    margin-bottom: 0.5rem;
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--wd-line);
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.row-main,
+.row-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.row-side {
+    flex: none;
+    align-items: flex-end;
+}
+
+.row-title {
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--wd-ink);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.row-title:hover,
+.row-title:focus-visible {
+    color: var(--wd-green-deep);
+    text-decoration: underline;
+}
+
+.row-meta {
+    font-size: 0.78rem;
+    color: var(--wd-muted);
+}
+
+.row-note {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: var(--wd-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.chip {
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: rgba(20, 48, 90, 0.07);
+    color: var(--wd-ink-soft);
+}
+
+.chip_positive {
+    background: rgba(0, 153, 51, 0.12);
+    color: var(--wd-green-deep);
+}
+
+.chip_warning {
+    background: rgba(242, 139, 28, 0.14);
+    color: var(--wd-warn);
+}
+
+.chip_negative {
+    background: rgba(224, 83, 58, 0.14);
+    color: var(--wd-bad);
+}
+
+.empty {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--wd-muted);
+}

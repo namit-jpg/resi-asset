@@ -1,0 +1,3 @@
+<apex:page standardController="Opportunity" sidebar="false" showHeader="false">
+  <apex:iframe src="https://us1.spiff.com/login" id="spiff-iframe" width="100%" height="750px" />
+</apex:page>

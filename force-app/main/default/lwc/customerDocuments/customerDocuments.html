@@ -1,0 +1,39 @@
+<template>
+    <lightning-quick-action-panel header="Customer documents">
+        <template lwc:if={loading}>
+            <div class="spinner"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">{error}</div>
+        </template>
+
+        <template lwc:if={overview}>
+            <p class="muted">{subtitle}</p>
+            <div class="tabs" role="group" aria-label="Document">
+                <template for:each={docs} for:item="d">
+                    <lightning-button key={d.value} label={d.label} variant={d.variant} data-value={d.value}
+                        onclick={handleSelect}></lightning-button>
+                </template>
+            </div>
+
+            <template lwc:if={current.available}>
+                <iframe class="preview" src={pdfUrl} title={current.label}></iframe>
+            </template>
+            <template lwc:else>
+                <div class="na">
+                    <p class="na-title">Not applicable</p>
+                    <p class="muted">{current.note}</p>
+                </div>
+            </template>
+        </template>
+
+        <div slot="footer">
+            <lightning-button label="Close" onclick={handleClose}></lightning-button>
+            <lightning-button class="slds-m-left_x-small" label="Open PDF" icon-name="utility:new_window"
+                onclick={handleOpen} disabled={actionsDisabled}></lightning-button>
+            <lightning-button class="slds-m-left_x-small" variant="brand" label="Save to Files" icon-name="utility:upload"
+                onclick={handleSave} disabled={actionsDisabled}></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

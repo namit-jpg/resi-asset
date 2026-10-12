@@ -1,0 +1,145 @@
+@import 'c/wdGlassDashStyles';
+
+.list-title {
+    margin: 0 0 0.45rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--wd-muted);
+    text-transform: uppercase;
+}
+
+.list-title + .items,
+.list-title + .quiet {
+    margin-bottom: 1.1rem;
+}
+
+.items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item {
+    appearance: none;
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    padding: 0.5rem 0.55rem;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.item:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateX(2px);
+}
+
+.item:focus-visible {
+    outline: 2px solid var(--wd-green);
+    outline-offset: 1px;
+}
+
+.date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(12, 70, 40, 0.08);
+    line-height: 1;
+}
+
+.date-day {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+}
+
+.date-month {
+    margin-top: 0.15rem;
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+    text-transform: uppercase;
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    background: rgba(20, 48, 90, 0.08);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--wd-ink-soft);
+}
+
+.body {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.title {
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--wd-ink);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.meta {
+    overflow: hidden;
+    font-size: 0.76rem;
+    color: var(--wd-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chip {
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    background: var(--dash-track);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--wd-ink-soft);
+    white-space: nowrap;
+}
+
+.chip_soon {
+    background: rgba(0, 153, 51, 0.12);
+    color: var(--wd-green-deep);
+}
+
+.chip_warm {
+    background: rgba(194, 98, 10, 0.12);
+    color: var(--wd-warn);
+}
+
+.chip_cold {
+    background: rgba(194, 57, 52, 0.1);
+    color: var(--wd-bad);
+}
+
+.quiet {
+    margin: 0;
+    padding: 0.7rem 0.8rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.35);
+    font-size: 0.85rem;
+    color: var(--wd-muted);
+}

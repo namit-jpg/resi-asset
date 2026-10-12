@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPlannerBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Deliver personalized customer interactions with an autonomous AI agent. Agentforce Service Agent intelligently supports your customers with common inquiries and escalates complex issues.</description>
+    <localTopicLinks>
+        <genAiPluginName>Users_Query_about_Housing_Project_16jaj000003WyKI</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>agent_router_16jaj000003WyKI</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>ambiguous_question_16jaj000003WyKI</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>escalation_16jaj000003WyKI</genAiPluginName>
+    </localTopicLinks>
+    <localTopicLinks>
+        <genAiPluginName>off_topic_16jaj000003WyKI</genAiPluginName>
+    </localTopicLinks>
+    <localTopics>
+        <fullName>escalation_16jaj000003WyKI</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles requests from users who want to transfer or escalate their conversation to a live human agent.</description>
+        <developerName>escalation_16jaj000003WyKI</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.</description>
+            <developerName>instruction0_179aj000005RZ3i</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000005RZ3i</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>escalation</localDeveloperName>
+        <masterLabel>Escalation</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>Users_Query_about_Housing_Project_16jaj000003WyKI</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Handles any message that names or asks about a WD Elite Residences project (for example &quot;Tell me about Nikoo Homes&quot;, &quot;Details of Banjara Beam&quot;) or asks which project suits a need. Covers overview, unit types, prices, possession, amenities, neighbourhood (schools, international schools, hospitals, metro, offices, malls, airport), project comparisons and buyer FAQs. Also sends brochures, creates leads and books site visits.</description>
+        <developerName>Users_Query_about_Housing_Project_16jaj000003WyKI</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.</description>
+            <developerName>instruction0_179aj000005RZ3h</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000005RZ3h</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localActionLinks>
+            <functionName>Get_Projects_in_Selected_City_voice_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Agent_Schedule_Site_Visit_voice_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Agent_Create_Lead_and_Send_Email_voice_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Item_Options_by_Category_voice_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>AnswerQuestionsWithKnowledge_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActionLinks>
+            <functionName>Get_Available_Cities_voice_179aj000005RZ3h</functionName>
+        </localActionLinks>
+        <localActions>
+            <fullName>AnswerQuestionsWithKnowledge_179aj000005RZ3h</fullName>
+            <description>Searches the WD Elite Residences knowledge library to answer questions about any project: overview, address, unit types, sizes, prices, possession, amenities, nearby schools and international schools, hospitals, metro and rail, IT parks, malls, airport distance, comparisons between projects, and buyer FAQs such as payment plans, loans, RERA and NRI purchases.</description>
+            <developerName>AnswerQuestionsWithKnowledge_179aj000005RZ3h</developerName>
+            <invocationTarget>streamKnowledgeSearch</invocationTarget>
+            <invocationTargetType>standardInvocableAction</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>AnswerQuestionsWithKnowledge</localDeveloperName>
+            <masterLabel>Answer Questions with Knowledge</masterLabel>
+            <progressIndicatorMessage>Checking our project details...</progressIndicatorMessage>
+            <source>EmployeeCopilot__AnswerQuestionsWithKnowledge</source>
+        </localActions>
+        <localActions>
+            <fullName>Get_Available_Cities_voice_179aj000005RZ3h</fullName>
+            <description>MANDATORY: Call this first when a user asks about property, flats, or availability. This is the ONLY way to see which cities currently have active projects.</description>
+            <developerName>Get_Available_Cities_voice_179aj000005RZ3h</developerName>
+            <invocationTarget>ProjectDiscoveryService</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Available_Cities_voice</localDeveloperName>
+            <masterLabel>Get Available Cities-voice</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Get_Projects_in_Selected_City_voice_179aj000005RZ3h</fullName>
+            <description>MANDATORY: Call this after a city is selected to see the specific Project Names and IDs for that city. This is the ONLY source for current project inventory.</description>
+            <developerName>Get_Projects_in_Selected_City_voice_179aj000005RZ3h</developerName>
+            <invocationTarget>ProjectInCityService</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Projects_in_Selected_City_voice</localDeveloperName>
+            <masterLabel>Get Projects in Selected City-voice</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Agent_Schedule_Site_Visit_voice_179aj000005RZ3h</fullName>
+            <description>Use this action to book a physical site visit for a lead. This requires a LeadId, a ProjectId, and a preferred Date/Time. Only call this after a Lead has been created.</description>
+            <developerName>Agent_Schedule_Site_Visit_voice_179aj000005RZ3h</developerName>
+            <invocationTarget>Agent_Schedule_Site_Visit</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Agent_Schedule_Site_Visit_voice</localDeveloperName>
+            <masterLabel>Agent: Schedule Site Visit - voice</masterLabel>
+        </localActions>
+        <localActions>
+            <fullName>Agent_Create_Lead_and_Send_Email_voice_179aj000005RZ3h</fullName>
+            <description>Use this action to create a new Lead in Salesforce and automatically send an email containing the Century Regalia project brochure PDF. This action should only be triggered after the user has explicitly agreed to receive a brochure or requested to be contacted via email, and after their first name, last name, email, and phone number have been collected.</description>
+            <developerName>Agent_Create_Lead_and_Send_Email_voice_179aj000005RZ3h</developerName>
+            <invocationTarget>Agent_Create_Lead_and_Send_Email</invocationTarget>
+            <invocationTargetType>flow</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+            <localDeveloperName>Agent_Create_Lead_and_Send_Email_voice</localDeveloperName>
+            <masterLabel>Agent : Create Lead and Send Email-voice</masterLabel>
+            <progressIndicatorMessage>Securing your luxury brochure and creating your profile...</progressIndicatorMessage>
+        </localActions>
+        <localActions>
+            <fullName>Get_Item_Options_by_Category_voice_179aj000005RZ3h</fullName>
+            <description>Use this action ONLY to show Images, Maps, or PDFs of amenities and layouts. This action DOES NOT provide city or project lists. Use this only when showing visual property features.</description>
+            <developerName>Get_Item_Options_by_Category_voice_179aj000005RZ3h</developerName>
+            <invocationTarget>ItemOptionService</invocationTarget>
+            <invocationTargetType>apex</invocationTargetType>
+            <isConfirmationRequired>false</isConfirmationRequired>
+            <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+            <localDeveloperName>Get_Item_Options_by_Category_voice</localDeveloperName>
+            <masterLabel>Get Item Options by Category -voice</masterLabel>
+        </localActions>
+        <localDeveloperName>Users_Query_about_Housing_Project</localDeveloperName>
+        <masterLabel>Users Query about Housing Project</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>ambiguous_question_16jaj000003WyKI</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request is too ambiguous</description>
+        <developerName>ambiguous_question_16jaj000003WyKI</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.</description>
+            <developerName>instruction0_179aj000005RZ3g</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000005RZ3g</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>ambiguous_question</localDeveloperName>
+        <masterLabel>Ambiguous Question</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>off_topic_16jaj000003WyKI</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Redirect conversation to relevant topics when user request goes off-topic</description>
+        <developerName>off_topic_16jaj000003WyKI</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.</description>
+            <developerName>instruction0_179aj000005RZ3k</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000005RZ3k</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>off_topic</localDeveloperName>
+        <masterLabel>Off Topic</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <localTopics>
+        <fullName>agent_router_16jaj000003WyKI</fullName>
+        <canEscalate>false</canEscalate>
+        <description>Welcome the user and determine the appropriate subagent based on user input</description>
+        <developerName>agent_router_16jaj000003WyKI</developerName>
+        <genAiPluginInstructions>
+            <description>You are an AI Agent.
+
+{{state.AgentScriptInternal_agent_instructions}}</description>
+            <developerName>instruction0_179aj000005RZ3j</developerName>
+            <language>en_US</language>
+            <masterLabel>instruction0_179aj000005RZ3j</masterLabel>
+            <sortOrder>1</sortOrder>
+        </genAiPluginInstructions>
+        <language>en_US</language>
+        <localDeveloperName>agent_router</localDeveloperName>
+        <masterLabel>Agent Router</masterLabel>
+        <pluginType>Topic</pluginType>
+    </localTopics>
+    <masterLabel>Housing Service Agent Voice</masterLabel>
+    <plannerSurfaces>
+        <adaptiveResponseAllowed>true</adaptiveResponseAllowed>
+        <callRecordingAllowed>false</callRecordingAllowed>
+        <surface>SurfaceAction__CustomerWebClient</surface>
+        <surfaceType>CustomerWebClient</surfaceType>
+    </plannerSurfaces>
+    <plannerType>Atlas__ConcurrentMultiAgentOrchestration</plannerType>
+    <voiceDefinition>
+        <developerName>voiceConfig_16jaj000003WyKI</developerName>
+        <inboundFillerWordsBool>false</inboundFillerWordsBool>
+        <inboundModel>sfdc_ai__Default_Nova_2_PhoneCall</inboundModel>
+        <label>voiceConfig_16jaj000003WyKI</label>
+        <languageCode>en_US</languageCode>
+        <outboundModel>sfdc_ai__Default_Eleven_Flash_V2_5</outboundModel>
+        <outboundSimilarity>0.75</outboundSimilarity>
+        <outboundSpeedNum>1.0</outboundSpeedNum>
+        <outboundStability>0.5</outboundStability>
+        <outboundVoice>Adam</outboundVoice>
+        <voiceIdentifier>xKhbyU7E3bC6T89Kn26c</voiceIdentifier>
+    </voiceDefinition>
+</GenAiPlannerBundle>

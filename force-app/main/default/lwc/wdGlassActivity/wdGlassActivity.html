@@ -1,0 +1,56 @@
+<template>
+    <section class="wd-glass card">
+        <header class="head">
+            <h2 class="wd-section-title">Activity</h2>
+            <button type="button" class="refresh" onclick={handleRefresh} aria-label="Refresh activity" title="Refresh">↻</button>
+        </header>
+        <div class="quick">
+            <button type="button" class="chip" onclick={handleNewTask}>New task</button>
+            <button type="button" class="chip" onclick={handleLogCall}>Log a call</button>
+            <button type="button" class="chip" onclick={handleNewEvent}>New event</button>
+        </div>
+
+        <template lwc:if={loading}>
+            <div class="loading"><lightning-spinner alternative-text="Loading activity" size="small"></lightning-spinner></div>
+        </template>
+        <template lwc:if={error}>
+            <p class="wd-error">{error}</p>
+        </template>
+
+        <template lwc:if={hasUpcoming}>
+            <h3 class="group">Upcoming &amp; overdue</h3>
+            <ul class="timeline">
+                <template for:each={upcoming} for:item="a">
+                    <li key={a.id} class="item">
+                        <span class={a.iconClass} aria-hidden="true"></span>
+                        <div class="body">
+                            <a href="#" class="subject" data-id={a.id} onclick={handleOpen}>{a.subject}</a>
+                            <span class="meta">{a.kindLabel} · {a.meta}</span>
+                        </div>
+                        <span class={a.whenClass}>{a.when}</span>
+                    </li>
+                </template>
+            </ul>
+        </template>
+
+        <template lwc:if={hasPast}>
+            <h3 class="group">Past activity</h3>
+            <ul class="timeline">
+                <template for:each={past} for:item="a">
+                    <li key={a.id} class="item">
+                        <span class={a.iconClass} aria-hidden="true"></span>
+                        <div class="body">
+                            <a href="#" class="subject" data-id={a.id} onclick={handleOpen}>{a.subject}</a>
+                            <span class="meta">{a.kindLabel} · {a.meta}</span>
+                        </div>
+                        <span class={a.whenClass}>{a.when}</span>
+                    </li>
+                </template>
+            </ul>
+        </template>
+
+        <template lwc:if={isEmpty}>
+            <p class="empty">No activity yet. Log a call or create a task to get started.</p>
+        </template>
+    </section>
+</template>

@@ -1,0 +1,91 @@
+<template>
+    <lightning-quick-action-panel header="Booking form">
+        <template lwc:if={loading}>
+            <div class="spinner"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">{error}</div>
+        </template>
+
+        <template lwc:if={s}>
+            <div class="head">
+                <p class="muted">The customer fills in the booking form through this opportunity's own link. Their answers come back to this opportunity.</p>
+                <span class={statusClass}>{statusLabel}</span>
+            </div>
+
+            <template lwc:if={s.siteError}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-bottom_small" role="alert">{s.siteError}</div>
+            </template>
+
+            <template lwc:if={hasLink}>
+                <label class="lbl" for="link">Customer link</label>
+                <div class="link-row">
+                    <input id="link" class="link-input" value={s.url} readonly />
+                    <lightning-button label="Copy" onclick={handleCopy}></lightning-button>
+                    <lightning-button label="Open" onclick={handleOpen}></lightning-button>
+                    <lightning-button label="Open in Salesforce" icon-name="utility:preview" onclick={handleOpenInternal}></lightning-button>
+                </div>
+                <div class="share">
+                    <lightning-button variant="brand" label="Send by email" icon-name="utility:email" onclick={handleEmail} disabled={emailDisabled}></lightning-button>
+                    <lightning-button label="Send on WhatsApp" icon-name="utility:chat" onclick={handleWhatsApp} disabled={whatsappDisabled}></lightning-button>
+                </div>
+            </template>
+            <template lwc:if={noLink}>
+                <p class="slds-m-vertical_small">No link has been generated for this opportunity yet.</p>
+            </template>
+
+            <dl class="facts">
+                <template for:each={facts} for:item="f">
+                    <div key={f.key} class="fact">
+                        <dt>{f.label}</dt>
+                        <dd>{f.value}</dd>
+                    </div>
+                </template>
+            </dl>
+
+            <template lwc:if={hasApplicants}>
+                <p class="slds-text-title_caps slds-m-top_medium slds-m-bottom_x-small">Applicants on the form</p>
+                <ul class="applicants">
+                    <template for:each={applicants} for:item="a">
+                        <li key={a.key}>
+                            <div>
+                                <p class="name">{a.name}</p>
+                                <p class="muted small">{a.line} · {a.docs}</p>
+                            </div>
+                            <span class={a.signClass}>{a.signLabel}</span>
+                        </li>
+                    </template>
+                </ul>
+            </template>
+
+            <template lwc:if={confirmRegenerate}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning slds-m-top_small" role="alert">
+                    Replacing the link stops the current one from working. The customer's saved answers are kept. Select Replace link again
+                    to confirm.
+                </div>
+            </template>
+        </template>
+
+        <div slot="footer">
+            <template lwc:if={confirmRegenerate}>
+                <lightning-button label="Keep current link" onclick={cancelRegenerate}></lightning-button>
+            </template>
+            <template lwc:else>
+                <lightning-button label="Close" onclick={handleClose}></lightning-button>
+            </template>
+            <template lwc:if={isSubmitted}>
+                <lightning-button class="slds-m-left_x-small" label="Reopen for changes" onclick={handleReopen} disabled={busy}></lightning-button>
+            </template>
+            <template lwc:if={canGenerate}>
+                <lightning-button
+                    class="slds-m-left_x-small"
+                    variant="brand"
+                    label={generateLabel}
+                    onclick={handleGenerate}
+                    disabled={busy}
+                ></lightning-button>
+            </template>
+        </div>
+    </lightning-quick-action-panel>
+</template>

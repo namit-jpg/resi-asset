@@ -1,0 +1,18 @@
+<template>
+    <div class="kpis">
+        <template for:each={cards} for:item="card">
+            <article key={card.key} class="wd-glass kpi">
+                <header class="kpi-head">
+                    <span class="kpi-label">{card.label}</span>
+                    <template lwc:if={card.live}>
+                        <span class="kpi-live" title="Live"></span>
+                    </template>
+                </header>
+                <p class={card.valueClass}>
+                    {card.value}<span class="kpi-unit">{card.unit}</span>
+                </p>
+                <p class="kpi-caption">{card.caption}</p>
+            </article>
+        </template>
+    </div>
+</template>

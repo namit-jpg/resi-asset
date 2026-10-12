@@ -1,0 +1,33 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Sales executive performance</h2>
+                <p class="panel-kicker">Booked value in {periodLabel}, whole team</p>
+            </div>
+        </header>
+        <template lwc:if={hasRows}>
+            <ol class="rows">
+                <template for:each={rows} for:item="r">
+                    <li key={r.key} class={r.rowClass} tabindex="0" data-index={r.index}
+                        onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                        <span class="rank num">{r.rank}</span>
+                        <span class="avatar" aria-hidden="true">{r.initials}</span>
+                        <span class="who">
+                            <span class="name">{r.name}<template lwc:if={r.me}><span class="you">You</span></template></span>
+                            <span class="track"><span class="fill" style={r.style}></span></span>
+                            <span class="stats">{r.stats}</span>
+                        </span>
+                        <span class="value num">
+                            <strong>{r.value}</strong>
+                            <span>{r.bookings}</span>
+                        </span>
+                    </li>
+                </template>
+            </ol>
+        </template>
+        <template lwc:else>
+            <p class="empty">No sales activity in {periodLabel} yet. The first booking takes the top spot.</p>
+        </template>
+    </section>
+</template>

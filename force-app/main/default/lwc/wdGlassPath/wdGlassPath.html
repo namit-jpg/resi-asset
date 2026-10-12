@@ -1,0 +1,28 @@
+<template>
+    <template lwc:if={hasSteps}>
+        <section class="wd-glass path" aria-label="Status path">
+            <ol class="steps">
+                <template for:each={steps} for:item="step">
+                    <li key={step.key} class="step-wrap">
+                        <button
+                            type="button"
+                            class={step.className}
+                            data-value={step.value}
+                            aria-current={step.ariaCurrent}
+                            title={step.label}
+                            onclick={handleSelect}
+                        >
+                            <template lwc:if={step.isDone}>
+                                <span class="check" aria-hidden="true"></span>
+                            </template>
+                            <span class="step-label">{step.label}</span>
+                        </button>
+                    </li>
+                </template>
+            </ol>
+            <button type="button" class="wd-btn wd-btn_primary mark" disabled={buttonDisabled} onclick={handleMark}>
+                {buttonLabel}
+            </button>
+        </section>
+    </template>
+</template>

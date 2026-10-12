@@ -1,0 +1,65 @@
+.row-available {
+  background-color: #a1febb;   /* light green */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-leased {
+  background-color: #b2d0fe;   /* light blue */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-booked {
+  background-color: #f8e7ae;   /* light yellow */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-blocked {
+  background-color: #bda8e8;   /* light purple */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-reserved {
+  background-color: #f7c6a6;   /* light orange */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-partner {
+  background-color: #e4cfa9;   /* light beige */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-hold {
+  background-color: #f9b7b7;   /* very light red */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+.row-sold {
+  background-color: #adadad;   /* light grey */
+  border-left: 0.2px solid #d0d0d0;
+}
+
+/* 🔹 Anchor tags inside status rows */
+.row-available a,
+.row-leased a,
+.row-booked a,
+.row-blocked a,
+.row-reserved a,
+.row-partner a,
+.row-hold a,
+.row-sold a,
+.row-unknown a {
+  color: #000 !important;   /* black text */
+  text-decoration: underline;
+}
+
+/* .row-available a:hover,
+.row-leased a:hover,
+.row-booked a:hover,
+.row-blocked a:hover,
+.row-reserved a:hover,
+.row-partner a:hover,
+.row-hold a:hover,
+.row-sold a:hover,
+.row-unknown a:hover {
+  text-decoration: underline;
+} */

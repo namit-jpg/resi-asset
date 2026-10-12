@@ -1,0 +1,123 @@
+<apex:page controller="SOAStatementController"
+           contentType="application/msword#{!soaFileName}"
+           showHeader="false" sidebar="false">
+<html>
+<head>
+    <!-- Fix for Indian Currency Symbol and Encoding in Word -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12pt; margin: 40px; }
+        h1 { text-align: center; font-size: 16pt; font-weight: bold; margin-bottom: 15px; }
+        h2 { font-size: 12pt; font-weight: bold; margin: 15px 0 10px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        .header-table td { padding: 8px 6px 6px 6px; font-size: 8pt; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 8px 6px 6px 6px; font-size: 8pt; text-align: left; vertical-align: middle; }
+        .data-table th { background-color: #f0f0f0; text-align: center; vertical-align: middle; }
+        .text-right { text-align: right; }
+        .note { font-style: italic; font-size: 7pt; }
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+
+    <h1>STATEMENT OF ACCOUNTS</h1>
+
+    <!-- Header Info Table -->
+    <table class="header-table">
+        <tr>
+            <td><b>Project:</b> {!SOAHeader['Project']}</td>
+            <td>
+                <b>Applicant:</b> {!SOAHeader['Applicant']}<br/>
+                <b>Co-Applicant/s:</b> {!SOAHeader['Co-Applicant/s']}
+            </td>
+            <td><b>Dated:</b> {!SOAHeader['Dated']}</td>
+        </tr>
+        <tr>
+            <td><b>Sub Project:</b> {!SOAHeader['Sub Project']}</td>
+            <td><b>Type:</b> {!SOAHeader['Type']}</td>
+            <td><b>Unit No.:</b> {!SOAHeader['Unit No.']}</td>
+        </tr>
+    </table>
+
+    <br/>
+
+    <h2>
+        <!-- Total Sale Consideration: ₹ {!soaStatement.summary.fTotalApartmentCost} -->
+        Total Cost of the Apartment: ₹ {!soaStatement.summary.fTotalApartmentCost}
+    </h2>
+    
+    <h2>Payment Schedule As On Date:</h2>
+    <table class="data-table">
+        <tr>
+            <th style="width: 28%;">Schedule Event</th>
+            <th style="width: 17%;">Due Date</th>
+            <th style="width: 18%;">Amounts</th>
+            <th style="width: 18%;">Amount Outstanding</th>
+            <th style="width: 19%;">Interest Outstanding</th>
+        </tr>
+        <apex:repeat value="{!SOASchedules}" var="d">
+            <tr>
+                <td class="text-left">{!d.milestone}</td>
+                <td class="text-center">{!d.dueDate}</td>
+                <td class="text-right">₹ {!d.famount}</td>
+                <td class="text-right">₹ {!d.foutstanding}</td>
+                <td class="text-right">₹ {!d.finterest}</td>
+            </tr>
+        </apex:repeat>
+        <tr>
+            <th colspan="2" class="text-right">Total</th>
+            <td class="text-right">₹ {!soaStatement.summary.fTotalDemandAmount}</td>
+            <td class="text-right">₹ {!soaStatement.summary.fTotalAmountOutstanding}</td>
+            <td class="text-right">₹ {!TotalInterest}</td>
+        </tr>
+    </table>
+    
+    <br/>
+
+    <h2>Receipt Details:</h2>
+    <table class="data-table">
+        <tr>
+            <th style="width: 11%;">Receipt No.</th>
+            <th style="width: 12%;">Date of Receipt</th>
+            <th style="width: 12%;">Mode Of Payment</th>
+            <th style="width: 16%;">Bank Name</th>
+            <th style="width: 14%;">Instrument Date</th>
+            <th style="width: 20%;">Instrument No.</th>
+            <th style="width: 15%;">Amount Received</th>
+        </tr>
+        <apex:repeat value="{!SOAReceipts}" var="r">
+            <tr>
+                <td class="text-center">{!r.receiptNumber}</td>
+                <td class="text-center">{!r.receiptDate}</td>
+                <td class="text-center">{!r.paymentMode}</td>
+                <td class="text-center">{!r.bankName}</td>
+                <td class="text-center">{!r.instrumentDate}</td>
+                <td class="text-center">{!r.instrumentNumber}</td>
+                <td class="text-right">₹ {!r.fAmountReceived}</td>
+            </tr>
+        </apex:repeat>
+    </table>
+    
+    <br/>
+
+    <!-- Restoring Previous Design Labels and Logic -->
+    <p><b>Total Amount Received as on Date:</b> ₹ {!soaStatement.summary.fTotalPrincipalReceived}</p><br />
+    
+    <p><b>Balance Payable as on Date:</b> ₹ {!soaStatement.summary.fBalancePayable}</p><br />
+    
+    <p><b>Total Amount Received including Excess Amounts:</b> ₹ {!soaStatement.summary.fTotalIncludingExcess}</p><br />
+    
+    <p><b>Balance Payable on Completion including Interest:</b> ₹ {!soaStatement.summary.fBalanceIncludingInterest}</p>
+    
+    <p class="note">*This amount is excluding any excess received and will be reduced accordingly as installments are due</p>
+
+    <!-- Commenting out the new sections that changed the design
+    <p><b>Total Received (including excess):</b> ₹ {!soaStatement.summary.fTotalIncludingExcess}</p><br />
+    <p><b>Total Interest Outstanding:</b> ₹ {!soaStatement.summary.fTotalInterestOutstanding}</p><br />
+    <p><b>Total Interest Received:</b> ₹ {!soaStatement.summary.fTotalInterestReceived}</p><br />
+    <p><b>Total Due as on Date:</b> ₹ {!soaStatement.summary.fTotalDueAsOnDate}</p><br />
+    -->
+    
+</body>
+</html>
+</apex:page>

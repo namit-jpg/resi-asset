@@ -1,0 +1,36 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Booked vs collected</h2>
+                <p class="panel-kicker"><strong>{totals.booked}</strong> booked and <strong>{totals.collected}</strong> collected over 12 months</p>
+            </div>
+            <ul class="legend">
+                <li><span class="swatch swatch_booked"></span>Booked value</li>
+                <li><span class="swatch swatch_collected"></span>Collected</li>
+            </ul>
+        </header>
+        <div class="chart" role="img" aria-label={ariaLabel}>
+            <div class="axis">
+                <template for:each={ticks} for:item="t">
+                    <span key={t.key} class="tick num" style={t.style}>{t.label}</span>
+                </template>
+            </div>
+            <div class="plot">
+                <template for:each={ticks} for:item="t">
+                    <span key={t.key} class="grid" style={t.style}></span>
+                </template>
+                <template for:each={groups} for:item="g">
+                    <div key={g.key} class={g.groupClass} tabindex="0" data-index={g.index}
+                        onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                        <div class="bars">
+                            <span class="bar bar_booked" style={g.bookedStyle}></span>
+                            <span class="bar bar_collected" style={g.collectedStyle}></span>
+                        </div>
+                        <span class="month">{g.label}</span>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </section>
+</template>

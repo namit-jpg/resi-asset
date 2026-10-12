@@ -1,0 +1,14 @@
+{
+  "required" : [ "cityName" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "cityName" : {
+      "title" : "City Name",
+      "description" : "Get City Name from User selection",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

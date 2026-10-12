@@ -1,0 +1,416 @@
+<apex:page controller="ResaleSalesOrderPDFController" renderAs="pdf" applyHtmlTag="true" showHeader="false" sidebar="false">
+<html>
+<head>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+    @bottom-left {
+      content: "WarpDrive Tech Works | Resale Sales Order | {!quoteNumber}";
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 8pt;
+      color: #64748b;
+    }
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 9pt;
+    color: #1e293b;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    background-color: #ffffff;
+  }
+
+  /* Corporate Header Banner */
+  .brand-banner {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    padding: 14px 18px;
+    border-radius: 4px;
+    margin-bottom: 14px;
+  }
+  .brand-banner table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .brand-title {
+    font-size: 18pt;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #ffffff;
+    margin: 0;
+  }
+  .brand-sub {
+    font-size: 8.5pt;
+    color: #cbd5e1;
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .brand-logo {
+    width: 44mm;
+    vertical-align: middle;
+    padding-right: 10px;
+  }
+  .brand-logo div {
+    background-color: #ffffff;
+    padding: 4px 6px;
+    border-radius: 3px;
+  }
+  .brand-logo img {
+    height: 10mm;
+  }
+  .brand-doc-type {
+    text-align: right;
+    vertical-align: middle;
+  }
+  .doc-badge {
+    background-color: #ffffff;
+    color: #0f2b5c;
+    font-weight: bold;
+    font-size: 11pt;
+    padding: 6px 14px;
+    border-radius: 3px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Metadata Summary Box */
+  .meta-bar {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+    background-color: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+  }
+  .meta-bar td {
+    padding: 8px 10px;
+    font-size: 8.5pt;
+    vertical-align: top;
+    border-right: 1px solid #e2e8f0;
+  }
+  .meta-bar td:last-child {
+    border-right: none;
+  }
+  .meta-lbl {
+    font-size: 7.5pt;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-bottom: 2px;
+  }
+  .meta-val {
+    font-size: 9.5pt;
+    font-weight: bold;
+    color: #0f2b5c;
+  }
+
+  /* Section Header Cards */
+  .section-header {
+    background-color: #0f2b5c;
+    color: #ffffff;
+    font-size: 9.5pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    border-radius: 3px;
+  }
+
+  /* Grid Data Tables */
+  table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+  }
+  table.data-table th {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 8.5pt;
+    text-align: left;
+    padding: 6px 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  table.data-table td {
+    padding: 6px 8px;
+    font-size: 8.5pt;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+  }
+  table.data-table td.lbl {
+    width: 45%;
+    color: #334155;
+    font-weight: 500;
+  }
+  table.data-table td.val {
+    font-weight: bold;
+    color: #0f2b5c;
+  }
+  table.data-table td.num {
+    text-align: right;
+    font-weight: bold;
+  }
+
+  /* Total Highlight Row */
+  .total-row td {
+    background-color: #0f2b5c !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    font-size: 10pt;
+    border: none;
+    padding: 8px;
+  }
+  .total-row td.lbl {
+    color: #ffffff !important;
+  }
+
+  .note-box {
+    background-color: #f1f5f9;
+    border-left: 4px solid #0f2b5c;
+    padding: 8px 12px;
+    font-size: 8pt;
+    color: #475569;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  /* Two Column Table */
+  table.two-col {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px;
+  }
+  table.two-col td.col-cell {
+    width: 49%;
+    vertical-align: top;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .terms-list {
+    margin: 4px 0 16px 0;
+    padding-left: 18px;
+    font-size: 8pt;
+    color: #334155;
+    line-height: 1.5;
+  }
+  .terms-list li {
+    margin-bottom: 4px;
+  }
+
+  .sig-table {
+    width: 100%;
+    margin-top: 30px;
+    border-collapse: collapse;
+  }
+  .sig-table td {
+    width: 33%;
+    vertical-align: top;
+    font-size: 8pt;
+  }
+  .sig-line {
+    border-top: 1.5px solid #0f2b5c;
+    width: 85%;
+    margin-bottom: 6px;
+  }
+</style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <div class="brand-banner">
+    <table>
+      <tr>
+        <td class="brand-logo"><div><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works"/></div></td>
+        <td>
+          <div class="brand-title">WARPDRIVE TECH WORKS</div>
+          <div class="brand-sub">Residential Resale Assistance &amp; Transfer Desk</div>
+        </td>
+        <td class="brand-doc-type">
+          <div class="doc-badge">Sales Order</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <table class="meta-bar">
+    <tr>
+      <td style="width:25%;">
+        <div class="meta-lbl">Sales Order / Quote No.</div>
+        <div class="meta-val">{!quoteNumber}</div>
+      </td>
+      <td style="width:25%;">
+        <div class="meta-lbl">Order Date</div>
+        <div class="meta-val">{!orderDate}</div>
+      </td>
+      <td style="width:25%;">
+        <div class="meta-lbl">Booking Reference</div>
+        <div class="meta-val">{!opportunityName}</div>
+      </td>
+      <td style="width:25%;">
+        <div class="meta-lbl">Desk Officer</div>
+        <div class="meta-val">Resale Relationship Manager</div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="two-col">
+    <tr>
+      <td class="col-cell">
+        <div class="section-header">BUYER / NEW OWNER</div>
+        <table class="data-table">
+          <tr><td class="lbl">Primary Applicant</td><td class="val">{!buyerName}</td></tr>
+          <tr><td class="lbl">Account Name</td><td class="val">{!accountName}</td></tr>
+        </table>
+      </td>
+      <td style="width:2%;"></td>
+      <td class="col-cell">
+        <div class="section-header">SELLER / CURRENT OWNER</div>
+        <table class="data-table">
+          <tr><td class="lbl">Current Owner Name</td><td class="val">{!sellerName}</td></tr>
+          <tr><td class="lbl">Transfer Category</td><td class="val">Resale Direct Transfer</td></tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+  <div class="section-header">PROPERTY &amp; UNIT DETAILS</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Project Name</th>
+        <th>Tower / Block</th>
+        <th>Unit No.</th>
+        <th>BHK Configuration</th>
+        <th>Chargeable Area (Sq Ft)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="val">{!projectName}</td>
+        <td class="val">{!towerName}</td>
+        <td class="val">{!unitName}</td>
+        <td class="val">{!configuration}</td>
+        <td class="val">{!chargeableArea}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-header">COMMERCIAL BREAKDOWN (APPROVED QUOTE DATA)</div>
+  <table class="data-table">
+    <tr>
+      <td class="lbl">Original / Previous Booking Value</td>
+      <td class="num">INR {!originalBookingValue}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Proposed Resale Value</td>
+      <td class="num">INR {!proposedResaleValue}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Resale Charges</td>
+      <td class="num">INR {!resaleCharges}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Brokerage / Service Fee</td>
+      <td class="num">INR {!brokerageFee}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Less: Discount / Adjustment</td>
+      <td class="num">(INR {!discount})</td>
+    </tr>
+    <tr class="total-row">
+      <td class="lbl">Final Agreed Resale Value (Grand Total)</td>
+      <td class="num">INR {!grandTotal}</td>
+    </tr>
+  </table>
+
+  <div class="note-box">
+    Note: Statutory duties, stamp duty, registration fees, and endorsement charges are payable separately at the time of legal assignment and registration as per statutory guidelines.
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="page-break"></div>
+
+  <div class="brand-banner">
+    <table>
+      <tr>
+        <td class="brand-logo"><div><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works"/></div></td>
+        <td>
+          <div class="brand-title">WARPDRIVE TECH WORKS</div>
+          <div class="brand-sub">Sales Order – {!quoteNumber}</div>
+        </td>
+        <td class="brand-doc-type">
+          <div class="doc-badge">Payment Terms</div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section-header">AGREED PAYMENT TERMS &amp; SCHEDULE</div>
+  <table class="data-table">
+    <tr>
+      <td class="lbl">Payment Type / Structure</td>
+      <td class="val">{!paymentType}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Payment Date / Due Date / Milestone</td>
+      <td class="val">{!dueDate}</td>
+    </tr>
+    <tr>
+      <td class="lbl">Remarks &amp; Special Conditions</td>
+      <td class="val">{!remarks}</td>
+    </tr>
+  </table>
+
+  <div class="section-header">TERMS AND CONDITIONS</div>
+  <ol class="terms-list">
+    <li>This Sales Order confirms the allotment and resale commercial terms for the unit specified above, subject to full realization of agreed payments.</li>
+    <li>The Resale Assignment / Transfer Agreement shall be executed within 30 days of this order. Failure to comply may lead to cancellation under project resale policy.</li>
+    <li>All payments must be remitted on or before the due date specified in the agreed payment schedule.</li>
+    <li>Final areas and specifications remain subject to verification upon completion of transfer documentation.</li>
+    <li>Cancellation and refund rules are governed by the Resale Agreement and applicable statutory guidelines.</li>
+    <li>Jurisdiction for any legal disputes shall lie with competent courts in the project location.</li>
+  </ol>
+
+  <table class="sig-table">
+    <tr>
+      <td>
+        <div class="sig-line"></div>
+        <strong>Primary Applicant / Buyer</strong><br/>
+        Name: {!buyerName}<br/>
+        Date: __________________
+      </td>
+      <td>
+        <div class="sig-line"></div>
+        <strong>Current Owner / Seller</strong><br/>
+        Name: {!sellerName}<br/>
+        Date: __________________
+      </td>
+      <td>
+        <div class="sig-line"></div>
+        <strong>For WarpDrive Tech Works</strong><br/>
+        Authorised Signatory<br/>
+        Date: {!orderDate}
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+</apex:page>

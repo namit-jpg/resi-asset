@@ -1,0 +1,33 @@
+.si-body {
+    position: relative;
+    min-height: 420px;
+}
+
+.si-sub {
+    margin: 0 0 10px;
+    font-size: 0.82rem;
+    color: #3d4f6b;
+}
+
+.si-error {
+    margin-bottom: 10px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    background: #fdeaea;
+    color: #a33;
+    font-size: 0.82rem;
+}
+
+.si-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.si-sel {
+    margin-right: auto;
+    font-size: 0.82rem;
+    color: #3d4f6b;
+    text-align: left;
+}

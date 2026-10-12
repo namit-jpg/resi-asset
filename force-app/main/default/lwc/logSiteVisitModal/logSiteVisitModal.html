@@ -1,0 +1,514 @@
+<template>
+    <!-- EMBEDDED RECORD PAGE WIDGET CARD (WARPDRIVE GLASS UI TEMPLATE) -->
+    <section class="wd-glass card">
+        <template if:true={isLoading}>
+            <div class="loading-state">
+                <lightning-spinner alternative-text="Loading status" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <!-- HEADER -->
+            <header class="head">
+                <div class="head-title">
+                    <span class="head-glyph">🏢</span>
+                    <h2 class="wd-section-title">Site Visit Gate</h2>
+                </div>
+                <template if:true={hasSiteVisit}>
+                    <span class="glass-pill pill-success">Qualified 🚀</span>
+                </template>
+                <template if:false={hasSiteVisit}>
+                    <span class="glass-pill pill-locked">Locked 🔒</span>
+                </template>
+            </header>
+
+            <!-- UNQUALIFIED STATE (GATE LOCKED) -->
+            <template if:false={hasSiteVisit}>
+                <div class="status-strip strip-locked">
+                    <div class="strip-header">
+                        <span class="dot dot-locked"></span>
+                        <span class="strip-label">Verification Mandatory to Convert</span>
+                    </div>
+                    <p class="strip-desc">
+                        Site Visit with <strong>SMS OTP verification</strong> required before conversion.
+                    </p>
+                </div>
+                <div class="gate-actions">
+                    <div class="visit-count-tag">
+                        <span class="count-num">{siteVisitCount}</span>
+                        <span class="count-lbl">Visits Logged</span>
+                    </div>
+                    <button class="wd-btn wd-btn_primary action-btn" onclick={handleOpenModal}>
+                        + Log Site Visit
+                    </button>
+                </div>
+            </template>
+
+            <!-- QUALIFIED STATE (GATE UNLOCKED) -->
+            <template if:true={hasSiteVisit}>
+                <div class="status-strip strip-unlocked">
+                    <div class="strip-header">
+                        <span class="dot dot-unlocked"></span>
+                        <span class="strip-label">Visitor Identity Verified ✔</span>
+                    </div>
+                    <p class="strip-desc">
+                        OTP matched via SMS Gateway. Lead is eligible for Opportunity conversion.
+                    </p>
+                </div>
+                <div class="gate-actions">
+                    <div class="visit-count-tag">
+                        <span class="count-num">{siteVisitCount}</span>
+                        <span class="count-lbl">Verified</span>
+                    </div>
+                    <button class="wd-btn wd-btn_ghost action-btn" onclick={handleOpenModal}>
+                        + Add Visit
+                    </button>
+                </div>
+            </template>
+
+            <!-- RECENT VISITS TIMELINE -->
+            <template if:true={hasRecentVisits}>
+                <div class="recent-section">
+                    <div class="recent-header">Recent Visits</div>
+                    <div class="recent-list">
+                        <template for:each={recentVisits} for:item="v">
+                            <div key={v.id} class="recent-row">
+                                <div class="recent-col-main">
+                                    <a href="#" class="recent-visit-link" data-id={v.id} onclick={handleNavigateToSiteVisit} title="Open Site Visit Record">
+                                        <span class="sv-name-bold">{v.name}</span> <span class="sv-proj-sep">·</span> <span class="sv-proj-text">{v.projectName}</span>
+                                    </a>
+                                    <div class="recent-meta-sub">
+                                        <template if:true={v.unitName}>{v.unitName} · </template>
+                                        <span class="recent-otp-tag">OTP Verified ✔</span>
+                                    </div>
+                                </div>
+                                <div class="recent-col-actions">
+                                    <span class={v.ratingBadgeClass}>{v.rating}</span>
+                                    <a href="#" class="open-arrow-link" data-id={v.id} onclick={handleNavigateToSiteVisit} title="Open Site Visit Record">↗</a>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </section>
+
+    <!-- INTERACTIVE 3-STEP GLASS MODAL -->
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_medium glass-modal-overlay">
+            <div class="slds-modal__container glass-modal-container">
+                <!-- MODAL HEADER -->
+                <header class="slds-modal__header modal-custom-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="modal-header-content">
+                        <div class="modal-badge-row">
+                            <span class="modal-tag">Pre-Sales Verification</span>
+                            <span class="modal-lead-name">{leadName} ({leadCompany})</span>
+                        </div>
+                        <h2 class="modal-heading">Log Site Visit &amp; Identity Verification</h2>
+                    </div>
+
+                    <!-- STEP PROGRESS TRACKER -->
+                    <div class="step-tracker-container">
+                        <div class="step-tracker">
+                            <div class={step1Class}>
+                                <div class="step-circle">1</div>
+                                <div class="step-label">Project &amp; Unit</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class={step2Class}>
+                                <div class="step-circle">2</div>
+                                <div class="step-label">OTP Verification</div>
+                            </div>
+                            <div class="step-line"></div>
+                            <div class={step3Class}>
+                                <div class="step-circle">3</div>
+                                <div class="step-label">Rating &amp; Feedback</div>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- MODAL BODY -->
+                <div class="slds-modal__content slds-p-around_large modal-custom-body">
+                    <!-- SPINNER -->
+                    <template if:true={isSubmitting}>
+                        <div class="submitting-overlay">
+                            <lightning-spinner alternative-text="Submitting Site Visit" size="medium"></lightning-spinner>
+                            <p class="submitting-text">Authenticating OTP &amp; Updating Qualification Gate...</p>
+                        </div>
+                    </template>
+
+                    <!-- STEP 1: PROJECT & UNIT SELECTION -->
+                    <template if:true={isStep1}>
+                        <div class="step-content animate-fade-in">
+                            <div class="section-banner">
+                                <span class="badge-step">Step 1 of 3</span>
+                                <h3 class="section-title">Select Project &amp; Interested Unit</h3>
+                            </div>
+
+                            <div class="slds-grid slds-gutters slds-wrap slds-m-top_small">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                    <lightning-combobox
+                                        name="project"
+                                        label="Select Project *"
+                                        value={selectedProjectId}
+                                        placeholder="Choose Project..."
+                                        options={projectOptions}
+                                        onchange={handleProjectChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                    <lightning-combobox
+                                        name="unit"
+                                        label="Interested Unit / Inventory"
+                                        value={selectedUnitId}
+                                        placeholder={unitPlaceholder}
+                                        options={unitOptions}
+                                        onchange={handleUnitChange}
+                                        disabled={isUnitSelectDisabled}>
+                                    </lightning-combobox>
+                                </div>
+                            </div>
+
+                            <!-- SELECTED UNIT DETAILS HIGHLIGHT CARD -->
+                            <template if:true={selectedUnitInfo}>
+                                <div class="unit-highlight-card slds-m-top_xx-small slds-m-bottom_small">
+                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                        <div>
+                                            <span class="font-bold text-accent">{selectedUnitInfo.displayName}</span>
+                                            <div class="subtle-unit-meta">{selectedUnitInfo.towerName} • {selectedUnitInfo.floorName}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="unit-price-pill">{selectedUnitFormattedPrice}</span>
+                                            <span class="status-chip slds-m-left_x-small">{selectedUnitInfo.status}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="slds-grid slds-gutters slds-wrap slds-m-top_x-small">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                    <lightning-input 
+                                        type="datetime" 
+                                        name="visitDateTime" 
+                                        label="Visit Date & Time" 
+                                        value={visitDateTime} 
+                                        onchange={handleDateTimeChange}>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 slds-m-bottom_small">
+                                    <lightning-input 
+                                        type="text" 
+                                        label="Sales Executive / GRE" 
+                                        value={currentUserName} 
+                                        disabled>
+                                    </lightning-input>
+                                </div>
+                            </div>
+
+                            <div class="info-alert slds-m-top_small">
+                                <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_x-small text-accent"></lightning-icon>
+                                <span>Tagging the project associates visitor footprint and locks lead ownership for commission attribution.</span>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- STEP 2: OTP VISITOR IDENTITY VERIFICATION -->
+                    <template if:true={isStep2}>
+                        <div class="step-content animate-fade-in">
+                            <div class="section-banner">
+                                <span class="badge-step">Step 2 of 3</span>
+                                <h3 class="section-title">Visitor Identity Verification (SMS OTP Gateway)</h3>
+                            </div>
+
+                            <div class="brd-rationale-box slds-m-top_small slds-m-bottom_medium slds-p-around_small">
+                                <div class="slds-grid slds-grid_vertical-align-center">
+                                    <lightning-icon icon-name="utility:shield" size="small" class="slds-m-right_small text-accent"></lightning-icon>
+                                    <div>
+                                        <strong class="text-accent">BRD Mandate: Duplicate Relative Prevention</strong>
+                                        <p class="slds-text-body_small text-muted">
+                                            Generating and verifying a one-time password (OTP) confirms physical presence of the prospective buyer 
+                                            and prevents duplicate commission claims by relatives or external brokers.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PHONE NUMBER INPUT & SEND OTP -->
+                            <div class="slds-grid slds-gutters slds-grid_vertical-align-end slds-m-bottom_medium">
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
+                                    <lightning-input 
+                                        type="tel" 
+                                        label="Visitor Mobile Phone Number *" 
+                                        value={visitorMobile} 
+                                        placeholder="e.g. 9902553348"
+                                        onchange={handleMobileChange}
+                                        required>
+                                    </lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-top_x-small">
+                                    <button 
+                                        class="wd-btn wd-btn_primary btn-full-width" 
+                                        onclick={handleSendOtp} 
+                                        disabled={isSendOtpDisabled}>
+                                        {sendOtpButtonLabel}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- SIMULATED SMS DISPATCH BANNER -->
+                            <template if:true={otpSent}>
+                                <div class="sms-preview-card slds-p-around_medium slds-m-bottom_medium">
+                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_xx-small">
+                                        <div class="slds-grid slds-grid_vertical-align-center">
+                                            <lightning-icon icon-name="utility:chat" size="x-small" class="slds-m-right_xx-small text-accent"></lightning-icon>
+                                            <span class="sms-sender font-bold">SMS Gateway: SENDER-RESLTD</span>
+                                        </div>
+                                        <span class="sms-timer text-muted">Just now</span>
+                                    </div>
+                                    <div class="sms-body slds-p-around_small slds-m-top_xx-small">
+                                        <p>"{otpMessage}"</p>
+                                    </div>
+                                    <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-top_x-small">
+                                        <span class="text-muted slds-text-body_small">Valid for 10 minutes</span>
+                                        <button class="chip" onclick={handleAutoFillOtp}>Quick Auto-Fill OTP (Demo)</button>
+                                    </div>
+                                </div>
+
+                                <!-- OTP DIGIT INPUT BOX -->
+                                <div class="otp-entry-section slds-text-align_center slds-p-around_medium">
+                                    <label class="slds-form-element__label font-bold slds-m-bottom_x-small">Enter 6-Digit Verification Code</label>
+                                    <div class="otp-input-wrapper slds-align_absolute-center slds-m-bottom_small">
+                                        <lightning-input 
+                                            type="text" 
+                                            maxlength="6" 
+                                            value={enteredOtp} 
+                                            placeholder="• • • • • •" 
+                                            onchange={handleOtpChange} 
+                                            class="otp-large-input">
+                                        </lightning-input>
+                                    </div>
+
+                                    <!-- OTP VERIFICATION BADGE -->
+                                    <template if:true={isOtpValid}>
+                                        <div class="otp-verified-badge animate-scale-up slds-p-around_x-small slds-m-top_x-small">
+                                            <lightning-icon icon-name="utility:success" size="x-small" variant="inverse" class="slds-m-right_xx-small"></lightning-icon>
+                                            <strong class="text-white">Visitor Authenticated • OTP Matches Gateway</strong>
+                                        </div>
+                                    </template>
+                                    <template if:false={isOtpValid}>
+                                        <template if:true={enteredOtp}>
+                                            <p class="text-danger slds-m-top_xx-small">Invalid OTP code. Please enter the 6-digit code received via SMS.</p>
+                                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <!-- STEP 3: CUSTOMER FEEDBACK & EXECUTIVE ASSESSMENT -->
+                    <template if:true={isStep3}>
+                        <div class="step-content animate-fade-in">
+                            <div class="section-banner">
+                                <span class="badge-step">Step 3 of 3</span>
+                                <h3 class="section-title">Site Visit Feedback &amp; Intelligence</h3>
+                            </div>
+
+                            <!-- SUB-SECTION 1: CUSTOMER FEEDBACK (BUYER VOICE) -->
+                            <div class="feedback-card slds-m-top_small slds-m-bottom_medium">
+                                <div class="feedback-card-header">
+                                    <span class="card-icon">👤</span>
+                                    <h4 class="card-title">1. Customer Feedback &amp; Experience Survey</h4>
+                                </div>
+
+                                <div class="slds-grid slds-gutters slds-wrap slds-m-top_x-small">
+                                    <!-- Show Flat Visited -->
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                                        <label class="input-sublabel">Show Flat Visited?</label>
+                                        <div class="chip-toggle-row">
+                                            <button type="button" class={isShowFlatYes} data-val="Yes" onclick={handleSetShowFlat}>Yes ✔</button>
+                                            <button type="button" class={isShowFlatNo} data-val="No" onclick={handleSetShowFlat}>No ✖</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Liked Project / Product -->
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                                        <label class="input-sublabel">Liked Preference</label>
+                                        <div class="chip-toggle-row">
+                                            <button type="button" class={isLikedProject} data-val="Project" onclick={handleSetLikedProduct}>Project</button>
+                                            <button type="button" class={isLikedProduct} data-val="Product" onclick={handleSetLikedProduct}>Product</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Family Visited -->
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3 slds-m-bottom_small">
+                                        <label class="input-sublabel">Family Accompanied?</label>
+                                        <div class="chip-toggle-row">
+                                            <button type="button" class={isFamilyYes} data-val="Yes" onclick={handleSetFamily}>Yes 👨‍👩‍👧</button>
+                                            <button type="button" class={isFamilyNo} data-val="No" onclick={handleSetFamily}>Alone</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Overall Experience Rating -->
+                                <div class="slds-m-bottom_small">
+                                    <label class="input-sublabel">Visitor Hospitality &amp; Overall Experience</label>
+                                    <div class="chip-toggle-row">
+                                        <button type="button" class={isExpSuperior} data-val="Superior" onclick={handleSetExperience}>Superior ⭐⭐⭐⭐⭐</button>
+                                        <button type="button" class={isExpGood} data-val="Good" onclick={handleSetExperience}>Good ⭐⭐⭐⭐</button>
+                                        <button type="button" class={isExpAverage} data-val="Average" onclick={handleSetExperience}>Average ⭐⭐⭐</button>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Questions / Suggestions -->
+                                <div class="slds-m-bottom_x-small">
+                                    <lightning-input 
+                                        type="text" 
+                                        label="Customer Inquiries &amp; Questions Asked" 
+                                        value={customerQuestions} 
+                                        placeholder="Questions asked: possession timeline, payment flexibility, vastu, APF loan..."
+                                        onchange={handleCustomerQuestionsChange}>
+                                    </lightning-input>
+                                </div>
+                            </div>
+
+                            <!-- SUB-SECTION 2: EXECUTIVE ASSESSMENT (DEAL INTELLIGENCE) -->
+                            <div class="feedback-card slds-m-bottom_medium">
+                                <div class="feedback-card-header">
+                                    <span class="card-icon">💼</span>
+                                    <h4 class="card-title">2. Executive Feedback &amp; Deal Assessment</h4>
+                                </div>
+
+                                <!-- RATING SELECTION CARDS -->
+                                <div class="slds-m-top_x-small slds-m-bottom_small">
+                                    <label class="input-sublabel">Lead Temperature / Buying Intent *</label>
+                                    <div class="slds-grid slds-gutters">
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <div class={hotRatingClass} onclick={handleSelectHot}>
+                                                <div class="rating-icon">🔥</div>
+                                                <div class="rating-name">Hot</div>
+                                                <div class="rating-desc">&lt; 7 Days</div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <div class={warmRatingClass} onclick={handleSelectWarm}>
+                                                <div class="rating-icon">⚡</div>
+                                                <div class="rating-name">Warm</div>
+                                                <div class="rating-desc">15-30 Days</div>
+                                            </div>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-3">
+                                            <div class={coldRatingClass} onclick={handleSelectCold}>
+                                                <div class="rating-icon">❄️</div>
+                                                <div class="rating-name">Cold</div>
+                                                <div class="rating-desc">Budget Gap</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="slds-grid slds-gutters slds-wrap slds-m-bottom_small">
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <label class="input-sublabel">Interest Level</label>
+                                        <div class="chip-toggle-row">
+                                            <button type="button" class={isInterestHigh} data-val="High" onclick={handleSetInterest}>High</button>
+                                            <button type="button" class={isInterestMedium} data-val="Medium" onclick={handleSetInterest}>Medium</button>
+                                            <button type="button" class={isInterestLow} data-val="Low" onclick={handleSetInterest}>Low</button>
+                                        </div>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                                        <label class="input-sublabel">Next Follow-Up Schedule</label>
+                                        <div class="chip-toggle-row">
+                                            <button type="button" class={isFollowUpWeek} data-val="Week" onclick={handleSetFollowUp}>1 Week</button>
+                                            <button type="button" class={isFollowUpFortnight} data-val="Fortnight" onclick={handleSetFollowUp}>Fortnight (15d)</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Sales Manager Remarks & Notes -->
+                                <div class="slds-m-bottom_small">
+                                    <lightning-input 
+                                        type="text" 
+                                        label="Sales Manager Commercial Remarks" 
+                                        value={salesManagerRemarks} 
+                                        placeholder="Special payment plan requested, floor-rise waiver discussed, NRI spouse approval..."
+                                        onchange={handleRemarksChange}>
+                                    </lightning-input>
+                                </div>
+
+                                <!-- QUICK OBSERVATION TAGS -->
+                                <div class="slds-m-bottom_small">
+                                    <label class="input-sublabel">Quick Deal Tags (Click to append)</label>
+                                    <div class="quick-tags-container">
+                                        <template for:each={quickTags} for:item="tag">
+                                            <button key={tag} type="button" class="chip" data-tag={tag} onclick={handleTagClick}>
+                                                + {tag}
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- FEEDBACK TEXT AREA -->
+                                <div class="slds-m-bottom_small">
+                                    <lightning-textarea 
+                                        name="feedback" 
+                                        label="Comprehensive Closing Notes" 
+                                        value={feedbackNotes} 
+                                        placeholder="Detailed sales notes and negotiation summary..."
+                                        onchange={handleFeedbackChange}
+                                        rows="2">
+                                    </lightning-textarea>
+                                </div>
+                            </div>
+
+                            <!-- SUMMARY CONFIRMATION PREVIEW -->
+                            <div class="summary-preview-box slds-p-around_small">
+                                <div class="slds-grid slds-grid_align-spread">
+                                    <div>
+                                        <span class="text-muted slds-text-body_small">Project: </span>
+                                        <strong>{selectedProjectName}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="text-muted slds-text-body_small">Unit: </span>
+                                        <strong>{selectedUnitDisplayName}</strong>
+                                    </div>
+                                    <div>
+                                        <span class="text-muted slds-text-body_small">OTP Status: </span>
+                                        <span class="text-success font-bold">✔ Verified</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- MODAL FOOTER -->
+                <footer class="slds-modal__footer modal-custom-footer slds-grid slds-grid_align-spread">
+                    <div>
+                        <button class="wd-btn wd-btn_ghost" onclick={handleCloseModal}>Cancel</button>
+                    </div>
+                    <div class="footer-actions">
+                        <template if:false={isStep1}>
+                            <button class="wd-btn wd-btn_ghost slds-m-right_x-small" onclick={handlePrevStep}>← Back</button>
+                        </template>
+
+                        <template if:false={isStep3}>
+                            <button class="wd-btn wd-btn_primary" onclick={handleNextStep} disabled={isNextDisabled}>Next Step →</button>
+                        </template>
+
+                        <template if:true={isStep3}>
+                            <button class="wd-btn wd-btn_primary btn-complete-glow" onclick={handleSubmitVisit} disabled={isSubmitting}>Complete &amp; Unlock Gate 🚀</button>
+                        </template>
+                    </div>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open glass-backdrop"></div>
+    </template>
+</template>

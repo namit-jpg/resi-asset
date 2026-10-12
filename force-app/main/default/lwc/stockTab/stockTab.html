@@ -1,0 +1,88 @@
+<template>
+    <!-- Wrapper Grid -->
+    <div class="slds-grid slds-grid_vertical">
+
+        <!-- Page Header -->
+        <div class="slds-page-header slds-page-header_record-home custom-header">
+            <div class="slds-grid slds-wrap">
+                <!-- Left Side: Title -->
+                <div class="slds-col slds-size_2-of-8">
+                    <div class="flex_box_custom">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="standard:products" alternative-text="products" size="medium"
+                                title="products"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1 class="slds-page-header__title slds-truncate">Unit Stock Overview</h1>
+                            <p class="slds-page-header__name-meta">Inventory • recently viewed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Filters + Legend -->
+                <div class="slds-col slds-size_6-of-8">
+                    <div class="slds-grid slds-wrap slds-float_right slds-align_absolute-center">
+
+                        <!-- Legend -->
+                        <div class="legend_container slds-grid slds-wrap slds-float_right slds-align_absolute-center">
+                            <template for:each={legendList} for:item="item">
+                                <div key={item.label}
+                                    class="slds-m-around_x-small slds-grid slds-align_absolute-center">
+                                    <div class="legend-color-box" style={item.style}></div>
+                                    <span class="slds-m-left_x-small">{item.label}</span>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Dropdown -->
+                        <lightning-combobox class="slds-m-right_small" name="filterDropdown"
+                            value={selectedFilter} placeholder="Select Status Filter"
+                            options={filterOptions} onchange={handleFilterChange}
+                            variant="label-hidden">
+                        </lightning-combobox>
+
+                        <!-- Search Bar -->
+                        <lightning-input class="slds-m-right_small" type="search" placeholder="Search units..."
+                            value={searchKey} onchange={handleSearchChange} variant="label-hidden">
+                        </lightning-input>
+
+                        <!-- Refresh Button -->
+                        <lightning-button-icon icon-name="utility:refresh" variant="border-filled"
+                            onclick={handleRefresh} title="Refresh">
+                        </lightning-button-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- lightning-card + lightning-datatable -->
+        <div class="custom-card-wrapper" style="border: 1px solid rgb(201, 201, 201);">
+
+            <!-- Show datatable when data exists -->
+            <template if:true={hasData}>
+                <div class="scrollable-datatable-wrapper">
+                    <lightning-datatable key-field="Id" data={units} columns={columns}
+                        enable-infinite-loading onloadmore={handleLoadMore}
+                        is-loading={isLoading} show-row-number-column hide-checkbox-column
+                        column-widths-mode="auto" resize-column-disabled>
+                    </lightning-datatable>
+                </div>
+            </template>
+
+            <!-- Show loading when fetching -->
+            <template if:true={isLoading}>
+                <div class="no-data">
+                    Loading...
+                </div>
+            </template>
+
+            <!-- Show no data only when finished loading -->
+            <template if:true={showNoData}>
+                <div class="no-data">
+                    No data available.
+                </div>
+            </template>
+        </div>
+
+    </div>
+</template>

@@ -1,0 +1,270 @@
+@import 'c/wdGlassDashStyles';
+
+.dash {
+    position: relative;
+    container-type: inline-size;
+}
+
+/* ---------- Controls ---------- */
+
+.controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.segmented {
+    display: inline-flex;
+    padding: 4px;
+    border: 1px solid var(--wd-glass-border);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 10px rgba(12, 70, 40, 0.06);
+}
+
+.seg {
+    appearance: none;
+    border: 0;
+    border-radius: 10px;
+    padding: 0.5rem 0.95rem;
+    background: transparent;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--wd-ink-soft);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.seg:hover {
+    color: var(--wd-ink);
+}
+
+.seg:focus-visible {
+    outline: 2px solid var(--wd-green);
+    outline-offset: 1px;
+}
+
+.seg_on {
+    background: linear-gradient(135deg, #3fd07e 0%, #0aa640 55%, var(--wd-green-deep) 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0, 153, 51, 0.3);
+}
+
+.seg_on:hover {
+    color: #fff;
+}
+
+.refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.62rem 1rem;
+}
+
+.refresh svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* ---------- Filter bar ---------- */
+
+.filters {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+    align-items: end;
+    gap: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    padding: 0.9rem 1.2rem 1rem;
+    /* Dropdowns have to escape the panel, so this one keeps overflow visible. */
+    contain: none;
+}
+
+.clear {
+    justify-self: start;
+    align-self: center;
+    padding: 0.5rem 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+    cursor: pointer;
+}
+
+.clear:hover,
+.clear:focus-visible {
+    text-decoration: underline;
+}
+
+/* ---------- Layout ---------- */
+
+.body {
+    transition: opacity 0.2s ease;
+}
+
+.body_loading {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.tiles {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.span-4 {
+    grid-column: span 4;
+}
+
+.span-5 {
+    grid-column: span 5;
+}
+
+.span-6 {
+    grid-column: span 6;
+}
+
+.span-7 {
+    grid-column: span 7;
+}
+
+.span-8 {
+    grid-column: span 8;
+}
+
+.span-12 {
+    grid-column: span 12;
+}
+
+/* ---------- Loading skeleton ---------- */
+
+.sk {
+    display: block;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+
+.sk_tile {
+    height: 13rem;
+}
+
+.sk_panel {
+    height: 22rem;
+}
+
+@keyframes pulse {
+    50% {
+        opacity: 0.55;
+    }
+}
+
+/* ---------- Shared tooltip ---------- */
+
+.tip {
+    position: absolute;
+    z-index: 10;
+    min-width: 11rem;
+    max-width: 16rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 12px 32px rgba(12, 45, 30, 0.16), 0 1px 3px rgba(12, 45, 30, 0.08);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, calc(-100% - 4px));
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    will-change: transform, opacity;
+}
+
+.tip_on {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 10px));
+}
+
+.tip-title {
+    margin: 0 0 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--wd-ink);
+}
+
+.tip-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+}
+
+.tip-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--wd-ink-soft);
+}
+
+.tip-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 3px;
+}
+
+.tip-value {
+    font-weight: 600;
+    color: var(--wd-ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ---------- Responsive ---------- */
+
+@container (max-width: 1100px) {
+    .span-4,
+    .span-5,
+    .span-6,
+    .span-7,
+    .span-8 {
+        grid-column: span 12;
+    }
+
+    .tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@container (max-width: 560px) {
+    .tiles {
+        grid-template-columns: 1fr;
+    }
+
+    .controls {
+        width: 100%;
+    }
+
+    .refresh-label {
+        display: none;
+    }
+}
+
+.tiles > *,
+.grid > div > * {
+    height: 100%;
+}

@@ -1,0 +1,35 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Stock to sell</h2>
+                <p class="panel-kicker"><strong>{availableTotal}</strong> units open across {configCount} configurations</p>
+            </div>
+            <ul class="legend">
+                <li><span class="swatch swatch_available"></span>Available</li>
+                <li><span class="swatch swatch_held"></span>On hold</li>
+                <li><span class="swatch swatch_sold"></span>Booked</li>
+            </ul>
+        </header>
+        <template lwc:if={hasRows}>
+            <ul class="rows">
+                <template for:each={rows} for:item="r">
+                    <li key={r.label} class="row">
+                        <span class="row-label" title={r.label}>{r.label}</span>
+                        <span class="stack">
+                            <template for:each={r.segments} for:item="s">
+                                <span key={s.key} class={s.segClass} style={s.style} tabindex="0"
+                                    data-row={r.index} data-key={s.key}
+                                    onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}></span>
+                            </template>
+                        </span>
+                        <span class="row-value num"><strong>{r.available}</strong> of {r.total}</span>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:else>
+            <p class="empty">No units loaded yet.</p>
+        </template>
+    </section>
+</template>

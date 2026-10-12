@@ -1,0 +1,80 @@
+<apex:page controller="WelcomeLetterController"
+           contentType="application/msword#{!fileName}.doc"
+           cache="true"
+           applyBodyTag="false"
+           showHeader="false"
+           standardStylesheets="false">
+
+    <html>
+        <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12pt;
+                margin: 1in;
+                line-height: 1.5;
+            }
+            .date {
+                text-align: right;
+                margin-bottom: 20px;
+            }
+            .salutation {
+                margin-bottom: 20px;
+            }
+            .content {
+                text-align: justify;
+                margin-bottom: 20px;
+            }
+            .closing {
+                margin-top: 30px;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+
+        <div class="date">
+            Date: {!letter.letterDate}
+        </div>
+
+        <div class="salutation">
+            Dear {!letter.customerName},
+        </div>
+
+        <div class="content">
+            Congratulations on becoming a proud owner at <b>{!letter.projectName}</b>, 
+            <b>{!letter.projectAddress}</b>. 
+            We confirm your booking of a <b>{!letter.configuration}</b>, No <b>{!letter.unitNumber}</b>, 
+            of Carpet Area <b>{!letter.carpetArea} SqFt</b>. 
+            on <b>{!letter.floorNumber}</b> of Tower: <b>{!letter.towerName}</b>.
+        </div>
+
+        <div class="content">
+            Thank you for placing your valued trust in us. 
+            We now hope to exceed your expectations in terms of service, construction quality 
+            and delivery, in the days to come. 
+            As you are aware, we at <b>"WarpDrive Tech Works"</b> have consistently completed 
+            all our projects exceeding our client's expectations in terms of quality and schedules 
+            and we have all intentions of doing the same with <b>{!letter.projectName}</b>.
+        </div>
+
+        <div class="content">
+            In conclusion, may we once again thank you for being a part of us and look forward 
+            to a long and happy relationship. 
+            We solicit your continued support and patronage in our brand.
+        </div>
+
+        <div class="content">
+            Welcome to the <b>WarpDrive family</b>.
+        </div>
+
+        <div class="closing">
+            Warm Regards,<br/>
+            From <b>WarpDrive Tech Works</b>,<br/><br/><br/><br/>
+            <p style="margin-top:40px;">______________________________</p>
+            <p>Authorised Signatory.</p>
+        </div>
+
+    </body>
+    </html>
+</apex:page>

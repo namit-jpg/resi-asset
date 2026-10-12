@@ -1,0 +1,29 @@
+<template>
+    <section class="wd-glass card">
+        <header class="head">
+            <h2 class="wd-section-title">Booking cancellation approvals<span class="wd-section-count">{count}</span></h2>
+        </header>
+        <template lwc:if={hasItems}>
+            <ul class="rows">
+                <template for:each={items} for:item="c">
+                    <li key={c.key} class="row">
+                        <div class="row-main">
+                            <a href="#" class="row-title" data-id={c.bookingId} onclick={handleOpen}>{c.title}</a>
+                            <span class="row-meta">{c.meta}</span>
+                            <template lwc:if={c.comments}>
+                                <span class="row-note">“{c.comments}”</span>
+                            </template>
+                        </div>
+                        <div class="row-side">
+                            <span class={c.statusClass}>{c.status}</span>
+                            <span class="row-meta">{c.when}</span>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </template>
+        <template lwc:elseif={loaded}>
+            <p class="empty">No cancellation has been requested.</p>
+        </template>
+    </section>
+</template>

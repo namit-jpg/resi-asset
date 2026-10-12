@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Site_Visit_For_Conversion</fullName>
+    <active>true</active>
+    <description>Prevents Lead conversion unless at least one verified Site Visit has been conducted and logged with OTP verification.</description>
+    <errorConditionFormula>AND(IsConverted = TRUE, Has_Site_Visit__c = FALSE)</errorConditionFormula>
+    <errorMessage>Qualification Threshold Not Met: A Lead cannot be converted without at least one verified Site Visit. Please conduct and log a Site Visit with OTP verification first.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,106 @@
+@import 'c/wdGlassStyles';
+
+:host {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card {
+    padding: 1.2rem 1.3rem 1.1rem;
+}
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.view-all {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.view-all:hover,
+.view-all:focus-visible {
+    text-decoration: underline;
+}
+
+.rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.row {
+    display: flex;
+    flex-direction: column;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--wd-line);
+}
+
+.row:last-child {
+    border-bottom: 0;
+}
+
+.title {
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--wd-ink);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.title:hover,
+.title:focus-visible {
+    color: var(--wd-green-deep);
+    text-decoration: underline;
+}
+
+.meta {
+    overflow: hidden;
+    font-size: 0.8rem;
+    color: var(--wd-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.chip {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid rgba(20, 48, 90, 0.1);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.6);
+    font: inherit;
+    font-size: 0.8rem;
+    color: var(--wd-ink-soft);
+    cursor: pointer;
+}
+
+.chip:hover,
+.chip:focus-visible {
+    background: #fff;
+    color: var(--wd-green-deep);
+}
+.empty {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--wd-muted);
+}

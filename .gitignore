@@ -1,0 +1,17 @@
+
+# secrets / local
+.env
+.env.*
+!.env.example
+.DS_Store
+node_modules/
+.venv/
+.slack-app.json
+.slack/
+.sfdx/
+.convex/
+*.pem
+*.key
+.secrets/
+__pycache__/
+.pytest_cache/

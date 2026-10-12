@@ -1,0 +1,49 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "Phone" : {
+      "title" : "Phone",
+      "description" : "The user's contact phone number.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "email" : {
+      "title" : "email",
+      "description" : "The user's valid email address where the brochure PDF will be sent.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "firstName" : {
+      "title" : "firstName",
+      "description" : "The first name of the user who wants the brochure.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "lastName" : {
+      "title" : "lastName",
+      "description" : "The last name or surname of the user.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varCity" : {
+      "title" : "varCity",
+      "description" : "The Indian city where the user wants a property (e.g., Bangalore, Delhi, Hyderabad, Gurugram)",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varProject" : {
+      "title" : "varProject",
+      "description" : "The specific luxury project the user selected from the available list in their chosen city.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

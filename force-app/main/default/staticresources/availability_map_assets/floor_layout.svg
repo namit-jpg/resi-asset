@@ -1,0 +1,50 @@
+<svg width="882" height="674" viewBox="0 0 882 674" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_8_44)">
+<rect x="160" y="158" width="562" height="358" fill="#EDEDED"/>
+<rect width="139" height="133" transform="matrix(-1 0 0 1 882 15)" fill="#D9D9D9"/>
+<rect width="108" height="148" transform="matrix(-1 0 0 1 799 0)" fill="#D9D9D9"/>
+<rect width="41" height="52" transform="matrix(-1 0 0 1 710 96)" fill="#D9D9D9"/>
+<rect y="15" width="139" height="133" fill="#D9D9D9"/>
+<rect x="83" width="108" height="148" fill="#D9D9D9"/>
+<rect x="185" y="96" width="28" height="52" fill="#D9D9D9"/>
+<rect width="139" height="133" transform="matrix(-1 0 0 1 436 15)" fill="#D9D9D9"/>
+<rect width="108" height="148" transform="matrix(-1 0 0 1 353 0)" fill="#D9D9D9"/>
+<rect width="28" height="52" transform="matrix(-1 0 0 1 251 96)" fill="#D9D9D9"/>
+<rect x="446" y="15" width="139" height="133" fill="#D9D9D9"/>
+<rect x="529" width="108" height="148" fill="#D9D9D9"/>
+<rect x="631" y="96" width="28" height="52" fill="#D9D9D9"/>
+<rect x="882" y="659" width="139" height="133" transform="rotate(-180 882 659)" fill="#D9D9D9"/>
+<rect x="799" y="674" width="108" height="148" transform="rotate(-180 799 674)" fill="#D9D9D9"/>
+<rect x="701" y="578" width="32" height="52" transform="rotate(-180 701 578)" fill="#D9D9D9"/>
+<rect width="139" height="133" transform="matrix(1 0 0 -1 0 659)" fill="#D9D9D9"/>
+<rect width="108" height="148" transform="matrix(1 0 0 -1 83 674)" fill="#D9D9D9"/>
+<rect width="28" height="52" transform="matrix(1 0 0 -1 185 578)" fill="#D9D9D9"/>
+<rect x="436" y="659" width="139" height="133" transform="rotate(-180 436 659)" fill="#D9D9D9"/>
+<rect x="353" y="674" width="108" height="148" transform="rotate(-180 353 674)" fill="#D9D9D9"/>
+<rect x="251" y="578" width="28" height="52" transform="rotate(-180 251 578)" fill="#D9D9D9"/>
+<rect width="139" height="133" transform="matrix(1 0 0 -1 446 659)" fill="#D9D9D9"/>
+<rect width="108" height="148" transform="matrix(1 0 0 -1 529 674)" fill="#D9D9D9"/>
+<rect width="28" height="52" transform="matrix(1 0 0 -1 631 578)" fill="#D9D9D9"/>
+<rect x="581" y="342" width="68" height="65" fill="#D9D9D9"/>
+<rect x="581" y="267" width="68" height="65" fill="#D9D9D9"/>
+<rect x="218" y="267" width="68" height="65" fill="#D9D9D9"/>
+<rect x="218" y="342" width="68" height="65" fill="#D9D9D9"/>
+<rect x="15" y="158" width="135" height="54" fill="#D9D9D9"/>
+<rect y="199" width="150" height="108" fill="#D9D9D9"/>
+<rect x="94" y="290" width="56" height="42" fill="#D9D9D9"/>
+<rect width="135" height="57" transform="matrix(1 0 0 -1 15 516)" fill="#D9D9D9"/>
+<rect width="150" height="108" transform="matrix(1 0 0 -1 0 475)" fill="#D9D9D9"/>
+<rect width="56" height="40" transform="matrix(1 0 0 -1 94 382)" fill="#D9D9D9"/>
+<rect width="135" height="53" transform="matrix(-1 0 0 1 867 158)" fill="#D9D9D9"/>
+<rect width="150" height="108" transform="matrix(-1 0 0 1 882 199)" fill="#D9D9D9"/>
+<rect width="56" height="42" transform="matrix(-1 0 0 1 788 290)" fill="#D9D9D9"/>
+<rect x="867" y="516" width="135" height="60" transform="rotate(180 867 516)" fill="#D9D9D9"/>
+<rect x="882" y="475" width="150" height="108" transform="rotate(180 882 475)" fill="#D9D9D9"/>
+<rect x="788" y="385" width="56" height="43" transform="rotate(180 788 385)" fill="#D9D9D9"/>
+</g>
+<defs>
+<clipPath id="clip0_8_44">
+<rect width="882" height="674" fill="white"/>
+</clipPath>
+</defs>
+</svg>

@@ -1,0 +1,175 @@
+<template>
+    <!-- EMBEDDED RECORD PAGE WIDGET CARD (WARPDRIVE GLASS UI TEMPLATE) -->
+    <section class="wd-glass card">
+        <template if:true={isLoading}>
+            <div class="loading-state">
+                <lightning-spinner alternative-text="Loading status" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <!-- HEADER -->
+            <header class="head">
+                <div class="head-title">
+                    <span class="head-glyph">📁</span>
+                    <h2 class="wd-section-title">Lead Archival</h2>
+                </div>
+                <template if:true={isFollowUpDue}>
+                    <span class="glass-pill pill-due">Due 🔔</span>
+                </template>
+                <template if:true={isArchived}>
+                    <span class="glass-pill pill-cooling">{archiveDays}d Scheduled</span>
+                </template>
+                <template if:true={isIdle}>
+                    <span class="glass-pill pill-idle">Active</span>
+                </template>
+            </header>
+
+            <!-- STATE 1: FOLLOW UP DUE (ALERT) -->
+            <template if:true={isFollowUpDue}>
+                <div class="due-box">
+                    <p class="due-text">Archival period of <strong>{archiveDays}d</strong> elapsed. Re-engage customer now!</p>
+                    <button class="wd-btn wd-btn_primary full-btn" onclick={handleCompleteFollowUp}>
+                        ✓ Mark Followed Up (Reactivate)
+                    </button>
+                </div>
+            </template>
+
+            <!-- STATE 2: CURRENTLY ARCHIVED -->
+            <template if:true={isArchived}>
+                <div class="cooling-box">
+                    <div class="cooling-info-row">
+                        <span class="cooling-lbl">Scheduled Follow-Up:</span>
+                        <strong class="cooling-val">{formattedFollowUpDate}</strong>
+                    </div>
+                    <p class="archival-hint">
+                        Lead is archived. Changing the stage above to any active stage automatically reactivates the lead.
+                    </p>
+                    <div class="cooling-actions slds-m-top_x-small">
+                        <button class="subtle-chip" onclick={handleTriggerNow} title="Trigger test follow-up notification">
+                            Test Alert 🔔
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            <!-- STATE 3: ACTIVE LEAD (SLIM CONTROL BAR) -->
+            <template if:true={isIdle}>
+                <div class="archival-controls">
+                    <!-- Segmented preset row -->
+                    <div class="preset-segment">
+                        <button class="preset-btn" data-days="7" onclick={handleQuickArchive}>7d</button>
+                        <button class="preset-btn" data-days="14" onclick={handleQuickArchive}>14d</button>
+                        <button class="preset-btn" data-days="30" onclick={handleQuickArchive}>30d</button>
+                        <button class="preset-btn" data-days="60" onclick={handleQuickArchive}>60d</button>
+                    </div>
+
+                    <!-- Clean inline custom input -->
+                    <div class="custom-row">
+                        <div class="input-wrap">
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max="365" 
+                                placeholder="Custom" 
+                                value={customDaysInput} 
+                                oninput={handleDaysInputChange} 
+                                onkeydown={handleKeyDown} 
+                                class="custom-num-input" />
+                            <span class="input-suffix">days</span>
+                        </div>
+                        <button 
+                            class="wd-btn wd-btn_ghost apply-btn" 
+                            onclick={handleSaveCustomArchive} 
+                            disabled={isSaveDisabled}>
+                            Archive
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </section>
+
+    <!-- ARCHIVAL SCHEDULING POPUP MODAL -->
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_small glass-modal-overlay">
+            <div class="slds-modal__container glass-modal-container">
+                <!-- MODAL HEADER -->
+                <header class="slds-modal__header modal-custom-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                        <lightning-icon icon-name="utility:close" size="small" variant="inverse"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="modal-badge-row">
+                        <span class="modal-tag">Lead Pipeline Management</span>
+                        <span class="modal-lead-name">{leadName}</span>
+                    </div>
+                    <h2 class="modal-heading">Schedule Lead Archival &amp; Follow-up</h2>
+                    <p class="modal-subheading">Choose how long to pause active outreach before an automated follow-up notification is triggered.</p>
+                </header>
+
+                <!-- MODAL BODY -->
+                <div class="slds-modal__content slds-p-around_large modal-custom-body">
+                    <div class="modal-preset-grid slds-m-bottom_medium">
+                        <button class={modalPreset7Class} data-days="7" onclick={handleModalSelectDays}>
+                            <span class="preset-num">7</span>
+                            <span class="preset-unit">Days</span>
+                            <span class="preset-desc">Short pause</span>
+                        </button>
+                        <button class={modalPreset14Class} data-days="14" onclick={handleModalSelectDays}>
+                            <span class="preset-num">14</span>
+                            <span class="preset-unit">Days</span>
+                            <span class="preset-desc">Standard cooling</span>
+                        </button>
+                        <button class={modalPreset30Class} data-days="30" onclick={handleModalSelectDays}>
+                            <span class="preset-num">30</span>
+                            <span class="preset-unit">Days</span>
+                            <span class="preset-desc">1 Month follow-up</span>
+                        </button>
+                        <button class={modalPreset60Class} data-days="60" onclick={handleModalSelectDays}>
+                            <span class="preset-num">60</span>
+                            <span class="preset-unit">Days</span>
+                            <span class="preset-desc">Long term</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-custom-row slds-m-bottom_medium">
+                        <label class="font-bold text-ink slds-m-right_small">Or specify custom days:</label>
+                        <input 
+                            type="number" 
+                            min="1" 
+                            max="365" 
+                            placeholder="Enter days (e.g. 21)" 
+                            value={modalDaysInput} 
+                            oninput={handleModalDaysInputChange} 
+                            class="modal-num-input" />
+                    </div>
+
+                    <div class="modal-preview-box">
+                        <div class="preview-item">
+                            <span class="preview-lbl">Target Stage:</span>
+                            <strong class="text-accent">Archive</strong>
+                        </div>
+                        <div class="preview-item">
+                            <span class="preview-lbl">Follow-Up Date:</span>
+                            <strong class="text-ink">{modalCalculatedFollowUpDate}</strong>
+                        </div>
+                    </div>
+
+                    <p class="modal-info-note slds-m-top_small">
+                        💡 <strong>Tip:</strong> Moving the lead stage to <em>Archive</em> schedules an automated task for the lead owner. You can reactivate this lead at any time simply by selecting any active stage on the status bar.
+                    </p>
+                </div>
+
+                <!-- MODAL FOOTER -->
+                <footer class="slds-modal__footer modal-custom-footer slds-grid slds-grid_align-spread">
+                    <button class="wd-btn wd-btn_ghost" onclick={handleCloseModal}>Cancel</button>
+                    <button class="wd-btn wd-btn_primary" onclick={handleConfirmModalArchive} disabled={isModalSaveDisabled}>
+                        Confirm Archival
+                    </button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open glass-backdrop"></div>
+    </template>
+</template>

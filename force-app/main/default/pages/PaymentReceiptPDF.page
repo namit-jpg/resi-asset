@@ -1,0 +1,177 @@
+<apex:page showHeader="false" applyHtmlTag="false" standardStylesheets="false"
+            standardController="Payment_Receipt__c" renderAs="pdf"
+           extensions="PaymentReceiptPDFExt"
+           contentType="application/pdf#Payment Receipt - {!Payment_Receipt__c.SAP_External_Id__c}.pdf"
+           >
+
+<head>
+    
+        <style type="text/css">
+        @page { size: A4; margin: 16mm; }
+        body, td, th { font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.35; color:#000; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        .center { text-align: center; } .right { text-align: right; } .bold { font-weight: bold; }
+        .small { font-size: 10pt; } .ital { font-style: italic; }
+        .mt8 { margin-top:8px; } .mt12{ margin-top:12px; } .mt16{ margin-top:16px; } .mb8{ margin-bottom:8px; }
+        .pad6{ padding:6px; } .pad8{ padding:8px; }
+
+        /* underline blanks as inline blocks (works well inside single TD) */
+        .u { display:inline-block; border-bottom:1px solid #000; padding:0 2px; vertical-align:baseline; }
+        .u90{ width:90px; } .u120{ width:120px; } .u150{ width:150px; }
+        .u180{ width:180px; } .u220{ width:220px; } .u280{ width:280px; } .u320{ width:320px; }
+
+        /* header “box” with top title + address; then a row for receipt/date */
+        .box { border:1px solid #000; }
+        .box .title { background:#eee; font-weight:bold; text-align:center; padding:8px 6px; }
+        .box td { padding:8px 6px; vertical-align:middle; }
+        .box td.borderTop { border-top:1px solid #000; }
+
+        /* thin horizontal rule below header details */
+        .hr { border-top:1px solid #000; height:0; margin:0; }
+
+        /* bottom two small boxes */
+        .amountBox, .signBox { border:1px solid #000; height:36px; }
+        .note { margin-top:10px; }
+
+        /* top recipient block spacing */
+        .recip td { padding: 3px 0; }
+    </style>
+</head>
+    
+    
+    <p>
+        <strong> {!Payment_Receipt__c.Account__r.Salutation}{!Payment_Receipt__c.Account__r.Name}</strong> <br/>
+       
+         {!Payment_Receipt__c.Account__r.PersonMailingStreet}<br/>
+         {!Payment_Receipt__c.Account__r.PersonMailingCity},
+         {!Payment_Receipt__c.Account__r.PersonMailingPostalCode}<br/>
+         Ph No: {!Payment_Receipt__c.Account__r.Phone}
+   		
+    </p>
+    <!-- ===== Recipient block (top left) ===== -->
+    <!--<table class="recip">
+        <colgroup><col width="70"/><col/></colgroup>
+        <tr>
+            <td class="bold">{!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.Salutation}</td>
+            <td><span class="u320">{!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.Name}</span></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span class="u320">{!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.PersonMailingStreet}</span></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><span class="u320">
+                {!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.PersonMailingCity},
+                {!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.PersonMailingPostalCode}
+            </span></td>
+        </tr>
+        <tr>
+            <td class="bold">Ph No:</td>
+            <td><span class="u150">{!Payment_Receipt__c.Demand__r.Booking_Id__r.Account_Id__r.Phone}</span></td>
+        </tr>
+    </table> -->
+
+    <!-- ===== Company header box ===== -->
+    <table class="box mt16" border="1">
+        <tr>
+            <td class="title" colspan="2">
+                <img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works" style="height:12mm;"/><br/>
+                WarpDrive Tech Works<br/>
+                No. 1, Dr. Rajkumar Road, Opp. Sheraton Hotel, Rajajinagar, Bangalore 560 010
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <table style="width:100%; table-layout:fixed;">
+                    <colgroup><col width="50%"/><col width="50%"/></colgroup>
+                    <tr>
+                        <td>Receipt No: <span class="u u150">{!Payment_Receipt__c.SAP_External_Id__c}</span></td>
+                        <td class="right">Date:
+                            <span class="u u120">
+                                <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                    <apex:param value="{!Payment_Receipt__c.CreatedDate}"/>
+                                </apex:outputText>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        
+        <!-- thin rule to match the sample -->
+    
+        <tr>
+            <td colspan="2" style="border-bottom:none">
+
+    <!-- ===== Body (sentences with inline underlines) ===== -->
+    			<div class="mt12">
+                    <p class="mt8">Received with thanks from {!Payment_Receipt__c.Account__r.Salutation}
+                        <span class="u u280">{!Payment_Receipt__c.Account__r.Name}</span>
+                    </p>
+                    
+                    <p class="mt8">The sum of <span>Rupees:</span>
+                        <span class="u u280">{!AmountInWords}</span>
+                        <span >Only</span>
+                    </p>
+                    
+                    <p class="mt8">
+                        by
+                        <!-- PAYMENT MODE SWITCH -->
+                        <apex:outputPanel rendered="{!Payment_Receipt__c.Mode_Of_Payment__c = 'TDS'}">
+                            Cheque /DD.No./RTGS No.
+                            <span class="u u120">Challan: {!Payment_Receipt__c.Challan_Number__c}</span>
+                            <span class="u u120">Cert: {!Payment_Receipt__c.Certificate_Number__c}</span>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!Payment_Receipt__c.Mode_Of_Payment__c = 'Cheque'}">
+                            Cheque /DD.No./RTGS No. <span class="u u180">Cheque No: {!Payment_Receipt__c.ChequeNumber__c}</span>
+                        </apex:outputPanel>
+                        <apex:outputPanel rendered="{!AND(Payment_Receipt__c.Mode_Of_Payment__c <> 'TDS',
+                                                    Payment_Receipt__c.Mode_Of_Payment__c <> 'Cheque')}">
+                            Cheque /DD.No./RTGS No. <span class="u u180">{!Payment_Receipt__c.Transaction_Reference__c}</span>
+                        </apex:outputPanel>
+                    </p>
+                    
+                    <p class="mt8">Dated:
+                        <span class="u u120">
+                            <apex:outputText value="{0,date,dd-MM-yyyy}">
+                                <apex:param value="{!Payment_Receipt__c.Date_Of_Payment__c}"/>
+                            </apex:outputText>
+                        </span>
+                    </p>
+                    
+                    <p class="mt8">Drawn on:
+                        <span class="u u180">{!Payment_Receipt__c.Customer_Bank_Name__c}</span>
+                        <!--<span >BANK</span>-->
+                    </p>
+                    
+                    <p class="mt8">towards the Flat No.
+                        <span class="u u90">{!Payment_Receipt__c.Demand__r.Booking_Id__r.Unit_Id__r.Name}</span>
+                        in "{!Payment_Receipt__c.Demand__r.Booking_Id__r.Unit_Id__r.Property__r.Name}"
+                    </p>
+                </div>
+            </td>
+        </tr>
+
+    <!-- ===== Bottom two boxes row ===== -->
+        <tr >
+            <td style="border-right:none;border-top:none;border-bottom:none;">
+                <div class="amountBox pad8">
+                    Rs. <apex:outputText value="{0, number, ###,##,##0.00}">
+                            <apex:param value="{!Payment_Receipt__c.Amount_Paid__c}"/>
+                        </apex:outputText> /-
+                </div>
+            </td>
+            <td class="right" style="border-left:none;border-top:none;border-bottom:none;">
+                <div class="signBox pad8">&nbsp;</div>
+            </td>
+        </tr>
+        <tr>
+        	<td class="right mt12" colspan="2" style="border-top:none;padding-right:90px">Authorized Signatory</td>
+        </tr>
+    </table>
+
+    <div class="small ital note">
+        * Validity of receipt is subject to realization of above mentioned instrument/s
+    </div>
+</apex:page>

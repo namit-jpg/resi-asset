@@ -1,0 +1,78 @@
+<template>
+    <c-wd-glass-canvas>
+        <header class="wd-hero">
+            <div>
+                <p class="wd-eyebrow">{eyebrow}</p>
+                <h1 class="wd-title">{greeting}</h1>
+                <p class="wd-subtitle">{subtitle}</p>
+            </div>
+            <div class="wd-actions">
+                <button type="button" class="wd-btn wd-btn_ghost" onclick={handleRefresh}>Refresh</button>
+                <button type="button" class="wd-btn wd-btn_primary" onclick={handleNewLead}>New lead</button>
+            </div>
+        </header>
+
+        <template lwc:if={error}>
+            <div class="wd-error" role="alert">{error}</div>
+        </template>
+
+        <c-wd-glass-kpis kpis={kpis}></c-wd-glass-kpis>
+
+        <div class="layout">
+        <div class="panels">
+            <section class="wd-glass panel">
+                <header class="panel-head">
+                    <h2 class="wd-section-title">Inventory by project</h2>
+                    <span class="legend">
+                        <span class="swatch swatch_primary"></span>Available
+                        <span class="swatch swatch_secondary"></span>Booked
+                    </span>
+                </header>
+                <ul class="bars">
+                    <template for:each={inventoryBars} for:item="bar">
+                        <li key={bar.label} class="bar-row">
+                            <span class="bar-label">{bar.label}</span>
+                            <span class="bar-track" title={bar.title}>
+                                <span class="bar-fill bar-fill_primary" style={bar.primaryStyle}></span>
+                                <span class="bar-fill bar-fill_secondary" style={bar.secondaryStyle}></span>
+                            </span>
+                            <span class="bar-value">{bar.caption}</span>
+                        </li>
+                    </template>
+                </ul>
+            </section>
+
+            <section class="wd-glass panel">
+                <header class="panel-head">
+                    <h2 class="wd-section-title">Lead funnel</h2>
+                    <button type="button" class="link-btn" data-tab="WD_Glass_Leads" onclick={handleOpenTab}>Open leads →</button>
+                </header>
+                <ul class="bars">
+                    <template for:each={funnelBars} for:item="bar">
+                        <li key={bar.label} class="bar-row">
+                            <span class="bar-label">{bar.label}</span>
+                            <span class="bar-track">
+                                <span class="bar-fill bar-fill_primary" style={bar.primaryStyle}></span>
+                            </span>
+                            <span class="bar-value">{bar.caption}</span>
+                        </li>
+                    </template>
+                </ul>
+            </section>
+        </div>
+        </div>
+
+        <section class="wd-glass list">
+            <header class="list-head">
+                <h2 class="wd-section-title">Recent bookings<span class="wd-section-count">{bookingCount}</span></h2>
+                <button type="button" class="link-btn" data-tab="WD_Glass_Bookings" onclick={handleOpenTab}>All bookings →</button>
+            </header>
+            <div class="list-body">
+                <template lwc:if={loading}>
+                    <lightning-spinner alternative-text="Loading" size="small"></lightning-spinner>
+                </template>
+                <c-wd-glass-table columns={columns} rows={rows} empty-message="No bookings yet."></c-wd-glass-table>
+            </div>
+        </section>
+    </c-wd-glass-canvas>
+</template>

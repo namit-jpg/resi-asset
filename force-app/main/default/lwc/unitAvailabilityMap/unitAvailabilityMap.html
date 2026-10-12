@@ -1,0 +1,239 @@
+<template>
+    <lightning-card title="Unit Availability Map" icon-name="standard:account">
+
+        <div slot="actions" class="slds-grid slds-gutters">
+            <lightning-combobox name="tower" value={selectedTower} placeholder="Select Tower" variant="label-hidden"
+                options={towerOptions} onchange={handleTowerChange} class="slds-m-right_small"></lightning-combobox>
+
+            <lightning-combobox name="floor" value={selectedFloor} placeholder="Select Floor" variant="label-hidden"
+                options={floorOptions} onchange={handleFloorChange} class="slds-m-right_small"></lightning-combobox>
+        </div>
+
+        <div class="main-body">
+
+            <template if:true={isLoading}>
+                <div class="loading-container">
+                    <lightning-spinner class="loader" alternative-text="Loading" size="large"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:false={isLoading}>
+
+                <template if:true={isDataPresent}>
+                    <div class="parent-flex-container">
+                        <div class="parent-flex-box-row">
+                            <div class="unit 1">
+                                <div class="unit_1_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={availableColor} />
+                                        <rect x="83" width="108" height="148" fill={availableColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={availableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 1</span>
+                                </div>
+                            </div>
+                            <div class="unit 2">
+                                <div class="unit_2_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={unavailableColor} />
+                                        <rect x="83" width="108" height="148" fill={unavailableColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 2</span>
+                                </div>
+                            </div>
+                            <div class="unit 3">
+                                <div class="unit_3_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={bookedColor} />
+                                        <rect x="83" width="108" height="148" fill={bookedColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={bookedColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 3</span>
+                                </div>
+                            </div>
+                            <div class="unit 4">
+                                <div class="unit_4_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={underConstructionColor} />
+                                        <rect x="83" width="108" height="148" fill={underConstructionColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={underConstructionColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 4</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parent-flex-box-row">
+                            <div class="unit 5 left-middle-row">
+                                <div class="unit_5_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 150 174" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="15" width="135" height="54" fill={bookedColor} />
+                                        <rect y="41" width="150" height="108" fill={bookedColor} />
+                                        <rect x="94" y="132" width="56" height="42" fill={bookedColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 5</span>
+                                </div>
+                            </div>
+                            <div class="open_area_left left-middle-row" style="position: relative;">
+                                <div class="lift_shape">
+                                    <svg width="100%" height="100%" viewBox="0 0 68 65" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="68" height="65" fill={liftColor} />
+                                    </svg>
+                                    <span class="unit_number">Lift</span>
+                                </div>
+                            </div>
+                            <div class="open_area_right right-middle-row" style="position: relative;">
+                                <div class="lift_shape">
+                                    <svg width="100%" height="100%" viewBox="0 0 68 65" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="68" height="65" fill={liftColor} />
+                                    </svg>
+                                    <span class="unit_number">Lift</span>
+                                </div>
+                            </div>
+                            <div class="unit 6 right-middle-row">
+                                <div class="unit_6_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 150 174" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="15" width="135" height="54" fill={unavailableColor} />
+                                        <rect y="41" width="150" height="108" fill={unavailableColor} />
+                                        <rect x="94" y="132" width="56" height="42" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 6</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parent-flex-box-row">
+                            <div class="unit 7 left-middle-row">
+                                <div class="unit_7_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 150 174" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="15" width="135" height="54" fill={unavailableColor} />
+                                        <rect y="41" width="150" height="108" fill={unavailableColor} />
+                                        <rect x="94" y="132" width="56" height="42" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 7</span>
+                                </div>
+                            </div>
+                            <div class="open_area_left left-middle-row" style="position: relative;">
+                                <div class="lift_shape">
+                                    <svg width="100%" height="100%" viewBox="0 0 68 65" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="68" height="65" fill={liftColor} />
+                                    </svg>
+                                    <span class="unit_number">Lift</span>
+                                </div>
+                            </div>
+                            <div class="open_area_right right-middle-row" style="position: relative;">
+                                <div class="lift_shape">
+                                    <svg width="100%" height="100%" viewBox="0 0 68 65" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="68" height="65" fill={liftColor} />
+                                    </svg>
+                                    <span class="unit_number">Lift</span>
+                                </div>
+                            </div>
+                            <div class="unit 8 right-middle-row">
+                                <div class="unit_8_layout unit_shape" style="position: relative;"> 
+                                    <svg width="100%" height="100%" viewBox="0 0 150 174" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="15" width="135" height="54" fill={unavailableColor} />
+                                        <rect y="41" width="150" height="108" fill={unavailableColor} />
+                                        <rect x="94" y="132" width="56" height="42" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 8</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parent-flex-box-row">
+                            <div class="unit 9">
+                                <div class="unit_9_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={underConstructionColor} />
+                                        <rect x="83" width="108" height="148" fill={underConstructionColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={underConstructionColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 9</span>
+                                </div>
+                            </div>
+                            <div class="unit 10">
+                                <div class="unit_10_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={unavailableColor} />
+                                        <rect x="83" width="108" height="148" fill={unavailableColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 10</span>
+                                </div>
+                            </div>
+                            <div class="unit 11">
+                                <div class="unit_11_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={unavailableColor} />
+                                        <rect x="83" width="108" height="148" fill={unavailableColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={unavailableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 11</span>
+                                </div>
+                            </div>
+                            <div class="unit 12">
+                                <div class="unit_12_layout unit_shape" style="position: relative;">
+                                    <svg width="100%" height="100%" viewBox="0 0 213 148" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <rect y="15" width="139" height="133" fill={availableColor} />
+                                        <rect x="83" width="108" height="148" fill={availableColor} />
+                                        <rect x="185" y="96" width="28" height="52" fill={availableColor} />
+                                    </svg>
+                                    <span class="unit_number">Unit 12</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:false={isDataPresent}>
+                    <div class="no-data-container">
+                        <p class="no-data-text">No data available. Please select a Tower and floor to view availability
+                            map
+                        </p>
+                    </div>
+                </template>
+
+            </template>
+
+            <div class="legend">
+                <span class="legend-item">
+                    <span class="legend-circle available"></span>
+                    Available
+                </span>
+                <span class="legend-item">
+                    <span class="legend-circle booked"></span>
+                    Booked
+                </span>
+                <span class="legend-item">
+                    <span class="legend-circle construction"></span>
+                    On Construction
+                </span>
+                <span class="legend-item">
+                    <span class="legend-circle notAvailable"></span>
+                    Not Available
+                </span>
+                <span class="legend-item">
+                    <span class="legend-circle lift"></span>
+                    Lift
+                </span>
+            </div>
+
+        </div>
+
+    </lightning-card>
+</template>

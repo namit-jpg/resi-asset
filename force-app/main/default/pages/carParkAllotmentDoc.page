@@ -1,0 +1,101 @@
+<apex:page controller="DocumentGenerationController" showHeader="false" sidebar="false" 
+    contentType="application/msword#CarParkAllotment_{!booking.Name}.doc; charset=UTF-8">
+
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 40px;
+        }
+        h2 {
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        p {
+            margin-bottom: 0.5cm;
+        }
+        br{
+            margin-bottom: 0.2cm;
+        }
+        h3{
+            font-weight: 600;
+            text-align: center;
+            text-decoration: underline;
+        }
+        ol li {
+        	line-height: 1.5;
+        }
+        </style>
+</head>
+<body>
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+    <h2>CAR PARK ALLOTMENT LETTER</h2>
+    <br/>
+    <p style="text-align: right;">Date: <strong>{!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}</strong></p>
+    <p>
+        To: <br/>
+        <strong>{!booking.Account_Id__r.Salutation}</strong> <strong>{!booking.Account_Id__r.Name}</strong>,<br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingStreet}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingCity}, {!booking.Account_Id__r.BillingState}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingPostalCode}"/></strong><br/>
+        Contact No: <strong><apex:outputText value="{!booking.Account_Id__r.Phone}"/></strong>
+    </p>
+    <p>SUB: Allotment of Car Park Space/s bearing No/s. {!parkingsDetails} of Tower <strong>{!booking.Unit_Id__r.Tower__r.Name}</strong>, against your Apartment bearing No. <strong>{!booking.Unit_Id__r.Name}</strong> on the <strong>{!booking.Unit_Id__r.Floor__r.Name}</strong> Floor in Precinct <strong>{!booking.Unit_Id__r.Tower__r.Name}</strong> of "<strong>{!booking.Project__r.Name}</strong>" situated at "<strong>{!booking.Project__r.Address__c}</strong>". 
+    </p>
+    <p>RE: Agreement Dated <strong> <apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Agreement_Executed_Date__c}" /></apex:outputText></strong> and Sale Deed dated <strong> <apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Sale_Deed_Executed_Date__c}" /></apex:outputText></strong> </p>
+    <p>Dear Sir/Madam,</p>
+    <p>
+        In terms of the above referred Sale deed, we are pleased to inform you that, you have been allotted exclusive right to use Car Park Space/s bearing Nos. {!parkingsDetails}
+        of Tower <strong>{!booking.Unit_Id__r.Tower__r.Name}</strong>, against your Apartment bearing No. <strong>{!booking.Unit_Id__r.Name}</strong> on the <strong>{!booking.Unit_Id__r.Floor__r.Name}</strong> Floor in <strong>{!booking.Unit_Id__r.Tower__r.Name}</strong> of "<strong>{!booking.Project__r.Name}</strong>" situated at <strong>{!booking.Project__r.Address__c}</strong>.
+    </p>
+    <p>
+        It is further provided that, this exclusive right to use can be enjoyed and exercised only by you subject to the terms and conditions mentioned hereinafter.
+    </p>
+    <p>
+        As token of acceptance of the Car Parking Space/s allotted to you, please affix your signature on the duplicate of this Car Park Allotment letter and return it to us.
+    </p>
+    <p>
+        Thanking You,<br/>
+        Yours Sincerely<br/>
+        For WarpDrive Tech Works<br/>
+    </p>
+    <table style="width: 100%; margin-top: 1.5cm; border: none;">
+        <td style="vertical-align: bottom;">
+            (AUTHORISED SIGNATORY)
+        </td>
+        <td style="vertical-align: bottom; text-align: right;">
+            I/We CONFIRM ACCEPTANCE <br/> (Read Terms and Conditions)
+        </td>
+    </table>
+    <h3>Terms and Conditions</h3>
+    <ol>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s has/have inspected the aforesaid Car Park Space/s allotted to him/her by the Seller and he/she/they have no objection to the same.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s undertakes not to park vehicles at any other place in Schedule 'A' Property.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall have no authority to question/object to allotment of other Car Park Space by the Seller / WarpDrive to other buyers.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser must keep the Car Park Space/s clean and will not carry out any interior work /construction in any part of it.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall not use the Car Park Space/s for any other purpose.</li>
+        <li style="margin-bottom:0.5cm;">In case of any misuse of the Car Park Space/s by the Purchaser/s or any apartment owners, the Seller or the Apex association as the case may be, will have the right to cancel allotment of such Car Park Space/s.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall use the Car Park Spaces/s for parking cars/ Light motor vehicles only and shall not use the same for parking of heavy commercial motor vehicles.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall wash his/her/their cars only in the areas designated for such purposes.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall not be allowed to rent or sell the Car Park Spaces/s allotted to them to any third party.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall park their two wheelers and bicycles in the places designated for such parking.</li>
+        <li style="margin-bottom:0.5cm;">In case of any damage caused to the structure of the building due to rash and negligent driving of the Purchaser/s or their drivers, such damage shall be rectified at Purchaser/s cost, failing which the seller shall carryout such repairs and collect the expenditure incurred from such Purchaser/s.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall not paint/stick any bill board/name plate/any hoardings in parking area.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall at all times maintain speed prescribed while driving/riding in parking area.</li>
+        <li style="margin-bottom:0.5cm;">Any person under the age of 18, without a valid driving license and person with learner's license are prohibited from driving any vehicle inside the Schedule 'A' property.</li>
+        <li style="margin-bottom:0.5cm;">The Car Park Space/s allotted to the Purchaser/s and Apartment Owners is exclusive to the owner of the Apartment and in case of sale of the Apartment to which the Car Park is attached, the new purchaser shall automatically be entitled to the same.</li>
+        <li style="margin-bottom:0.5cm;">The allottee of the Car Park Space/s / co-owner of the apartment may park in parking area allotted to him / her. The allottee may also permit only his immediate family to Park and if any entity is Apartment owner, only such authorized person shall park his/her vehicle in the allotted car park area and in case, the apartment is rented out, then only the tenant shall be entitled to use the same.</li>
+        <li style="margin-bottom:0.5cm;">Only one car can be parked in one allotted Car Park Space.</li>
+        <li style="margin-bottom:0.5cm;">The Seller/Apex association shall issue sticker for the cars and only such cars with the sticker shall be allowed to enter the Schedule 'A' Property and parking area.</li>
+        <li style="margin-bottom:0.5cm;">The Purchaser/s shall abide by all the terms and conditions that may be stipulated by the Seller, Association and/or the Apex Association from time to time in respect of parking areas.</li>
+        <li style="margin-bottom:0.5cm;">Apartment owners shall instruct their drivers to wait only in the designated waiting area for drivers.</li>
+        <li style="margin-bottom:0.5cm;">WarpDrive shall not be liable for any dispute amongst apartment owners regarding car park areas.</li>
+    </ol>
+    <p><b>It is the responsibility of every Apartment owner to ensure compliance to these aforementioned terms and conditions and restrict their use to the allotted Car Park Space/s only.</b></p>
+</body>
+</html>
+</apex:page>

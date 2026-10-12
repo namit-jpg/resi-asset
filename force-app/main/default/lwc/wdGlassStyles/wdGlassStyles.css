@@ -1,0 +1,191 @@
+/*
+ * WarpDrive frosted-glass design tokens and primitives.
+ * Import into a component stylesheet with: @import 'c/wdGlassStyles';
+ */
+:host {
+    --wd-green: #009933;
+    --wd-green-deep: #007a29;
+    --wd-green-soft: #34c26b;
+    --wd-mint: #dff5e8;
+    --wd-grey: #58595b;
+    --wd-ink: #14305a;
+    --wd-ink-soft: #3d4f6b;
+    --wd-muted: #66758c;
+    --wd-line: rgba(20, 48, 90, 0.08);
+    --wd-glass: rgba(255, 255, 255, 0.52);
+    --wd-glass-strong: rgba(255, 255, 255, 0.7);
+    --wd-glass-border: rgba(255, 255, 255, 0.85);
+    --wd-shadow: 0 10px 34px rgba(12, 70, 40, 0.08), 0 1px 2px rgba(12, 70, 40, 0.05);
+    --wd-radius: 18px;
+    --wd-warn: #c2620a;
+    --wd-bad: #c23934;
+    display: block;
+    color: var(--wd-ink);
+    font-family: 'Salesforce Sans', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wd-glass {
+    position: relative;
+    background: var(--wd-glass);
+    border: 1px solid var(--wd-glass-border);
+    border-radius: var(--wd-radius);
+    box-shadow: var(--wd-shadow);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+}
+
+.wd-eyebrow {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+    letter-spacing: 0.01em;
+}
+
+.wd-title {
+    margin: 0;
+    font-size: 2.35rem;
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--wd-ink);
+    letter-spacing: -0.01em;
+}
+
+.wd-subtitle {
+    margin: 0.55rem 0 0;
+    font-size: 0.95rem;
+    color: var(--wd-ink-soft);
+}
+
+.wd-btn {
+    appearance: none;
+    border: 1px solid var(--wd-glass-border);
+    border-radius: 12px;
+    padding: 0.7rem 1.35rem;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.wd-btn:focus-visible {
+    outline: 2px solid var(--wd-green);
+    outline-offset: 2px;
+}
+
+.wd-btn:hover {
+    transform: translateY(-1px);
+}
+
+.wd-btn_ghost {
+    background: var(--wd-glass-strong);
+    color: var(--wd-ink);
+    box-shadow: 0 2px 10px rgba(12, 70, 40, 0.06);
+}
+
+.wd-btn_ghost:hover {
+    background: #fff;
+}
+
+.wd-btn_primary {
+    border-color: transparent;
+    background: linear-gradient(135deg, #3fd07e 0%, #0aa640 55%, var(--wd-green-deep) 100%);
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(0, 153, 51, 0.32);
+}
+
+.wd-btn_primary:hover {
+    box-shadow: 0 10px 26px rgba(0, 153, 51, 0.42);
+}
+
+.wd-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wd-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.75rem;
+}
+
+.wd-section-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--wd-ink);
+}
+
+.wd-section-count {
+    margin-left: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--wd-ink-soft);
+}
+
+.wd-input,
+.wd-select {
+    height: 2.6rem;
+    padding: 0 0.9rem;
+    border: 1px solid rgba(20, 48, 90, 0.1);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.78);
+    color: var(--wd-ink);
+    font: inherit;
+    font-size: 0.92rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wd-input {
+    width: 19rem;
+    max-width: 100%;
+}
+
+.wd-select {
+    min-width: 11rem;
+    padding-right: 2.2rem;
+    appearance: none;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, var(--wd-ink-soft) 50%),
+        linear-gradient(135deg, var(--wd-ink-soft) 50%, transparent 50%);
+    background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.wd-input:focus,
+.wd-select:focus {
+    border-color: var(--wd-green-soft);
+    box-shadow: 0 0 0 3px rgba(0, 153, 51, 0.14);
+}
+
+.wd-empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--wd-muted);
+}
+
+.wd-error {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    background: rgba(194, 57, 52, 0.08);
+    color: var(--wd-bad);
+}
+
+@media (max-width: 767px) {
+    .wd-title {
+        font-size: 1.8rem;
+    }
+
+    .wd-input {
+        width: 100%;
+    }
+}

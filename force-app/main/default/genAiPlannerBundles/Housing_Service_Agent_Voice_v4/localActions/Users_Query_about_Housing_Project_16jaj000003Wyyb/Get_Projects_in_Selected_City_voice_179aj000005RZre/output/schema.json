@@ -1,0 +1,18 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "output" : {
+      "title" : "output",
+      "description" : "A list of luxury projects available in the selected city. Each item in the list contains a 'projectName' and a 'projectId'.",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/c__ProjectInCityService$ProjectOutput"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

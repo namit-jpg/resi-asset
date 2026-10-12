@@ -1,0 +1,231 @@
+<template>
+    <div class={rootCls}>
+        <template lwc:if={showBackdrop}>
+            <div class="backdrop" aria-hidden="true">
+                <span class="glow glow_a"></span>
+                <span class="glow glow_b"></span>
+                <span class="glow glow_c"></span>
+            </div>
+        </template>
+        <!-- top bar: project, towers, kpis -->
+        <div class="top wd-glass">
+            <div class="proj">
+                <lightning-combobox
+                    label="Project"
+                    variant="label-stacked"
+                    options={projectOptions}
+                    value={projectId}
+                    onchange={handleProject}
+                ></lightning-combobox>
+            </div>
+            <div class="tabs" role="tablist">
+                <template for:each={towerTabs} for:item="t">
+                    <button key={t.id} type="button" role="tab" class={t.cls} data-id={t.id} onclick={handleTower}>{t.label}</button>
+                </template>
+            </div>
+            <div class="kpis">
+                <template for:each={kpis} for:item="k">
+                    <div key={k.key} class="kpi"><small>{k.label}</small><b>{k.value}</b></div>
+                </template>
+            </div>
+        </div>
+
+        <template lwc:if={error}>
+            <div class="wd-error msg">{error}</div>
+        </template>
+
+        <div class="body">
+            <!-- filters -->
+            <aside class="filters wd-glass">
+                <div class="fgroup">
+                    <small>Configuration</small>
+                    <div class="pills">
+                        <template for:each={bhkPills} for:item="p">
+                            <button key={p.value} type="button" class={p.cls} data-value={p.value} onclick={handleBhk}>{p.value}</button>
+                        </template>
+                    </div>
+                </div>
+                <div class="fgroup">
+                    <small>Status</small>
+                    <div class="pills">
+                        <template for:each={statusPills} for:item="p">
+                            <button key={p.value} type="button" class={p.cls} data-value={p.value} onclick={handleStatus}>{p.label}</button>
+                        </template>
+                    </div>
+                </div>
+                <template lwc:if={showFloorFilter}>
+                    <div class="fgroup">
+                        <small>{floorLabel}</small>
+                        <div class="range" style={floorFill}>
+                            <input type="range" aria-label="From floor" min={floorBounds.min} max={floorBounds.max} step="1" value={effFloorMin} oninput={handleFloorMin} />
+                            <input type="range" aria-label="To floor" min={floorBounds.min} max={floorBounds.max} step="1" value={effFloorMax} oninput={handleFloorMax} />
+                        </div>
+                    </div>
+                </template>
+                <template lwc:if={showBudgetFilter}>
+                    <div class="fgroup">
+                        <small>{budgetLabel}</small>
+                        <div class="range" style={budgetFill}>
+                            <input type="range" aria-label="Minimum budget in lakhs" min={budgetBounds.min} max={budgetBounds.max} step="1" value={effBudgetMin} oninput={handleBudgetMin} />
+                            <input type="range" aria-label="Maximum budget in lakhs" min={budgetBounds.min} max={budgetBounds.max} step="1" value={effBudgetMax} oninput={handleBudgetMax} />
+                        </div>
+                    </div>
+                </template>
+                <div class="res"><b>{matchSummary.count} units</b> match<template lwc:if={matchSummary.names}> · {matchSummary.names}</template></div>
+                <button type="button" class="wd-btn wd-btn_ghost sm" onclick={handleReset}>Reset filters</button>
+            </aside>
+
+            <!-- stack -->
+            <div class="center wd-glass">
+                <div class="legend" aria-label="Legend">
+                    <template for:each={legend} for:item="l">
+                        <span key={l.label}><i class={l.cls}></i>{l.label}</span>
+                    </template>
+                </div>
+                <template lwc:if={loading}>
+                    <div class="skeleton">
+                        <div class="sk-line"></div>
+                        <div class="sk-grid">
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                        </div>
+                    </div>
+                </template>
+                <template lwc:elseif={hasUnits}>
+                    <template lwc:if={noRateWarning}>
+                        <div class="warn">No active Business Plan Price on {tower.towerName}, so prices can't be calculated.</div>
+                    </template>
+                    <template lwc:if={noMatches}>
+                        <div class="warn">No units match these filters. <button type="button" class="link" onclick={handleReset}>Reset filters</button></div>
+                    </template>
+                    <div class="stack-scroll">
+                        <div class="roof"></div>
+                        <div class="stack" style={gridStyle}>
+                            <span></span>
+                            <template for:each={headers} for:item="h">
+                                <span key={h.key} class="hdr">{h.label}</span>
+                            </template>
+                            <template for:each={rows} for:item="r">
+                                <span key={r.key} class="fl">{r.label}</span>
+                                <template for:each={r.cells} for:item="c">
+                                    <template lwc:if={c.empty}>
+                                        <span key={c.key} class={c.cls}></span>
+                                    </template>
+                                    <template lwc:else>
+                                        <button key={c.key} type="button" class={c.cls} data-id={c.id} title={c.title} onclick={handleCell}>
+                                            <b>{c.label}</b><small>{c.sub}</small>
+                                        </button>
+                                    </template>
+                                </template>
+                            </template>
+                        </div>
+                        <div class="ground">Ground · {tower.towerName} · {tower.projectName}</div>
+                    </div>
+                </template>
+                <template lwc:else>
+                    <div class="wd-empty empty-state">
+                        <div class="ei">▦</div>
+                        <b>No units in this tower</b>
+                        <small>Pick another tower or project.</small>
+                    </div>
+                </template>
+            </div>
+
+            <!-- unit panel -->
+            <aside class="panel wd-glass">
+                <template lwc:if={panel}>
+                    <div class="ph">
+                        <div><small>Unit</small><b>{panel.name}</b></div>
+                        <span class={panel.chipCls}>{panel.status}</span>
+                    </div>
+                    <div class="meta">{panel.meta}</div>
+                    <template lwc:if={panel.isCurrent}>
+                        <div class="current-note">Currently tagged to this opportunity</div>
+                    </template>
+                    <div class="specs">
+                        <template for:each={panel.specs} for:item="s">
+                            <div key={s.key}><small>{s.label}</small><b>{s.value}</b></div>
+                        </template>
+                    </div>
+                    <template lwc:if={panel.hasPrice}>
+                        <div class="pb">
+                            <template for:each={panel.lines} for:item="l">
+                                <div key={l.key} class="cs"><span>{l.label}</span><b>{l.value}</b></div>
+                            </template>
+                            <div class="cs tot"><span>All-in (before taxes)</span><b>{panel.allIn}</b></div>
+                            <template lwc:if={panel.chargeableNote}>
+                                <div class="note">{panel.chargeableNote}</div>
+                            </template>
+                        </div>
+                    </template>
+                    <template lwc:if={showBrowseActions}>
+                        <div class="tag">
+                            <template lwc:if={panel.hasTags}>
+                                <small>Tagged to</small>
+                                <template for:each={panel.tags} for:item="t">
+                                    <a key={t.id} href="#" class="tag-link" data-id={t.id} onclick={handleOpenTag}>
+                                        <b>{t.name}</b><span>{t.meta}</span>
+                                    </a>
+                                </template>
+                            </template>
+                            <template lwc:if={panel.canTag}>
+                                <small>Tag to an opportunity</small>
+                                <template lwc:if={tagOpp}>
+                                    <div class="tag-pick">
+                                        <span><b>{tagOpp.name}</b><em>{tagOpp.meta}</em></span>
+                                        <button type="button" class="link" onclick={handleClearTagOpp}>Change</button>
+                                    </div>
+                                    <button type="button" class="wd-btn wd-btn_primary sm" disabled={tagging} onclick={handleTag}>
+                                        Tag {panel.name} and reserve
+                                    </button>
+                                </template>
+                                <template lwc:else>
+                                    <lightning-input
+                                        type="search"
+                                        label="Search open opportunities"
+                                        variant="label-hidden"
+                                        placeholder="Search opportunity or customer"
+                                        value={tagTerm}
+                                        onchange={handleTagSearch}
+                                    ></lightning-input>
+                                    <template lwc:if={tagSearching}>
+                                        <div class="tag-hint">Searching…</div>
+                                    </template>
+                                    <template lwc:elseif={hasTagResults}>
+                                        <ul class="tag-results" role="listbox" aria-label="Opportunities">
+                                            <template for:each={tagResults} for:item="o">
+                                                <li key={o.id} role="none">
+                                                    <button type="button" role="option" class="tag-opt" data-id={o.id} onclick={handlePickTagOpp}>
+                                                        <b>{o.name}</b><span>{o.meta}</span>
+                                                    </button>
+                                                </li>
+                                            </template>
+                                        </ul>
+                                    </template>
+                                    <template lwc:elseif={tagNoResults}>
+                                        <div class="tag-hint">No open opportunity matches “{tagTerm}”.</div>
+                                    </template>
+                                </template>
+                                <template lwc:if={tagError}>
+                                    <div class="wd-error tag-error" role="alert">{tagError}</div>
+                                </template>
+                            </template>
+                        </div>
+                        <div class="acts">
+                            <button type="button" class="wd-btn wd-btn_primary sm" onclick={handleOpenRecord}>Open record</button>
+                            <button type="button" class="wd-btn wd-btn_ghost sm" onclick={handleClosePanel}>Close</button>
+                        </div>
+                    </template>
+                </template>
+                <template lwc:else>
+                    <div class="panel-empty">
+                        <div class="ei">◫</div>
+                        <b>Select a unit</b>
+                        <small lwc:if={isSelectMode}>Only available units can be selected.</small>
+                        <small lwc:else>Click any unit in the stack to see its details and price build-up.</small>
+                    </div>
+                </template>
+            </aside>
+        </div>
+    </div>
+</template>

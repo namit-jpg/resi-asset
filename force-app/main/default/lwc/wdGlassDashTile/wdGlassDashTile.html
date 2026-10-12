@@ -1,0 +1,31 @@
+<template>
+    <article class="wd-glass tile">
+        <header class="tile-head">
+            <span class="tile-label">{tile.label}</span>
+            <span class={deltaClass} title={deltaTitle}>
+                <template lwc:if={deltaArrow}>
+                    <svg class="delta-icon" viewBox="0 0 10 10" aria-hidden="true"><path d={deltaArrow}></path></svg>
+                </template>
+                {deltaText}
+            </span>
+        </header>
+        <p class="tile-value num">{value}<span class="tile-unit">{unit}</span></p>
+        <p class="tile-caption">{tile.caption}</p>
+        <div class="spark" role="img" aria-label={sparkLabel}>
+            <div class="spark-plot">
+            <svg class="spark-svg" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true">
+                <path class="spark-area" d={spark.area}></path>
+                <path class="spark-line" d={spark.line}></path>
+            </svg>
+            <span class="spark-dot" style={spark.dotStyle}></span>
+            <div class="spark-hits">
+                <template for:each={spark.points} for:item="p">
+                    <span key={p.key} class="hit spark-hit" tabindex="0" data-index={p.index}
+                        onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}></span>
+                </template>
+            </div>
+            </div>
+        </div>
+        <p class="spark-caption">Last 12 months</p>
+    </article>
+</template>

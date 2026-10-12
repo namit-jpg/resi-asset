@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApexComponent xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <description>WarpDrive letterhead logo (WD_Doc_Logo static resource) for customer document pages.</description>
+    <label>WDDocLogo</label>
+</ApexComponent>

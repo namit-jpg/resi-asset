@@ -1,0 +1,180 @@
+.main-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.loading-container{
+    margin: 2rem;
+    width: 75%;
+}
+
+.parent-flex-container {
+    margin: 2rem;
+    width: 75%;
+}
+
+.parent-flex-box-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px 0px;
+    gap: 10px;
+}
+
+.unit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50%;
+    width: 100%;
+}
+
+.open_area_left {
+    min-height: 125px;
+    width: 100%;
+}
+
+.open_area_right {
+    min-height: 125px;
+    width: 100%;
+}
+
+.unit_shape {
+    height: 100%;
+}
+
+.lift_shape {
+    height: 40%;
+    width: 40%;
+}
+
+.left-middle-row .lift_shape span {
+    left: 20%;
+}
+
+.right-middle-row .lift_shape span {
+    left: 80%;
+}
+
+.unit_2_layout svg {
+    transform: scaleX(-1);
+}
+
+.unit_4_layout svg {
+    transform: scaleX(-1);
+}
+
+.unit_6_layout svg {
+    transform: scaleX(-1);
+}
+
+.unit_7_layout svg {
+    transform: scaleY(-1);
+}
+
+.unit_8_layout svg {
+    transform: scaleY(-1) scaleX(-1);
+}
+
+.unit_9_layout svg {
+    transform: scaleY(-1);
+}
+
+.unit_10_layout svg {
+    transform: rotate(180deg);
+}
+
+.unit_11_layout svg {
+    transform: scaleX(-1) rotate(180deg);
+}
+
+.unit_12_layout svg {
+    transform: scaleY(-1) scaleX(-1);
+}
+
+.left-middle-row {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.right-middle-row {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+/* legend CSS */
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-size: 15px;
+    align-items: start;
+    padding: 4% 2%;
+    width: 25%;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-circle {
+    width: 14px;
+    height: 14px;
+    border-radius: 20%;
+    display: inline-block;
+}
+
+.legend-circle.available {
+    background-color: #4CAF50;
+}
+
+.legend-circle.booked {
+    background-color: #F44336;
+}
+
+.legend-circle.construction {
+    background-color: #FFC107;
+}
+
+.legend-circle.notAvailable {
+    background-color: #9E9E9E;
+}
+
+.legend-circle.lift {
+    background-color: #2196F3;
+}
+
+.loader{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.no-data-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+}
+.no-data-text {
+    font-size: 1rem;
+    color: #9E9E9E;
+    text-align: center;
+}
+
+.unit_number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: black;
+    font-size: 1rem;
+    pointer-events: none;
+}

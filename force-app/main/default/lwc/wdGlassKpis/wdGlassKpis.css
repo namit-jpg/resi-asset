@@ -1,0 +1,84 @@
+@import 'c/wdGlassStyles';
+
+:host {
+    container-type: inline-size;
+}
+
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.75rem;
+}
+
+.kpi {
+    display: flex;
+    flex-direction: column;
+    min-height: 11.5rem;
+    padding: 1.5rem 1.5rem 1.4rem;
+}
+
+.kpi-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.kpi-label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--wd-ink-soft);
+}
+
+.kpi-live {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--wd-green);
+    box-shadow: 0 0 0 4px rgba(0, 153, 51, 0.16);
+}
+
+.kpi-value {
+    margin: auto 0 0.35rem;
+    font-size: 2.9rem;
+    line-height: 1.05;
+    font-weight: 500;
+    color: var(--wd-ink);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi-value_text {
+    font-size: 1.85rem;
+    letter-spacing: -0.01em;
+}
+
+.kpi-unit {
+    margin-left: 0.2rem;
+    font-size: 1rem;
+    letter-spacing: 0;
+    color: var(--wd-ink-soft);
+}
+
+.kpi-caption {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--wd-muted);
+}
+
+@container (max-width: 1000px) {
+    .kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@container (max-width: 520px) {
+    .kpis {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .kpi {
+        min-height: 0;
+    }
+}

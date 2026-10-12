@@ -1,0 +1,28 @@
+{
+  "required" : [ ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varLeadId" : {
+      "title" : "varLeadId",
+      "description" : "The unique Salesforce ID of the Lead (retrieved from the discovery action output).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varProjectId" : {
+      "title" : "varProjectId",
+      "description" : "The unique Salesforce ID of the Project (retrieved from the discovery action output).",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varVisitDateTime" : {
+      "title" : "varVisitDateTime",
+      "description" : "The user's preferred date and time for the visit.",
+      "lightning:type" : "lightning__dateTimeStringType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

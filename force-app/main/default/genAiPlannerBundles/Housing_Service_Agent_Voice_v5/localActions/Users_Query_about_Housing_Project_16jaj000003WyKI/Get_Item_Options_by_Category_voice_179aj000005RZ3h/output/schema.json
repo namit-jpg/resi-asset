@@ -1,0 +1,18 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "itemDetails" : {
+      "title" : "Item Options",
+      "description" : "Display the Image from Output Image url",
+      "maxItems" : 2000,
+      "items" : {
+        "lightning:type" : "@apexClassType/c__ItemOptionService$ItemDetail"
+      },
+      "lightning:type" : "lightning__listType",
+      "lightning:isPII" : false,
+      "copilotAction:isDisplayable" : true,
+      "copilotAction:isUsedByPlanner" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

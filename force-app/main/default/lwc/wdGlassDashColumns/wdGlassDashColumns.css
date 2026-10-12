@@ -1,0 +1,148 @@
+@import 'c/wdGlassDashStyles';
+
+.swatch_booked,
+.bar_booked {
+    background: var(--dash-booked);
+}
+
+.swatch_held,
+.bar_held {
+    background: var(--dash-held);
+}
+
+/* Target is drawn in ink, not a series hue: it is a reference, not a second measure. */
+.swatch_target {
+    height: 2px;
+    width: 14px;
+    border-radius: 2px;
+    background: var(--wd-ink);
+}
+
+.chart {
+    display: grid;
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+    flex: 1;
+    min-height: 15.5rem;
+}
+
+.axis,
+.plot {
+    position: relative;
+}
+
+.tick {
+    position: absolute;
+    right: 0.7rem;
+    transform: translateY(50%);
+    font-size: 0.72rem;
+    color: var(--wd-muted);
+    white-space: nowrap;
+}
+
+.grid {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--dash-grid);
+}
+
+.plot {
+    display: flex;
+}
+
+.group {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    border-radius: 10px;
+    transition: background 0.15s ease;
+}
+
+.group:hover,
+.group:focus-visible {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.bars {
+    position: relative;
+    display: flex;
+    flex: 1;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
+}
+
+.bar {
+    width: min(18px, 46%);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.target {
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--wd-ink);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.group_future .bar {
+    opacity: 0.5;
+}
+
+.month {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.7rem;
+    font-size: 0.75rem;
+    color: var(--wd-muted);
+}
+
+.group_current .target {
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--wd-ink);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.group_future .bar {
+    opacity: 0.5;
+}
+
+.month {
+    font-weight: 700;
+    color: var(--wd-ink);
+}
+
+@media (max-width: 600px) {
+    .chart {
+        grid-template-columns: 3rem minmax(0, 1fr);
+    }
+
+    .target {
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--wd-ink);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+}
+
+.group_future .bar {
+    opacity: 0.5;
+}
+
+.month {
+        font-size: 0.65rem;
+    }
+}

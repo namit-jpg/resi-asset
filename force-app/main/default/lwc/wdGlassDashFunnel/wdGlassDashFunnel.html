@@ -1,0 +1,39 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Enquiry to booking</h2>
+                <p class="panel-kicker">Enquiries received in {periodLabel}, and how far they have got</p>
+            </div>
+            <div class="headline">
+                <span class="headline-value num">{overall}<span class="headline-pct">%</span></span>
+                <span class="headline-caption">enquiries booked</span>
+            </div>
+        </header>
+        <template lwc:if={hasLeads}>
+            <ol class="funnel-list">
+                <template for:each={stages} for:item="s">
+                    <li key={s.label} class="funnel-item">
+                        <template lwc:if={s.step}>
+                            <span class="funnel-step">
+                                <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 9 1 3H9Z"></path></svg>
+                                {s.step}% moved on
+                            </span>
+                        </template>
+                        <div class="hit funnel-row" tabindex="0" data-index={s.index}
+                            onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                            <span class="funnel-label">{s.label}</span>
+                            <span class="funnel-track">
+                                <span class={s.barClass} style={s.style}></span>
+                            </span>
+                            <span class="funnel-count num">{s.count}</span>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+        </template>
+        <template lwc:else>
+            <p class="empty">No new enquiries in {periodLabel} yet.</p>
+        </template>
+    </section>
+</template>

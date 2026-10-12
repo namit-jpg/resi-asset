@@ -1,0 +1,45 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Collection health</h2>
+                <p class="panel-kicker">Demands due to date</p>
+            </div>
+        </header>
+        <template lwc:if={hasDemands}>
+            <div class="gauge" role="img" aria-label={gaugeLabel}>
+                <svg class="ring" viewBox="0 0 120 120" aria-hidden="true">
+                    <circle class="ring-track" cx="60" cy="60" r="50"></circle>
+                    <circle class="ring-value" cx="60" cy="60" r="50" style={ringStyle}></circle>
+                </svg>
+                <div class="gauge-text">
+                    <span class="gauge-value num">{collectedPct}<span class="gauge-pct">%</span></span>
+                    <span class="gauge-caption">collected of {due} due</span>
+                </div>
+            </div>
+            <div class="ageing">
+                <p class="ageing-head">
+                    <span>Overdue by age</span>
+                    <strong class="num">{overdue}</strong>
+                </p>
+                <ul class="buckets">
+                    <template for:each={buckets} for:item="b">
+                        <li key={b.label} class="hit bucket" tabindex="0" data-index={b.index}
+                            onmouseenter={handleEnter} onfocus={handleEnter} onmouseleave={handleLeave} onblur={handleLeave}>
+                            <span class="bucket-label">{b.label}</span>
+                            <span class="bucket-track"><span class={b.fillClass} style={b.style}></span></span>
+                            <span class="bucket-value num">{b.value}</span>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="empty">No demands have fallen due yet.</p>
+        </template>
+        <p class="upcoming">
+            <span class="upcoming-dot"></span>
+            {upcoming}
+        </p>
+    </section>
+</template>

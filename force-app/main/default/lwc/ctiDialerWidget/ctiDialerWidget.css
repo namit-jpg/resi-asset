@@ -1,0 +1,542 @@
+@import 'c/wdGlassStyles';
+
+/* CARD CONTAINER */
+.card {
+    padding: 1.1rem 1.25rem;
+    margin-bottom: 0.85rem;
+}
+
+.head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.head-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.pulsing-emerald-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--wd-green);
+    box-shadow: 0 0 6px rgba(0, 153, 51, 0.6);
+    flex: none;
+    animation: gentle-dot 2s infinite ease-in-out;
+}
+
+@keyframes gentle-dot {
+    0%, 100% { opacity: 0.7; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 10px rgba(0, 153, 51, 0.8); }
+}
+
+.wd-section-title {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+    white-space: nowrap;
+}
+
+/* Ghost Pill for Recent Calls */
+.ghost-pill-btn {
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--wd-line);
+    background: rgba(255, 255, 255, 0.75);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--wd-ink-soft);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex: none;
+}
+
+.ghost-pill-btn:hover {
+    background: #fff;
+    color: var(--wd-green-deep);
+    border-color: rgba(0, 153, 51, 0.3);
+}
+
+.pill-icon {
+    font-size: 0.7rem;
+}
+
+/* RECENT CALLS DRAWER */
+.history-drawer {
+    background: rgba(248, 250, 252, 0.95);
+    border-radius: 10px;
+    border: 1px solid var(--wd-line);
+    padding: 0.65rem;
+    margin-bottom: 0.75rem;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+.drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.drawer-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.drawer-close-btn {
+    background: none;
+    border: none;
+    font-size: 0.8rem;
+    color: var(--wd-muted);
+    cursor: pointer;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid var(--wd-line);
+}
+
+.history-info {
+    min-width: 0;
+}
+
+.call-type-row {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.74rem;
+}
+
+.call-status-bold {
+    font-weight: 600;
+    color: var(--wd-ink);
+}
+
+.call-dur {
+    font-size: 0.68rem;
+    color: var(--wd-muted);
+}
+
+.call-meta-line {
+    font-size: 0.68rem;
+    color: var(--wd-muted);
+}
+
+.rec-link {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+    background: rgba(0, 153, 51, 0.1);
+    padding: 0.18rem 0.45rem;
+    border-radius: 6px;
+    text-decoration: none;
+}
+
+.rec-link:hover {
+    background: rgba(0, 153, 51, 0.2);
+}
+
+.empty-history-text {
+    font-size: 0.74rem;
+    color: var(--wd-muted);
+    margin: 0.3rem 0;
+}
+
+/* CTI BODY */
+.cti-body {
+    min-height: 100px;
+}
+
+/* Contact Strip */
+.contact-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid var(--wd-line);
+    margin-bottom: 0.65rem;
+}
+
+.contact-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--wd-mint);
+    border: 1px solid rgba(52, 194, 107, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    flex: none;
+}
+
+.contact-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.contact-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.contact-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.source-chip {
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+    background: rgba(20, 48, 90, 0.08);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--wd-ink-soft);
+    white-space: nowrap;
+}
+
+.contact-sub-row {
+    margin-top: 1px;
+}
+
+.phone-display {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--wd-green-deep);
+}
+
+/* Phone Selector */
+.phone-toggle-row {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.55rem;
+}
+
+.phone-pill {
+    flex: 1;
+    padding: 0.25rem 0.45rem;
+    border-radius: 8px;
+    border: 1px solid var(--wd-line);
+    background: rgba(255, 255, 255, 0.75);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--wd-ink-soft);
+    cursor: pointer;
+    text-align: center;
+}
+
+.phone-pill.active {
+    background: rgba(0, 153, 51, 0.12);
+    border-color: var(--wd-green);
+    color: var(--wd-green-deep);
+}
+
+/* Dial Button */
+.dial-btn {
+    width: 100%;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    box-shadow: 0 4px 12px rgba(0, 153, 51, 0.22);
+}
+
+.btn-dial-icon {
+    font-size: 0.9rem;
+}
+
+.bridge-footnote {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 0.55rem;
+    font-size: 0.7rem;
+    color: var(--wd-muted);
+}
+
+.bridge-glyph {
+    font-size: 0.75rem;
+    color: #eab308;
+}
+
+/* Ringing State */
+.ringing-dock {
+    text-align: center;
+    padding: 0.75rem 0;
+}
+
+.radar-box {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radar-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid var(--wd-green);
+    animation: radar-expand 1.8s infinite cubic-bezier(0, 0.2, 0.8, 1);
+}
+
+.r2 { animation-delay: 0.6s; }
+
+@keyframes radar-expand {
+    0% { transform: scale(0.4); opacity: 1; }
+    100% { transform: scale(1.3); opacity: 0; }
+}
+
+.radar-center-icon {
+    font-size: 1.25rem;
+    z-index: 2;
+}
+
+.ringing-heading {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+}
+
+.ringing-phone {
+    font-size: 0.8rem;
+    color: var(--wd-green-deep);
+    font-weight: 600;
+}
+
+.ringing-meta {
+    font-size: 0.7rem;
+    color: var(--wd-muted);
+    margin: 0.2rem 0 0.65rem;
+}
+
+.cancel-call-btn {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.78rem;
+    border-radius: 8px;
+}
+
+/* Active Call Dock */
+.active-call-dock {
+    text-align: center;
+    padding: 0.5rem 0;
+}
+
+.timer-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    margin-bottom: 0.4rem;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: live-dot 1s infinite;
+}
+
+@keyframes live-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.timer-text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #b91c1c;
+    font-family: monospace;
+}
+
+.active-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+}
+
+.active-phone {
+    font-size: 0.78rem;
+    color: var(--wd-muted);
+}
+
+.waveform {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 22px;
+    margin: 0.55rem 0;
+}
+
+.w-bar {
+    width: 3px;
+    background: var(--wd-green);
+    border-radius: 2px;
+    animation: wave 1.2s infinite ease-in-out;
+}
+
+.b1 { height: 8px; animation-delay: 0.1s; }
+.b2 { height: 18px; animation-delay: 0.2s; }
+.b3 { height: 12px; animation-delay: 0.3s; }
+.b4 { height: 20px; animation-delay: 0.4s; }
+.b5 { height: 14px; animation-delay: 0.5s; }
+.b6 { height: 10px; animation-delay: 0.6s; }
+
+@keyframes wave {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+}
+
+.call-quality-text {
+    font-size: 0.68rem;
+    color: var(--wd-muted);
+    margin-bottom: 0.65rem;
+}
+
+.call-controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.control-btn {
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid var(--wd-line);
+    background: rgba(255, 255, 255, 0.8);
+    font: inherit;
+    font-size: 0.74rem;
+    cursor: pointer;
+}
+
+.end-call-btn {
+    padding: 0.35rem 0.8rem;
+    border-radius: 8px;
+    background: rgba(254, 242, 242, 0.85);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #b91c1c;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.end-call-btn:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Disposition Dock */
+.disposition-dock {
+    text-align: left;
+}
+
+.disp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.55rem;
+}
+
+.disp-badge {
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    background: rgba(0, 153, 51, 0.12);
+    color: var(--wd-green-deep);
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.disp-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--wd-ink);
+}
+
+.disp-field {
+    margin-bottom: 0.5rem;
+}
+
+.disp-label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--wd-ink-soft);
+    margin-bottom: 0.2rem;
+}
+
+.glass-select,
+.glass-input,
+.glass-textarea {
+    width: 100%;
+    padding: 0.38rem 0.55rem;
+    border-radius: 8px;
+    border: 1px solid var(--wd-glass-border);
+    background: rgba(255, 255, 255, 0.9);
+    font: inherit;
+    font-size: 0.78rem;
+    color: var(--wd-ink);
+    outline: none;
+}
+
+.glass-select:focus,
+.glass-input:focus,
+.glass-textarea:focus {
+    border-color: var(--wd-green);
+    box-shadow: 0 0 0 2px rgba(0, 153, 51, 0.15);
+}
+
+.save-disp-btn {
+    width: 100%;
+    padding: 0.45rem;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    margin-top: 0.4rem;
+}

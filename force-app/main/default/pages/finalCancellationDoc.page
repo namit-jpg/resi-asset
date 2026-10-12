@@ -1,0 +1,60 @@
+<apex:page controller="DocumentGenerationController" showHeader="false" sidebar="false"
+    contentType="application/msword;charset=UTF-8;FinalCancellation_{!booking.Name}.doc;">
+
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 40px;
+        }
+        .signature-block {
+            margin-top: 40px;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            font-size: 7pt;
+        }
+        .signature-block td {
+            padding-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+    <b><p style="text-align: right">Date:  <strong>{!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}</strong></p></b>
+    <br/>
+    <b><p>To,</p></b>
+    <p><strong>{!booking.Account_Id__r.Salutation}</strong> <strong>{!booking.Account_Id__r.Name}</strong> </p>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingStreet}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingCity}, {!booking.Account_Id__r.BillingState}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingPostalCode}"/></strong><br/>
+        Ph No: <strong><apex:outputText value="{!booking.Account_Id__r.Phone}"/></strong> <br/>
+    <br/>
+    <p>Dear Sir/Madam,</p>
+    <br/>
+    <b>
+    <p>Sub: Final Cancellation letter for Flat No. <strong>{!booking.Unit_Id__r.Name}</strong> at "<strong>{!booking.Project__r.Name}</strong>".</p>
+    <p>Ref: Pre Cancellations Letter Dated <strong> <apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Pre_Cancellation_Date__c}" /></apex:outputText></strong></p>
+    </b>
+    <br/>
+    <p>With reference to the above subject, we would like to remind that you had booked apartment No - <strong>{!booking.Unit_Id__r.Name}</strong> in our project "<strong>{!booking.Project__r.Name}</strong>" on <strong><apex:outputText value="{0,date,dd MMM yyyy}"> <apex:param value="{!booking.Booking_Date__c}" /></apex:outputText></strong>.<br/>
+    In this regard we would like to inform that you were to make the payments as and when they fell due as per the mutually agreed payment schedule but you have failed to do so in spite of several reminders.<br/>
+    Sufficient opportunity and time was given to you to make the payments but you have not responded.<br/>
+    Hence, we are constrained to terminate your booking after deducting the cancelation fee as per the agreement.<br/>
+    The entire amount paid towards the unit is forfeited under the same.<br/>
+    Please consider this as the final letter for the aforesaid flat booked at "<strong>{!booking.Project__r.Name}</strong>".<br/>
+    Any documents issued by WarpDrive Tech Works stands annulled with immediate effect and you shall have no claims whatsoever in relation to the aforesaid apartment.</p>
+    <br/>
+    <br/>
+    <b>
+    <p>Thanking you,</p>
+    <p>Yours faithfully,</p>
+    <p>For WarpDrive Tech Works,</p>
+    <br/><br/><br/>
+    <p>Authorised Signatory</p>
+    </b>
+</body>
+</html>
+</apex:page>

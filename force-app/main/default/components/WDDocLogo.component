@@ -1,0 +1,13 @@
+<apex:component controller="WDDocLogoController">
+<!--
+  WarpDrive document letterhead logo, shared by every customer document.
+  The image is the WD_Doc_Logo static resource: replace that one resource to change the logo everywhere.
+    PDF pages (renderAs="pdf"):  <c:WDDocLogo />                 relative $Resource URL, read by the PDF renderer.
+    Word pages (application/msword): <c:WDDocLogo word="true" /> the PNG is embedded inline as a base64 data URI,
+      because a .doc downloaded from Salesforce has no session, so Word cannot fetch a /resource URL.
+-->
+    <apex:attribute name="word" type="Boolean" default="false" description="True on Word (.doc) pages: embed the image inline."/>
+    <apex:attribute name="height" type="Integer" default="50" description="Height in px (about 13mm); width keeps the logo's aspect ratio."/>
+    <apex:outputPanel layout="none" rendered="{!NOT(word)}"><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works" style="height:{!height}px;"/></apex:outputPanel>
+    <apex:outputPanel layout="none" rendered="{!word}"><img src="{!logoDataUri}" alt="WarpDrive Tech Works" height="{!height}" style="height:{!height}px;"/></apex:outputPanel>
+</apex:component>

@@ -1,0 +1,72 @@
+<apex:page standardController="Voucher__c" renderAs="pdf" applyHtmlTag="false" applyBodyTag="false" showHeader="false" sidebar="false" standardStylesheets="false">
+<html>
+<head>
+    <style type="text/css">
+        @page { size: A4; margin: 18mm 16mm; }
+        body { font-family: 'Arial Unicode MS', sans-serif; font-size: 11pt; color: #1f2a24; }
+        .brand { color: #009933; font-size: 20pt; font-weight: bold; }
+        .muted { color: #5f6b64; font-size: 9pt; }
+        .title { font-size: 15pt; font-weight: bold; margin: 18px 0 4px; }
+        .badge { display: inline-block; padding: 3px 10px; border: 1px solid #009933; color: #009933; font-weight: bold; font-size: 10pt; }
+        .priority { font-size: 30pt; font-weight: bold; color: #009933; }
+        table.grid { width: 100%; border-collapse: collapse; margin-top: 14px; }
+        table.grid td { padding: 7px 8px; border-bottom: 1px solid #dfe5e1; vertical-align: top; }
+        table.grid td.k { width: 38%; color: #5f6b64; }
+        .terms { margin-top: 22px; font-size: 9pt; color: #5f6b64; }
+        .terms li { margin-bottom: 4px; }
+        .sign { margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <table style="width:100%">
+        <tr>
+            <td><img src="{!$Resource.WD_Doc_Logo}" alt="WarpDrive Tech Works" style="height:12mm;"/><br/><span class="brand">WarpDrive Tech Works</span><br/><span class="muted">Expression of Interest</span></td>
+            <td style="text-align:right">
+                <span class="badge">{!Voucher__c.Status__c}</span><br/>
+                <span class="muted">Issued <apex:outputText value="{0,date,dd MMM yyyy}"><apex:param value="{!Voucher__c.CreatedDate}"/></apex:outputText></span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="title">EOI Voucher {!Voucher__c.Name}</div>
+    <div class="muted">{!Voucher__c.Voucher_Type__c} · {!Voucher__c.Project__r.Name}</div>
+
+    <apex:outputPanel rendered="{!NOT(ISBLANK(Voucher__c.Priority_Number__c))}">
+        <table style="width:100%; margin-top:16px"><tr>
+            <td class="muted" style="width:50%">Priority number for {!Voucher__c.Project__r.Name}</td>
+            <td style="text-align:right"><span class="priority">#<apex:outputText value="{0,number,0}"><apex:param value="{!Voucher__c.Priority_Number__c}"/></apex:outputText></span></td>
+        </tr></table>
+    </apex:outputPanel>
+
+    <table class="grid">
+        <tr><td class="k">Applicant</td><td>{!Voucher__c.Applicant_Name__c}</td></tr>
+        <tr><td class="k">Mobile</td><td>{!Voucher__c.Applicant_Mobile__c}</td></tr>
+        <tr><td class="k">Email</td><td>{!Voucher__c.Applicant_Email__c}</td></tr>
+        <tr><td class="k">Project</td><td>{!Voucher__c.Project__r.Name}</td></tr>
+        <tr><td class="k">Preferred configuration</td><td>{!Voucher__c.Preferred_Configuration__c}</td></tr>
+        <tr><td class="k">EOI amount</td><td>₹ <apex:outputText value="{0,number,#,##,##0}"><apex:param value="{!Voucher__c.Amount__c}"/></apex:outputText></td></tr>
+        <tr><td class="k">Amount received</td><td>₹ <apex:outputText value="{0,number,#,##,##0}"><apex:param value="{!Voucher__c.Amount_Paid__c}"/></apex:outputText></td></tr>
+        <tr><td class="k">Payment</td><td>{!Voucher__c.Payment_Mode__c}<apex:outputText rendered="{!NOT(ISBLANK(Voucher__c.Payment_Reference__c))}" value=" · Ref {!Voucher__c.Payment_Reference__c}"/><apex:outputPanel rendered="{!NOT(ISBLANK(Voucher__c.Payment_Date__c))}"> · <apex:outputText value="{0,date,dd MMM yyyy}"><apex:param value="{!Voucher__c.Payment_Date__c}"/></apex:outputText></apex:outputPanel></td></tr>
+        <tr><td class="k">Valid until</td><td><apex:outputText value="{0,date,dd MMM yyyy}"><apex:param value="{!Voucher__c.Valid_Until__c}"/></apex:outputText></td></tr>
+        <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(Voucher__c.Flat_No__c))}">
+            <tr><td class="k">Allotted unit</td><td>{!Voucher__c.Flat_No__r.Name}</td></tr>
+        </apex:outputPanel>
+        <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(Voucher__c.Channel_Partner__c))}">
+            <tr><td class="k">Channel partner</td><td>{!Voucher__c.Channel_Partner__r.Name}</td></tr>
+        </apex:outputPanel>
+    </table>
+
+    <ol class="terms">
+        <li>This voucher records the applicant's interest in the project. It is not an allotment or an agreement for sale.</li>
+        <li>Units are offered to paid vouchers in priority-number order when the project opens for booking.</li>
+        <li>On booking, the EOI amount is adjusted against the booking amount.</li>
+        <li><apex:outputText value="{!IF(Voucher__c.Refundable__c, 'If no unit is booked, the EOI amount is refunded in full to the account it was paid from.', 'This EOI amount is non-refundable.')}"/></li>
+    </ol>
+
+    <table class="sign" style="width:100%"><tr>
+        <td class="muted">Applicant signature</td>
+        <td class="muted" style="text-align:right">For WarpDrive Tech Works, authorised signatory</td>
+    </tr></table>
+</body>
+</html>
+</apex:page>

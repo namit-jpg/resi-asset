@@ -1,0 +1,149 @@
+<template>
+    <lightning-card title="Round Robin Manager">
+        <lightning-layout multiple-rows>
+            <!-- Left Nav -->
+            <lightning-layout-item size="3" padding="around-medium">
+                <lightning-vertical-navigation selected-item={selectedNav} onselect={handleNavSelect}>
+                    <lightning-vertical-navigation-section label="Sections">
+                        <lightning-vertical-navigation-item label="Team Management"
+                            name="team"></lightning-vertical-navigation-item>
+                        <lightning-vertical-navigation-item label="User Management"
+                            name="user"></lightning-vertical-navigation-item>
+                    </lightning-vertical-navigation-section>
+                </lightning-vertical-navigation>
+            </lightning-layout-item>
+
+            <!-- Right Panel -->
+            <lightning-layout-item size="9" padding="around-medium">
+
+                <!-- === Team Management View === -->
+                <template if:true={isTeamManagement}>
+                    <lightning-combobox label="Select Queue" options={queueOptions} value={selectedQueueId}
+                        onchange={handleQueueChange}>
+                    </lightning-combobox>
+
+                    <template if:true={isUserListLoading}>
+                        <lightning-spinner alternative-text="Loading users..." size="medium"></lightning-spinner>
+                    </template>
+
+                    <lightning-dual-listbox name="roundRobinUsers" source-label="Available Users"
+                        selected-label="Users in Selected Queue" options={userOptions} value={selectedUserIds}
+                        onchange={handleSelectionChange} disable-reordering disabled={isDualListDisabled}>
+                    </lightning-dual-listbox>
+
+                    <div class="slds-m-top_medium">
+                        <lightning-button label="Save Changes" variant="brand" onclick={saveQueueChanges}
+                            disabled={isSaveDisabled}>
+                        </lightning-button>
+                    </div>
+                </template>
+
+                <!-- === User Management View === -->
+                <template if:true={isUserManagement}>
+                    <c-searchable-combobox label="Search User" options={userSearchOptions} value={selectedUserId}
+                        onchange={handleUserSearchChange}>
+                    </c-searchable-combobox>
+
+                    <template if:true={selectedUserId}>
+                        <lightning-card title={selectedUserName} class="slds-m-top_medium">
+                            <div class="slds-p-horizontal_medium">
+                                <lightning-record-edit-form record-id={selectedAssigneeId}
+                                    object-api-name="Round_Robin_Assignee__c" onsuccess={handleRecordSave}
+                                    onchange={handleFormChange}>
+
+                                    <!-- Hidden UserId field -->
+                                    <lightning-input-field class="slds-hide" field-name="UserId__c"
+                                        disabled={isAlwaysTrue} value={selectedUserId}></lightning-input-field>
+
+                                    <!-- Is Active -->
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Is Active
+                                            <lightning-helptext
+                                                content="If checked, this user is actively participating in the round robin lead assignment."
+                                                class="slds-m-left_x-small">
+                                            </lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-input-field field-name="Is_Active__c"
+                                                variant="label-hidden"></lightning-input-field>
+                                        </div>
+                                    </div>
+
+                                    <!-- Is On Leave -->
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Is On Leave
+                                            <lightning-helptext
+                                                content="If checked, the user will be treated as on leave and will not receive new leads until reactivated."
+                                                class="slds-m-left_x-small">
+                                            </lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-input-field field-name="Is_On_Leave__c"
+                                                variant="label-hidden"></lightning-input-field>
+                                        </div>
+                                    </div>
+
+                                    <!-- Max Leads Per Day -->
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Max Leads Per Day
+                                            <lightning-helptext
+                                                content="The maximum number of leads this user can receive in a single day through round robin assignment."
+                                                class="slds-m-left_x-small">
+                                            </lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-input-field field-name="Max_Leads_Per_Day__c"
+                                                variant="label-hidden"></lightning-input-field>
+                                        </div>
+                                    </div>
+
+                                    <!-- Weight -->
+                                    <!-- <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Weight
+                                            <lightning-helptext
+                                                content="Determines how often this user should receive leads compared to others. Higher weight = more leads."
+                                                class="slds-m-left_x-small">
+                                            </lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-input-field field-name="Weight__c"
+                                                variant="label-hidden"></lightning-input-field>
+                                        </div>
+                                    </div> -->
+
+                                    <!-- Notes -->
+                                    <div class="slds-form-element">
+                                        <label class="slds-form-element__label">
+                                            Notes
+                                            <lightning-helptext
+                                                content="Add any comments or special instructions regarding this user's lead assignment preferences."
+                                                class="slds-m-left_x-small">
+                                            </lightning-helptext>
+                                        </label>
+                                        <div class="slds-form-element__control">
+                                            <lightning-input-field field-name="Notes__c"
+                                                variant="label-hidden"></lightning-input-field>
+                                        </div>
+                                    </div>
+
+                                    <!-- Save button -->
+                                    <div class="slds-m-top_medium">
+                                        <lightning-button type="submit" label="Save" variant="brand"
+                                            disabled={isUserSaveDisabled}>
+                                        </lightning-button>
+                                    </div>
+                                </lightning-record-edit-form>
+
+                            </div>
+                        </lightning-card>
+                    </template>
+                </template>
+
+            </lightning-layout-item>
+        </lightning-layout>
+    </lightning-card>
+</template>

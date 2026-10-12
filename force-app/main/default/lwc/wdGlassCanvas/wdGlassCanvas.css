@@ -1,0 +1,100 @@
+@import 'c/wdGlassStyles';
+
+.canvas {
+    position: relative;
+    overflow: hidden;
+    min-height: 100%;
+    padding: 2.25rem 1.9rem 2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0) 45%),
+        linear-gradient(135deg, #ecf9f1 0%, #dff4ea 38%, #e7f8f3 70%, #f3fbf7 100%);
+    box-shadow: 0 1px 3px rgba(12, 70, 40, 0.06);
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.glow {
+    position: absolute;
+    border-radius: 50%;
+}
+
+/*
+ * Soft glows are radial gradients rather than filter: blur(60px): a blur filter on
+ * elements this large is re-rasterised on scroll and made glass pages lag.
+ * Boxes are 120px larger than before to keep the same spread.
+ */
+.glow_a {
+    width: 53.5rem;
+    height: 37.5rem;
+    top: 5.25rem;
+    left: calc(28% - 3.75rem);
+    background: radial-gradient(closest-side, rgba(52, 194, 107, 0.26), rgba(52, 194, 107, 0.12) 55%, rgba(52, 194, 107, 0));
+}
+
+.glow_b {
+    width: 37.5rem;
+    height: 33.5rem;
+    top: -9.75rem;
+    right: -9.75rem;
+    background: radial-gradient(closest-side, rgba(64, 200, 180, 0.2), rgba(64, 200, 180, 0.09) 55%, rgba(64, 200, 180, 0));
+}
+
+.glow_c {
+    width: 41.5rem;
+    height: 29.5rem;
+    bottom: -11.75rem;
+    left: -11.75rem;
+    background: radial-gradient(closest-side, rgba(120, 220, 160, 0.22), rgba(120, 220, 160, 0.1) 55%, rgba(120, 220, 160, 0));
+}
+
+.mark {
+    position: absolute;
+    fill: #62d897;
+    opacity: 0.42;
+}
+
+.mark_hero {
+    width: 30rem;
+    top: 6.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.mark_side {
+    width: 17rem;
+    top: 5rem;
+    right: 13%;
+    opacity: 0.45;
+    transform: rotate(8deg);
+}
+
+.mark_low {
+    width: 14rem;
+    top: 27rem;
+    left: 12%;
+    opacity: 0.4;
+    transform: rotate(-10deg);
+}
+
+.content {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 767px) {
+    .canvas {
+        padding: 1.4rem 1rem;
+        border-radius: 18px;
+    }
+
+    .mark_side,
+    .mark_low {
+        display: none;
+    }
+}

@@ -1,0 +1,53 @@
+<template>
+    <section class="wd-glass panel">
+        <header class="panel-head">
+            <div>
+                <h2 class="wd-section-title">Project-wise sales performance</h2>
+                <p class="panel-kicker">{kicker}</p>
+            </div>
+        </header>
+        <template lwc:if={hasRows}>
+            <div class="scroller">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Project</th>
+                            <th scope="col" class="r">Enquiries</th>
+                            <th scope="col" class="r">Site visits</th>
+                            <th scope="col" class="r">Bookings</th>
+                            <th scope="col" class="r">Conversion</th>
+                            <th scope="col" class="value-col">Booked value</th>
+                            <th scope="col" class="r">Collected</th>
+                            <th scope="col" class="r">Unsold stock</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={rows} for:item="r">
+                            <tr key={r.key}>
+                                <th scope="row">
+                                    <span class="proj">{r.name}</span>
+                                    <span class="city">{r.city}</span>
+                                </th>
+                                <td class="r num">{r.leads}</td>
+                                <td class="r num">{r.visits}</td>
+                                <td class="r num">{r.bookings}</td>
+                                <td class="r num">{r.conversion}</td>
+                                <td class="value-col">
+                                    <span class="cell-bar">
+                                        <span class="track"><span class="fill" style={r.style}></span></span>
+                                        <span class="num">{r.booked}</span>
+                                    </span>
+                                </td>
+                                <td class="r num">{r.collected}</td>
+                                <td class="r num">{r.stock}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+        <template lwc:else>
+            <p class="empty">No project matches these filters.</p>
+        </template>
+    </section>
+</template>

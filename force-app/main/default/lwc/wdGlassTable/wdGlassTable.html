@@ -1,0 +1,42 @@
+<template>
+    <div class="scroller">
+        <table class="grid">
+            <thead>
+                <tr>
+                    <template for:each={headers} for:item="h">
+                        <th key={h.key} class={h.className} aria-sort={h.ariaSort} scope="col">
+                            <button type="button" class="sort" data-key={h.key} onclick={handleSort}>
+                                {h.label}<span class="sort-arrow">{h.arrow}</span>
+                            </button>
+                        </th>
+                    </template>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each={visibleRows} for:item="row">
+                    <tr key={row.id}>
+                        <template for:each={row.cells} for:item="cell">
+                            <td key={cell.key} class={cell.className}>
+                                <template lwc:if={cell.isLink}>
+                                    <a href="#" class="name-link" data-id={row.id} onclick={handleOpen}>{cell.display}</a>
+                                </template>
+                                <template lwc:elseif={cell.isStatus}>
+                                    <span class={cell.statusClass}><span class="dot"></span>{cell.display}</span>
+                                </template>
+                                <template lwc:else>{cell.display}</template>
+                            </td>
+                        </template>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+        <template lwc:if={isEmpty}>
+            <p class="wd-empty">{emptyMessage}</p>
+        </template>
+    </div>
+    <template lwc:if={hasMore}>
+        <div class="more">
+            <button type="button" class="wd-btn wd-btn_ghost" onclick={handleMore}>Show more · {remaining} left</button>
+        </div>
+    </template>
+</template>

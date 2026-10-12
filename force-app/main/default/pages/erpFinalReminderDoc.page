@@ -1,0 +1,99 @@
+<apex:page controller="DocumentGenerationController" action="{!updateReminderDates}" showHeader="false" sidebar="false" 
+           contentType="application/msword#ERP_FinalReminder_{!bps.Name}.doc; charset=UTF-8">
+    
+    <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 12pt; margin: 40px; }
+                table { border-collapse: collapse; width: 100%; margin-bottom: 15px; }
+                .data-table th, .data-table td { border: 1px solid #000; padding: 6px; font-size: 9pt; vertical-align: middle; }
+                .data-table th { background-color: #f0f0f0; font-weight: 700; }
+            </style>
+        </head>
+        <body>
+            <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+            <p style="text-align:right;">
+                <strong>Date:</strong> 
+                <apex:outputText value="{0,date,dd/MM/yyyy}">
+                    <apex:param value="{!TODAY()}" />
+                </apex:outputText>
+            </p>
+            <br/>
+            
+            <p><b>To,</b></p>
+            <p>
+                <strong>{!bps.Booking__r.Account_Id__r.Salutation}</strong> 
+                <strong>{!bps.Booking__r.Account_Id__r.Name}</strong>
+            </p>
+            <p>
+                <strong>Address:</strong> <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingStreet}"/><br/>
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingCity}"/>, 
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingState}"/><br/>
+                <apex:outputText value="{!bps.Booking__r.Account_Id__r.BillingPostalCode}"/><br/>
+            </p>
+            <p><strong>Ph No: </strong><apex:outputText value="{!bps.Booking__r.Account_Id__r.Phone}"/></p>
+            <br/>
+            
+            <p> <strong>Dear {!bps.Booking__r.Account_Id__r.Salutation}</strong> <strong>{!bps.Booking__r.Account_Id__r.Name},</strong></p>
+            <br/><br/>
+            
+            <p><b>Sub: Final Reminder For Flat No. {!bps.Booking__r.Unit_Id__r.Name} at {!bps.Booking__r.Project__r.Name}</b></p>
+            <br/>
+            
+            <p>
+                This has reference to your booking of flat {!bps.Booking__r.Unit_Id__r.Name} in "{!bps.Booking__r.Project__r.Name}" on 
+                <apex:outputText value=" {0,date,dd/MM/yyyy}">
+                    <apex:param value="{!bps.Booking__r.Booking_Date__c}" />
+                </apex:outputText>.
+            </p>
+            <br/>
+            
+            <p>
+                We had issued you a demand note on 
+                <apex:outputText value=" {0,date,dd/MM/yyyy}">
+                    <apex:param value="{!reminderData.lastDemandLetterSentDate}" />
+                </apex:outputText> requesting you to effect the payment of 
+                <apex:outputText value=" &#8377; {0,number,#,##,##0.00}">
+                    <apex:param value="{!bps.Installment_Amount__c}" />
+                </apex:outputText> as part of scheduled payments within the due date whereas we have not received the due amount of 
+                <apex:outputText value=" &#8377; {0,number,#,##,##0.00}">
+                    <apex:param value="{!reminderData.previousOutstanding}" />
+                </apex:outputText> (as on 
+                <apex:outputText value=" {0,date,dd/MM/yyyy}">
+                    <apex:param value="{!TODAY()}" />
+                </apex:outputText>) till date after the demand.
+            </p>
+            <br/>
+            
+            <p>
+                Your payment of 
+                <apex:outputText value=" &#8377; {0,number,#,##,##0.00}">
+                    <apex:param value="{!reminderData.previousOutstanding}" />
+                </apex:outputText> (Towards {!reminderData.outstandingMilestones}) is now long overdue and we request you to clear this immediately with interest which has accrued from the original due date (interest as on 
+                <apex:outputText value=" {0,date,dd/MM/yyyy}">
+                    <apex:param value="{!TODAY()}" />
+                </apex:outputText> is 
+                <apex:outputText value=" &#8377; {0,number,#,##,##0.00}">
+                    <apex:param value="{!bps.Booking__r.TotalInterestOutstandingFromLedger__c}" />
+                </apex:outputText>) as per the terms of agreement dated 
+                <apex:outputText value=" {0,date,dd/MM/yyyy}">
+                    <apex:param value="{!bps.Booking__r.Agreement_Registered_Date__c}" />
+                </apex:outputText>. Kindly clear the outstanding at the earliest to avoid further charges on delayed payment.
+            </p>
+            <br/>
+            
+            <p>Further we would like to inform you that payments without interest will not be accepted.</p>
+            <br/> 
+            
+            <p>Please feel free to call or mail us for any information or clarifications on the subject.</p>
+            <br/>  
+            
+            <p><b>Thanks &amp; Regards,<br/>
+               For M/s. WarpDrive Tech Works.</b>
+            </p>
+            <br/><br/>  
+            <p style="margin-top:40px;">______________________________</p>
+            <p><b>Authorised Signatory.</b></p>
+        </body>
+    </html>
+</apex:page>

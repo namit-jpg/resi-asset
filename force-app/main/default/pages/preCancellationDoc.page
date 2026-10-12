@@ -1,0 +1,90 @@
+<apex:page controller="DocumentGenerationController" showHeader="false" sidebar="false"
+    contentType="application/msword#PreCancellation_{!booking.Name}.doc; charset=UTF-8">
+<html>
+<head>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            margin: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div style="margin-bottom:10px;"><c:WDDocLogo word="true"/></div>
+    <div style="text-align: right; margin-bottom: 20px;">
+        <span style="font-weight: bold;">Date: <span style="font-weight: normal;"><strong>{!DAY(TODAY())}/{!MONTH(TODAY())}/{!YEAR(TODAY())}</strong></span></span>
+    </div>
+
+    <div style="margin-bottom: 5px;">
+        <span style="font-weight: bold;">To,</span>
+    </div>
+
+    <div style="margin-bottom: 5px;">
+        <strong>{!booking.Account_Id__r.Salutation}</strong> <strong>{!booking.Account_Id__r.Name}</strong>
+    </div>
+    <strong><apex:outputText value="{!booking.Account_Id__r.BillingStreet}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingCity}, {!booking.Account_Id__r.BillingState}"/></strong><br/>
+        <strong><apex:outputText value="{!booking.Account_Id__r.BillingPostalCode}"/></strong><br/>
+        Ph No: <strong><apex:outputText value="{!booking.Account_Id__r.Phone}"/></strong> <br/>
+    <br/>
+    <!--<div style="margin-bottom: 5px;">
+        ________________,
+    </div>
+    <div style="margin-bottom: 5px;">
+        ______________,
+    </div>
+    <div style="margin-bottom: 20px;">
+        __________________
+    </div>-->
+
+    <div style="margin-bottom: 20px;">
+        Dear Sir/Madam,
+    </div>
+
+    <div style="margin-bottom: 5px;">
+        <span style="font-weight: bold;">Subject:</span> Pre-cancellation Letter- Apt No. <strong>{!booking.Unit_Id__r.Name}</strong>, Tower - <strong>{!booking.Unit_Id__r.Tower__r.Name}</strong>, at <strong>{!booking.Project__r.Name}</strong>
+    </div>
+    <div style="margin-bottom: 20px;">
+        <span style="font-weight: bold;">Ref:</span> Final Reminder Letter Dated <strong>{!booking.Final_Reminder_Letter_Date__c}</strong>
+    </div>
+
+    <p style="text-align: justify; margin-bottom: 10px; line-height: 1.5;">
+        With reference to your booking of the aforesaid apartment at <strong>{!booking.Project__r.Name}</strong> , we would like to inform you that despite continuous follow-ups through Reminders/Phone calls, you have failed to make payments as per the mutually agreed payment schedule, which is long over-due.
+    </p>
+
+    <p style="text-align: justify; margin-bottom: 10px; line-height: 1.5;">
+        Kindly arrange to make the payment as mentioned below without further delay to continue this booking with us:
+    </p>
+
+    <p style="margin-bottom: 5px;">
+        <b>
+        Amount due as on <span style="text-decoration: underline;">______</span> towards instalment - Rs.<span style="text-decoration: underline;">_______</span>/-
+        </b>
+    </p>
+    <p style="margin-bottom: 20px;">
+        <b>
+        Amount due as on <span style="text-decoration: underline;">_______</span> towards delay payment interest – Rs.<span style="text-decoration: underline;">_______</span>/-
+        </b>
+    </p>
+
+    <p style="text-align: justify; margin-bottom: 20px; line-height: 1.5;">
+        Request you to make the aforesaid payment on or before <span style="text-decoration: underline;">__________</span> , failing which we shall be constrained to terminate your booking as per the mutually agreed terms.
+    </p>
+
+    <p style="text-align: justify; margin-bottom: 10px; line-height: 1.5;">
+        For any further assistance/clarifications, please feel free to contact us.
+    </p>
+
+    <div style="margin-bottom: 10px;">
+        Yours faithfully,
+    </div>
+    <div style="margin-bottom: 60px;">
+        <b>For WarpDrive Tech Works.</b>
+    </div>
+    <div>
+        <b>Authorised Signatory</b>
+    </div>
+</body>
+</html>
+</apex:page>

@@ -1,0 +1,58 @@
+.no-data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    width: 100%;
+    font-size: 1.2rem;
+    color: var(--lwc-colorTextWeak);
+    background-color: white;
+}
+
+.datatable-card {
+    margin-top: 1rem;
+}
+
+.legend-color-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.flex_box_custom {
+    display: flex;
+    align-items: center;
+}
+
+.custom-header {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    border: 1px solid rgb(201, 201, 201);
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.custom-card-wrapper lightning-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.scrollable-datatable-wrapper {
+    height: 70vh;
+}
+
+.scrollable-datatable-wrapper lightning-datatable {
+    margin-right: -16px; /* Shift table left to uncover the action button */
+    padding-right: 32px; /* Add internal space for dropdown button */
+}
+
+.legend_container{
+    margin-right: 1rem;
+}
+
+.scrollable-datatable-wrapper lightning-datatable {
+    min-width: max-content;
+}

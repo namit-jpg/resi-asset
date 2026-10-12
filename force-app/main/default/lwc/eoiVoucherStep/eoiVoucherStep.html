@@ -1,0 +1,163 @@
+<template>
+    <lightning-quick-action-panel header={header}>
+        <template lwc:if={loading}>
+            <div class="spinner"><lightning-spinner alternative-text="Loading" size="small"></lightning-spinner></div>
+        </template>
+
+        <template lwc:if={error}>
+            <div class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_small" role="alert">{error}</div>
+        </template>
+
+        <template lwc:if={ctx}>
+            <dl class="facts">
+                <template for:each={summary} for:item="f">
+                    <div key={f.key} class="fact">
+                        <dt>{f.label}</dt>
+                        <dd>{f.value}</dd>
+                    </div>
+                </template>
+            </dl>
+
+            <template lwc:if={blockedMessage}>
+                <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">{blockedMessage}</div>
+            </template>
+
+            <template lwc:if={isPayment}>
+                <p class="hint">Balance due {balanceLabel}. A priority number is assigned once the EOI is paid in full.</p>
+                <div class="grid">
+                    <lightning-input
+                        type="number"
+                        label="Amount received (₹)"
+                        value={amount}
+                        data-field="amount"
+                        onchange={handleChange}
+                        min="1"
+                        max={ctx.balance}
+                        step="1"
+                        required
+                    ></lightning-input>
+                    <lightning-combobox
+                        label="Payment mode"
+                        value={paymentMode}
+                        options={paymentModeOptions}
+                        data-field="paymentMode"
+                        onchange={handleChange}
+                        placeholder="Choose mode"
+                        required
+                    ></lightning-combobox>
+                    <lightning-input
+                        label="Transaction / cheque reference"
+                        value={reference}
+                        data-field="reference"
+                        onchange={handleChange}
+                        max-length="80"
+                        required
+                    ></lightning-input>
+                    <lightning-input
+                        type="date"
+                        label="Received on"
+                        value={paidOn}
+                        data-field="paidOn"
+                        onchange={handleChange}
+                        date-style="medium"
+                        required
+                    ></lightning-input>
+                </div>
+            </template>
+
+            <template lwc:if={isAllot}>
+                <template lwc:if={hasUnits}>
+                    <p class="hint">Available units in {ctx.project}. Units matching {ctx.configuration} are listed first.</p>
+                    <lightning-combobox
+                        label="Unit"
+                        value={unitId}
+                        options={unitOptions}
+                        data-field="unitId"
+                        onchange={handleChange}
+                        required
+                    ></lightning-combobox>
+                </template>
+                <template lwc:else>
+                    <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">No units are available in {ctx.project} right now.</div>
+                </template>
+            </template>
+
+            <template lwc:if={isConvert}>
+                <template lwc:if={hasBookings}>
+                    <p class="hint">The EOI amount of {paidLabel} will be adjusted against this booking. The customer's own bookings are listed first.</p>
+                    <lightning-combobox
+                        label="Booking"
+                        value={bookingId}
+                        options={bookingOptions}
+                        data-field="bookingId"
+                        onchange={handleChange}
+                        required
+                    ></lightning-combobox>
+                </template>
+                <template lwc:else>
+                    <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">There are no bookings in {ctx.project} yet. Create the booking first, then adjust the EOI against it.</div>
+                </template>
+            </template>
+
+            <template lwc:if={isClose}>
+                <template lwc:if={isRefund}>
+                    <p class="hint">{paidLabel} was received. {refundHelp} Any allotted unit is released.</p>
+                </template>
+                <template lwc:else>
+                    <p class="hint">No payment has been received, so the voucher will be cancelled.</p>
+                </template>
+                <lightning-textarea
+                    label="Reason"
+                    value={reason}
+                    data-field="reason"
+                    onchange={handleChange}
+                    max-length="255"
+                    required
+                ></lightning-textarea>
+                <template lwc:if={isRefund}>
+                    <div class="grid">
+                        <lightning-input
+                            type="number"
+                            label="Refund amount (₹)"
+                            value={refundAmount}
+                            data-field="refundAmount"
+                            onchange={handleChange}
+                            min="0"
+                            max={ctx.amountPaid}
+                            step="1"
+                            required
+                        ></lightning-input>
+                        <lightning-input
+                            label="Refund reference"
+                            value={refundReference}
+                            data-field="refundReference"
+                            onchange={handleChange}
+                            max-length="80"
+                            required
+                        ></lightning-input>
+                        <lightning-input
+                            type="date"
+                            label="Refunded on"
+                            value={refundedOn}
+                            data-field="refundedOn"
+                            onchange={handleChange}
+                            date-style="medium"
+                            required
+                        ></lightning-input>
+                    </div>
+                </template>
+            </template>
+        </template>
+
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+            <lightning-button
+                class="slds-m-left_x-small"
+                variant={submitVariant}
+                label={step.submit}
+                onclick={handleSubmit}
+                disabled={submitDisabled}
+            ></lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

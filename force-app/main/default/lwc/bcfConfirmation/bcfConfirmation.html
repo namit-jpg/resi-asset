@@ -1,0 +1,47 @@
+<template>
+    <div class="main">
+        <section class="card hero">
+            <span class="check-mark" aria-hidden="true">✓</span>
+            <h1 class="page-title">Booking submitted successfully</h1>
+            <p class="page-sub">
+                We have received the booking for <strong>unit {unitLabel}</strong> at {context.project}.
+                <template lwc:if={email}> We will send updates to {email}.</template>
+            </p>
+            <span class="pill">Unit {context.unit}</span>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <h2 class="card__title">What happens next</h2>
+            </div>
+            <ol class="timeline">
+                <template for:each={timeline} for:item="t">
+                    <li key={t.key} class={t.className}>
+                        <span class="tl-dot" aria-hidden="true">{t.mark}</span>
+                        <div>
+                            <p class="tl-title">{t.title}</p>
+                            <p class="muted small">{t.detail}</p>
+                        </div>
+                    </li>
+                </template>
+            </ol>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <h2 class="card__title">Booking at a glance</h2>
+            </div>
+            <dl class="kv">
+                <template for:each={glance} for:item="g">
+                    <div key={g.key} class="kv-row">
+                        <dt>{g.label}</dt>
+                        <dd>{g.value}</dd>
+                    </div>
+                </template>
+            </dl>
+            <template lwc:if={rm}>
+                <p class="notice rm">Need to change something? Contact your relationship manager, {rm}. They can reopen this form for you.</p>
+            </template>
+        </section>
+    </div>
+</template>

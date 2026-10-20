@@ -1,0 +1,112 @@
+<template>
+    <div class="page-head">
+        <h1 class="page-title">Your details</h1>
+        <p class="page-sub">Tell us who is buying this home. This information goes on the booking and on the agreement.</p>
+    </div>
+
+    <div class="main">
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Applicant details</h2>
+                    <p class="card__sub">Enter your name exactly as it appears on your PAN. It must match on every document.</p>
+                </div>
+                <span class="badge">Applicant 1 · Primary</span>
+            </div>
+            <div class="grid">
+                <template for:each={fields} for:item="f">
+                    <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                </template>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Identity verification</h2>
+                    <p class="card__sub">Verified against the government identity platform. Only the result is stored.</p>
+                </div>
+                <span class={identityBadge.className}>{identityBadge.label}</span>
+            </div>
+            <template lwc:if={isVerified}>
+                <dl class="kv">
+                    <dt>Method</dt>
+                    <dd>{identity.method}</dd>
+                    <dt>Reference</dt>
+                    <dd>{identity.reference}</dd>
+                    <dt>Name match</dt>
+                    <dd>Matched</dd>
+                    <dt>Verified on</dt>
+                    <dd>{verifiedOn}</dd>
+                </dl>
+            </template>
+            <template lwc:else>
+                <div class="verify">
+                    <div>
+                        <p class="verify-title">Verify {applicantName}'s identity</p>
+                        <p class="muted small">
+                            A one-time code is sent to the Aadhaar-linked mobile, and the verified name, date of birth and photo are
+                            fetched from the government platform. This is optional, but it speeds up approval.
+                        </p>
+                    </div>
+                    <button type="button" class="btn btn_primary" onclick={openVerify}>Verify identity</button>
+                </div>
+            </template>
+        </section>
+    </div>
+
+    <template lwc:if={verifyOpen}>
+        <div class="modal-backdrop" onclick={closeVerify}>
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="verify-title" onclick={stop}>
+                <div class="modal__head">
+                    <h2 class="modal__title" id="verify-title">Government identity verification</h2>
+                    <button type="button" class="icon-btn" onclick={closeVerify} aria-label="Close">×</button>
+                </div>
+                <div class="modal__body">
+                    <template lwc:if={isFormStage}>
+                        <p class="muted small">Only the result of the check is stored, never the document itself.</p>
+                        <div>
+                            <label class="lbl" for="doc-type">Identity document</label>
+                            <select id="doc-type" class="inp" onchange={handleDocType}>
+                                <template for:each={docTypeOptions} for:item="o">
+                                    <option key={o.value} value={o.value} selected={o.selected}>{o.label}</option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="lbl" for="doc-number">Document number</label>
+                            <input id="doc-number" class="inp" value={docNumber} oninput={handleDocNumber} autocomplete="off" />
+                        </div>
+                        <label class="check">
+                            <input type="checkbox" checked={consent} onchange={handleConsent} />
+                            <span>I consent to my identity being verified for this booking.</span>
+                        </label>
+                    </template>
+                    <template lwc:else>
+                        <p>
+                            <strong>One-time password sent.</strong> A 6-digit code has been sent to the mobile registered against the
+                            document ending {last4}.
+                        </p>
+                        <div>
+                            <label class="lbl" for="otp">Enter OTP</label>
+                            <input id="otp" class="inp otp" inputmode="numeric" maxlength="6" value={otp} oninput={handleOtp} autocomplete="one-time-code" />
+                        </div>
+                        <div class="notice notice_info">Test mode: use the code 123456.</div>
+                    </template>
+                    <template lwc:if={verifyError}>
+                        <p class="field-error" role="alert">{verifyError}</p>
+                    </template>
+                </div>
+                <div class="modal__foot">
+                    <button type="button" class="btn btn_ghost" onclick={closeVerify}>Cancel</button>
+                    <template lwc:if={isFormStage}>
+                        <button type="button" class="btn btn_primary" onclick={sendOtp}>Send OTP</button>
+                    </template>
+                    <template lwc:else>
+                        <button type="button" class="btn btn_primary" onclick={verifyOtp}>Verify and fetch</button>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

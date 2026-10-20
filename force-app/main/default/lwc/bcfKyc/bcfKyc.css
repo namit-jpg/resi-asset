@@ -1,0 +1,117 @@
+@import 'c/bcfStyles';
+
+.tick {
+    color: var(--ok);
+}
+
+.tab_error {
+    color: var(--bad);
+}
+
+.sub-title {
+    margin: 18px 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.docs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.doc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line-2);
+}
+
+.doc:last-child {
+    border-bottom: 0;
+}
+
+.doc_error .doc-name {
+    color: var(--bad);
+}
+
+.doc-main {
+    min-width: 0;
+}
+
+.doc-name {
+    font-weight: 600;
+}
+
+.req {
+    color: var(--accent);
+}
+
+.doc-sub,
+.doc-file {
+    font-size: 12.5px;
+    color: var(--mute);
+    word-break: break-word;
+}
+
+.doc-side {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+}
+
+.lbl {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--mute);
+}
+
+.drop {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 26px 16px;
+    border: 1.5px dashed var(--accent-line);
+    border-radius: 12px;
+    background: var(--accent-bg);
+    text-align: center;
+    cursor: pointer;
+}
+
+.drop:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.drop-input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.drop-title {
+    font-weight: 600;
+    color: var(--accent);
+}
+
+.drop-file {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+@media (max-width: 620px) {
+    .doc {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

@@ -1,0 +1,68 @@
+<template>
+    <div class="page-head">
+        <h1 class="page-title">Co-applicants</h1>
+        <p class="page-sub">Add anyone who will be a joint buyer. Details, KYC and signature are collected for each person separately.</p>
+    </div>
+
+    <div class="main">
+        <template for:each={coApplicants} for:item="c">
+            <section key={c.key} class="card">
+                <div class="card__head">
+                    <div>
+                        <h2 class="card__title">{c.title}</h2>
+                        <p class="card__sub">A co-applicant is a joint buyer. Every co-applicant must complete KYC and sign.</p>
+                    </div>
+                    <button type="button" class="icon-btn" data-key={c.key} data-name={c.name} onclick={handleRemove} aria-label="Remove co-applicant">
+                        Remove
+                    </button>
+                </div>
+                <div class="grid">
+                    <template for:each={c.fields} for:item="f">
+                        <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                    </template>
+                </div>
+            </section>
+        </template>
+
+        <template lwc:if={noCoApplicants}>
+            <section class="card">
+                <p class="muted">No co-applicant has been added. If you are buying alone, continue to the next step.</p>
+            </section>
+        </template>
+
+        <template lwc:if={canAdd}>
+            <button type="button" class="add-row" onclick={handleAdd}>+ Add co-applicant</button>
+        </template>
+
+        <section class="card" onfieldchange={handleNomineeChange}>
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Nominee</h2>
+                    <p class="card__sub">
+                        Optional. A nominee is who the unit passes to in the event of the buyer's death, without going through
+                        succession law.
+                    </p>
+                </div>
+                <span class={nomineeBadge.className}>{nomineeBadge.label}</span>
+            </div>
+            <div class="stack">
+                <c-bcf-field field={nomineeToggle}></c-bcf-field>
+                <template lwc:if={nominee.provided}>
+                    <div class="grid">
+                        <template for:each={nomineeFields} for:item="f">
+                            <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                        </template>
+                    </div>
+                    <c-bcf-field field={minorToggle}></c-bcf-field>
+                    <template lwc:if={nominee.isMinor}>
+                        <div class="grid">
+                            <template for:each={guardianFields} for:item="f">
+                                <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </section>
+    </div>
+</template>

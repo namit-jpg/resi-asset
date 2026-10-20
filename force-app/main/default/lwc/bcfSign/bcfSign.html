@@ -1,0 +1,146 @@
+<template>
+    <div class="page-head">
+        <h1 class="page-title">Sign your booking</h1>
+        <p class="page-sub">Every applicant named on the booking signs the document electronically.</p>
+    </div>
+
+    <div class="main">
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Document to sign</h2>
+                    <p class="card__sub">{docTitle}</p>
+                </div>
+                <span class={signBadge.className}>{signBadge.label}</span>
+            </div>
+            <div class="progress" aria-hidden="true"><span style={progressStyle}></span></div>
+            <article class="doc">
+                <header class="doc-head">
+                    <p class="doc-eyebrow">Nikoo Homes · Residential sales</p>
+                    <p class="doc-title">Booking form</p>
+                </header>
+                <h3 class="doc-section">Property</h3>
+                <dl class="kv">
+                    <template for:each={property} for:item="r">
+                        <div key={r.key} class="kv-row">
+                            <dt>{r.label}</dt>
+                            <dd>{r.value}</dd>
+                        </div>
+                    </template>
+                </dl>
+                <h3 class="doc-section">Applicants</h3>
+                <ul class="doc-list">
+                    <template for:each={applicantLines} for:item="a">
+                        <li key={a.key}>
+                            <strong>{a.line}</strong>
+                            <span class="muted small">{a.meta}</span>
+                        </li>
+                    </template>
+                </ul>
+                <p class="small"><span class="muted">Nominee:</span> {nomineeLine}</p>
+                <h3 class="doc-section">Consideration</h3>
+                <dl class="kv">
+                    <template for:each={consideration} for:item="r">
+                        <div key={r.key} class="kv-row">
+                            <dt>{r.label}</dt>
+                            <dd>{r.value}</dd>
+                        </div>
+                    </template>
+                </dl>
+                <h3 class="doc-section">Declarations</h3>
+                <ul class="doc-list">
+                    <template for:each={declarationLines} for:item="d">
+                        <li key={d.id} class="decl">
+                            <span>{d.label}</span>
+                            <span class="muted small">{d.status}</span>
+                        </li>
+                    </template>
+                </ul>
+                <div class="sig-lines">
+                    <template for:each={signatureLines} for:item="s">
+                        <div key={s.key} class="sig-line">
+                            <span class="sig-name">{s.name}</span>
+                            <span class="sig-rule"></span>
+                            <span class="muted small">{s.label}</span>
+                            <span class="muted small">{s.date}</span>
+                        </div>
+                    </template>
+                </div>
+            </article>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Declarations</h2>
+                    <p class="card__sub">Tick each declaration before signing. They are recorded on the signed document.</p>
+                </div>
+                <span class={declarationBadge.className}>{declarationBadge.label}</span>
+            </div>
+            <div class="stack">
+                <template for:each={declarationFields} for:item="f">
+                    <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                </template>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Signatories</h2>
+                    <p class="card__sub">Each applicant adopts their signature. The time and device are recorded on the document.</p>
+                </div>
+            </div>
+            <ul class="signers">
+                <template for:each={signers} for:item="s">
+                    <li key={s.key} class="signer">
+                        <span class="avatar" aria-hidden="true">{s.initials}</span>
+                        <div class="signer-main">
+                            <p class="signer-name">{s.name}</p>
+                            <p class="muted small">{s.role}</p>
+                            <p class="muted small">{s.detail}</p>
+                            <template lwc:if={s.error}>
+                                <p class="field-error" role="alert">{s.error}</p>
+                            </template>
+                        </div>
+                        <span class={s.badge.className}>{s.badge.label}</span>
+                        <template lwc:if={s.unsigned}>
+                            <button type="button" class="btn btn_primary btn_sm" data-index={s.index} onclick={openSign}>✎ Sign</button>
+                        </template>
+                    </li>
+                </template>
+            </ul>
+            <template lwc:if={paymentPending}>
+                <p class="notice notice_warn">Pay the token advance before submitting. You can sign now and pay afterwards.</p>
+            </template>
+        </section>
+    </div>
+
+    <template lwc:if={signingApplicant}>
+        <div class="modal-backdrop" onclick={closeSign}>
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sign-title" onclick={stop}>
+                <div class="modal__head">
+                    <h2 class="modal__title" id="sign-title">Sign document</h2>
+                    <button type="button" class="icon-btn" onclick={closeSign} aria-label="Close">×</button>
+                </div>
+                <div class="modal__body">
+                    <p class="muted small">Signing as {signingApplicant.fullLegalName}, {docTitle}.</p>
+                    <label class="lbl">
+                        Type your full name to sign
+                        <input class="inp" value={typedName} oninput={handleTyped} autocomplete="name" />
+                    </label>
+                    <p class="sig-preview" aria-label="Signature preview">{typedName}</p>
+                    <label class="check">
+                        <input type="checkbox" checked={agreed} onchange={handleAgree} />
+                        <span>I agree to use electronic records and signatures for this booking.</span>
+                    </label>
+                    <p class="notice">Your signature, the time and your device are recorded on the document.</p>
+                </div>
+                <div class="modal__foot">
+                    <button type="button" class="btn btn_ghost" onclick={closeSign}>Cancel</button>
+                    <button type="button" class="btn btn_primary" onclick={adopt} disabled={adoptDisabled}>Adopt and sign</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

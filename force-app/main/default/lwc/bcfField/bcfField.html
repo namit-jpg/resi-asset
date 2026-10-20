@@ -1,0 +1,55 @@
+<template>
+    <div class={wrapperClass}>
+        <template lwc:if={isCheckbox}>
+            <label class="check">
+                <input type="checkbox" checked={field.checked} onchange={handleCheck} />
+                <span>{field.label}</span>
+            </label>
+            <template lwc:if={field.hint}>
+                <p class="hint">{field.hint}</p>
+            </template>
+        </template>
+        <template lwc:else>
+            <label class="lbl" for={inputId}>
+                {field.label}<template lwc:if={field.required}><span class="req" aria-hidden="true"> *</span></template>
+            </label>
+            <template lwc:if={isSelect}>
+                <select
+                    id={inputId}
+                    class={inputClass}
+                    aria-invalid={ariaInvalid}
+                    aria-describedby={errorId}
+                    aria-required={field.required}
+                    onchange={handleCommit}
+                >
+                    <option value="" disabled selected={hasPlaceholderOption}>Select</option>
+                    <template for:each={field.options} for:item="o">
+                        <option key={o.value} value={o.value} selected={o.selected}>{o.label}</option>
+                    </template>
+                </select>
+            </template>
+            <template lwc:if={isInput}>
+                <input
+                    id={inputId}
+                    class={inputClass}
+                    type={field.type}
+                    value={field.value}
+                    placeholder={field.placeholder}
+                    maxlength={field.maxlength}
+                    inputmode={inputMode}
+                    aria-invalid={ariaInvalid}
+                    aria-describedby={errorId}
+                    aria-required={field.required}
+                    oninput={handleInput}
+                    onchange={handleCommit}
+                />
+            </template>
+            <template lwc:if={field.hint}>
+                <p class="hint">{field.hint}</p>
+            </template>
+        </template>
+        <template lwc:if={field.error}>
+            <p class="field-error" id={errorId} role="alert">{field.error}</p>
+        </template>
+    </div>
+</template>

@@ -1,0 +1,114 @@
+<template>
+    <div class="page-head">
+        <h1 class="page-title">Token advance</h1>
+        <p class="page-sub">Pay the booking amount through the secure gateway. Your booking is confirmed only after the payment is verified.</p>
+    </div>
+
+    <div class="main">
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Payment gateway</h2>
+                    <p class="card__sub">UPI, net banking, cards and wallets are handled by the payment gateway.</p>
+                </div>
+                <span class={statusBadge.className}>{statusBadge.label}</span>
+            </div>
+
+            <template lwc:if={isPaid}>
+                <div class="paid">
+                    <p class="paid-title">✓ Payment successful</p>
+                    <p class="amount">{paidAmount}</p>
+                    <dl class="kv">
+                        <dt>Payment ID</dt>
+                        <dd>{payment.paymentId}</dd>
+                        <dt>Method</dt>
+                        <dd>{paidMethodLabel}</dd>
+                        <dt>Paid on</dt>
+                        <dd>{paidAt}</dd>
+                    </dl>
+                </div>
+            </template>
+            <template lwc:else>
+                <div class="segs" role="group" aria-label="Preferred payment method">
+                    <template for:each={methods} for:item="m">
+                        <button key={m.id} type="button" class={m.className} aria-pressed={m.pressed} data-id={m.id} onclick={handleMethod}>
+                            {m.label}
+                        </button>
+                    </template>
+                </div>
+                <div class="pay-panel">
+                    <p class="muted small">Booking amount payable</p>
+                    <p class="amount">{payable}</p>
+                    <p class="muted small">Paid securely through the gateway with {methodLabel}.</p>
+                    <button type="button" class="btn btn_primary btn_lg" onclick={openCheckout} disabled={payDisabled}>{payLabel}</button>
+                    <template lwc:if={noAmount}>
+                        <p class="notice notice_warn">The booking amount has not been set yet. Please contact your relationship manager.</p>
+                    </template>
+                </div>
+                <div class="notice">
+                    <strong>Server-verified payment.</strong> The booking is confirmed only after the gateway response is verified on our
+                    server.
+                </div>
+                <template lwc:if={failure}>
+                    <p class="notice notice_bad" role="alert">{failure}</p>
+                </template>
+            </template>
+
+            <template lwc:if={stepError}>
+                <p class="field-error" role="alert">{stepError}</p>
+            </template>
+        </section>
+    </div>
+
+    <template lwc:if={checkoutOpen}>
+        <div class="modal-backdrop" onclick={closeCheckout}>
+            <div class="modal checkout" role="dialog" aria-modal="true" aria-labelledby="checkout-title" onclick={stop}>
+                <div class="modal__head">
+                    <div>
+                        <h2 class="modal__title" id="checkout-title">Secure checkout</h2>
+                        <p class="muted small">Nikoo Homes · {payable}</p>
+                    </div>
+                    <span class="badge badge_warn">Test mode</span>
+                </div>
+                <div class="modal__body">
+                    <template lwc:if={isUpi}>
+                        <label class="lbl">UPI ID<input class="inp" value="customer@okhdfcbank" /></label>
+                    </template>
+                    <template lwc:if={isCard}>
+                        <label class="lbl">Card number<input class="inp" value="4111 1111 1111 1111" inputmode="numeric" /></label>
+                        <div class="grid">
+                            <label class="lbl">Expiry<input class="inp" value="12/30" /></label>
+                            <label class="lbl">CVV<input class="inp" value="123" inputmode="numeric" /></label>
+                        </div>
+                    </template>
+                    <template lwc:if={isNetbanking}>
+                        <label class="lbl"
+                            >Bank
+                            <select class="inp">
+                                <template for:each={bankOptions} for:item="b">
+                                    <option key={b} value={b}>{b}</option>
+                                </template>
+                            </select>
+                        </label>
+                    </template>
+                    <template lwc:if={isWallet}>
+                        <label class="lbl"
+                            >Wallet
+                            <select class="inp">
+                                <template for:each={walletOptions} for:item="w">
+                                    <option key={w} value={w}>{w}</option>
+                                </template>
+                            </select>
+                        </label>
+                    </template>
+                    <p class="notice notice_info">Test checkout. No real money moves. The live gateway replaces this screen at go-live.</p>
+                </div>
+                <div class="modal__foot">
+                    <button type="button" class="btn btn_ghost" onclick={cancel} disabled={processing}>Cancel</button>
+                    <button type="button" class="btn btn_ghost" onclick={simulateFailure} disabled={processing}>Simulate failure</button>
+                    <button type="button" class="btn btn_primary" onclick={pay} disabled={processing}>Pay {payable}</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

@@ -1,0 +1,125 @@
+<template>
+    <div class="page-head">
+        <h1 class="page-title">Address and KYC</h1>
+        <p class="page-sub">Each applicant needs a permanent address and the documents below. Required documents depend on residential status.</p>
+    </div>
+
+    <div class="main">
+        <template lwc:if={showTabs}>
+            <div class="tabs" role="tablist" aria-label="Applicants">
+                <template for:each={tabs} for:item="t">
+                    <button key={t.key} type="button" role="tab" class={t.className} aria-selected={t.selected} data-key={t.key} onclick={handleTab}>
+                        <template lwc:if={t.done}><span class="tick" aria-hidden="true">✓ </span></template>{t.label}
+                    </button>
+                </template>
+            </div>
+        </template>
+
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Permanent address</h2>
+                    <p class="card__sub">{activeName} · {activeRole}</p>
+                </div>
+            </div>
+            <div class="grid">
+                <template for:each={permanentFields} for:item="f">
+                    <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                </template>
+            </div>
+        </section>
+
+        <section class="card">
+            <c-bcf-field field={sameAsField}></c-bcf-field>
+            <template lwc:if={differentAddress}>
+                <h3 class="sub-title">Correspondence address</h3>
+                <div class="grid">
+                    <template for:each={correspondenceFields} for:item="f">
+                        <c-bcf-field key={f.key} field={f}></c-bcf-field>
+                    </template>
+                </div>
+            </template>
+        </section>
+
+        <section class="card">
+            <div class="card__head">
+                <div>
+                    <h2 class="card__title">Documents for {activeName}</h2>
+                    <p class="card__sub">{activeRole}</p>
+                </div>
+                <span class="badge">{docCount}</span>
+            </div>
+            <ul class="docs">
+                <template for:each={documents} for:item="d">
+                    <li key={d.id} class={d.rowClass}>
+                        <div class="doc-main">
+                            <p class="doc-name">
+                                {d.label}<template lwc:if={d.required}><span class="req" aria-hidden="true"> *</span></template>
+                            </p>
+                            <template lwc:if={d.has}>
+                                <p class="doc-file">{d.fileLine}</p>
+                            </template>
+                            <template lwc:else>
+                                <p class="doc-sub">{d.sub}</p>
+                            </template>
+                            <template lwc:if={d.reason}>
+                                <p class="field-error">{d.reason}</p>
+                            </template>
+                            <template lwc:if={d.error}>
+                                <p class="field-error" role="alert">{d.error}</p>
+                            </template>
+                        </div>
+                        <div class="doc-side">
+                            <template lwc:if={d.status}>
+                                <span class={d.status.className}>{d.status.label}</span>
+                            </template>
+                            <template lwc:else>
+                                <span class="badge">Not started</span>
+                            </template>
+                            <template lwc:if={d.canUpload}>
+                                <button type="button" class="btn btn_ghost btn_sm" data-id={d.id} onclick={openUpload}>{d.buttonLabel}</button>
+                            </template>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </section>
+    </div>
+
+    <template lwc:if={upload}>
+        <div class="modal-backdrop" onclick={closeUpload}>
+            <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upload-title" onclick={stop}>
+                <div class="modal__head">
+                    <h2 class="modal__title" id="upload-title">{uploadRule.label}</h2>
+                    <button type="button" class="icon-btn" onclick={closeUpload} aria-label="Close">×</button>
+                </div>
+                <div class="modal__body">
+                    <p class="muted small">{uploadRule.sub}</p>
+                    <label class="drop">
+                        <input type="file" accept={accept} class="drop-input" onchange={handleFile} />
+                        <span class="drop-title">Choose a file to upload</span>
+                        <span class="muted small">PDF, JPG or PNG · up to 3 MB</span>
+                        <template lwc:if={file}>
+                            <span class="drop-file">{fileLabel}</span>
+                        </template>
+                    </label>
+                    <template for:each={captureFields} for:item="c">
+                        <div key={c.key}>
+                            <label class="lbl">
+                                {c.label}
+                                <input class="inp" type={c.type} value={c.value} data-key={c.key} oninput={handleDetail} />
+                            </label>
+                        </div>
+                    </template>
+                    <template lwc:if={fileError}>
+                        <p class="field-error" role="alert">{fileError}</p>
+                    </template>
+                </div>
+                <div class="modal__foot">
+                    <button type="button" class="btn btn_ghost" onclick={closeUpload}>Cancel</button>
+                    <button type="button" class="btn btn_primary" onclick={doUpload} disabled={uploadDisabled}>{uploadButtonLabel}</button>
+                </div>
+            </div>
+        </div>
+    </template>
+</template>

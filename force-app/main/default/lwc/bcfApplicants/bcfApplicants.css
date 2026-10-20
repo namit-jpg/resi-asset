@@ -1,0 +1,23 @@
+@import 'c/bcfStyles';
+
+.add-row {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1.5px dashed var(--accent-line);
+    background: rgba(255, 255, 255, 0.45);
+    color: var(--accent);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.add-row:hover {
+    background: var(--accent-bg);
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

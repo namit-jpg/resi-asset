@@ -309,6 +309,15 @@ export function formatInr(amount) {
     return amount === null || amount === undefined || Number.isNaN(n) ? '—' : `₹${inr.format(n)}`;
 }
 
+/** Summary rows for a paid EOI, which is deducted from the amount the customer still owes. */
+export function eoiLines(c) {
+    if (!(Number(c?.eoiPaid) > 0)) return [];
+    return [
+        { key: 'eoi', label: `Less EOI paid${c.eoiVouchers ? ` (${c.eoiVouchers})` : ''}`, value: `− ${formatInr(c.eoiPaid)}` },
+        { key: 'balance', label: 'Balance payable', value: formatInr(c.balancePayable) }
+    ];
+}
+
 function toDate(value) {
     if (!value) return null;
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {

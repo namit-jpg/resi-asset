@@ -139,7 +139,23 @@ Source: Granola notes from 08 Oct 2026 (Residential Asset Enhancement Plan revie
 - The Account 360 page has a "Co-applicants & nominees" card on the Overview & Units tab, shown only when such Contacts exist.
 - New permission set **Nikoo Booking Contacts** gives access to the new fields. It is not assigned to anyone yet.
 - Deployed to UAT. `BookingFormControllerTest` and `WdGlassCustomerControllerTest` pass 12/12.
-- **Parked:** deducting the paid EOI from the token amount. This waits on the team's decision.
+## 7b. EOI deducted from the amount payable (20 Oct 2026)
+
+- A paid EOI now counts as a payment towards the unit, not towards the token. The agreement value is unchanged and the token is still collected in full.
+- **When a booking is created** (new `EoiBookingTrigger` and `EoiBookingAdjustment` job), paid EOIs for that opportunity are recorded against the booking's unpaid instalments. If an EOI was never linked to an opportunity, the customer's EOI for the same project is used.
+  - Each instalment the EOI touches gets an approved Payment Receipt (reference "EOI EOI-xxxxx") under a Demand, and its Amount Paid goes up. Fully covered instalments become Paid.
+  - The voucher becomes "Converted to Booking", linked to the booking and unit, and a dated note lists the receipts.
+- **Recording model:** the receipts follow the booking flow's token-receipt pattern (principal 0, settled through Amount Paid) rather than the original ledger engine, as chosen on 20 Oct 2026.
+  - They are approved automatically, because the EOI money was already verified at voucher payment. Approval sends them to SAP like any approved receipt.
+- The voucher's manual "Adjust Against Booking" action (hidden in the UI) now does the same deduction when the booking has instalments.
+- **Booking form:** the Sign and Confirmation summaries show "Less EOI paid" and "Balance payable". The Payment step explains that the EOI is adjusted against later instalments.
+- Tested on real UAT data with a rolled-back run (BO-00000356): Customer 360 "Paid to date" rose by exactly the EOI amount.
+- Tests: `EoiBookingAdjustmentTest` (new, 3), `EoiVoucherControllerTest`, `BookingFormControllerTest` and `WdGlassCustomerControllerTest` all pass.
+- **Issues found in the shared org, for Prajwal:**
+  1. "Create Booking" (`UnitSelectionQuoteController.syncToSapAndCreateBooking`) records the token receipt with 0 principal, so the original ledger engine shows the token as unpaid. Receipts on later instalments can then never go through the ledger or the `Payment_Receipt_Approval_V1` approval process, which needs principal > 0.
+  2. The same method sets Booking Status "Active", which isn't an allowed value. This is also why the 5 `CustomerLedgerControllerTest` tests fail.
+  3. `CustomerLedgerController.reconcileReceipt` sets Receipt Status "Approved", which isn't an allowed value (use "Posted"), so the ledger tab's Approve button fails. `logDetailedReceipt` uses "Pending" and "Demand Raised", which are also not allowed values.
+  4. Some bookings (for example BO-00000356 and BO-00000387) have every instalment twice, because the payment plan was generated twice.
 
 ## 8. Working rules agreed
 

@@ -44,7 +44,7 @@ public without sharing class BookingFormService {
                 Interested_Unit__c, Interested_Unit__r.Name, Interested_Unit__r.BHK_Configuration__c,
                 Interested_Unit__r.Saleable_Area__c, Interested_Unit__r.Carpet_Area__c, Interested_Unit__r.Total_Cost__c,
                 Interested_Unit__r.Tower__r.Name, Interested_Unit__r.Floor__r.Name,
-                Interested_Unit__r.Property__r.Name, Interested_Unit__r.Property__r.Project_ID__c
+                Interested_Unit__r.Property__c, Interested_Unit__r.Property__r.Name, Interested_Unit__r.Property__r.Project_ID__c
             FROM Opportunity
             WHERE Booking_Form_Token__c = :token
             LIMIT 1
@@ -76,7 +76,16 @@ public without sharing class BookingFormService {
         Unit__c u = o.Interested_Unit__r;
         Decimal bookingValue = o.Total_Amount__c != null && o.Total_Amount__c > 0 ? o.Total_Amount__c : u?.Total_Cost__c;
         Decimal area = o.Chargeable_Area__c != null && o.Chargeable_Area__c > 0 ? o.Chargeable_Area__c : u?.Saleable_Area__c;
+        Decimal eoiPaid = 0;
+        List<String> voucherNames = new List<String>();
+        for (Voucher__c v : eoiVouchers(o)) {
+            eoiPaid += v.Amount_Paid__c;
+            voucherNames.add(v.Name);
+        }
         return new Map<String, Object>{
+            'eoiPaid' => eoiPaid,
+            'eoiVouchers' => String.join(voucherNames, ', '),
+            'balancePayable' => bookingValue == null || eoiPaid == 0 ? null : Math.max(0, bookingValue - eoiPaid),
             'developer' => DEVELOPER,
             'opportunityName' => o.Name,
             'project' => u?.Property__r?.Name,
@@ -92,6 +101,31 @@ public without sharing class BookingFormService {
             'relationshipManager' => o.Owner?.Name,
             'bookingDate' => Date.today()
         };
+    }
+
+    /**
+     * Paid EOIs that count towards this deal (see EoiBookingAdjustment): linked to the opportunity,
+     * or the customer's unlinked EOIs for the same project.
+     */
+    private static List<Voucher__c> eoiVouchers(Opportunity o) {
+        Set<String> counted = new Set<String>{ EoiVoucherController.PAID, EoiVoucherController.ALLOTTED, EoiVoucherController.CONVERTED };
+        Id projectId = o.Interested_Unit__r?.Property__c;
+        List<Voucher__c> result = new List<Voucher__c>();
+        for (Voucher__c v : [
+            SELECT Name, Amount_Paid__c, Opportunity__c, Account__c, Project__c, Booking__c, Status__c
+            FROM Voucher__c
+            WHERE Amount_Paid__c > 0 AND Status__c IN :counted
+              AND (Opportunity__c = :o.Id OR (Opportunity__c = null AND Account__c = :o.AccountId))
+            ORDER BY Name
+        ]) {
+            Boolean sameOpp = v.Opportunity__c == o.Id;
+            Boolean sameCustomer = v.Opportunity__c == null && o.AccountId != null && v.Booking__c == null
+                && v.Status__c != EoiVoucherController.CONVERTED && projectId != null && v.Project__c == projectId;
+            if (sameOpp || sameCustomer) {
+                result.add(v);
+            }
+        }
+        return result;
     }
 
     /** First-visit answers, prefilled from the customer's account. */

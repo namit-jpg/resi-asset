@@ -308,6 +308,18 @@ public with sharing class EoiVoucherController {
             if (used > 0) {
                 throw new EoiException('Another EOI has already been adjusted against that booking.');
             }
+            // Deduct the EOI from the unpaid instalments when the booking has them; otherwise just link it.
+            List<Booking__c> forLedger = EoiBookingAdjustment.loadBookings(new Set<Id>{ bookingId });
+            if (!forLedger.isEmpty()) {
+                Voucher__c full = [
+                    SELECT Id, Name, Status__c, Amount_Paid__c, Payment_Mode__c, Payment_Reference__c, Payment_Date__c,
+                        Opportunity__c, Account__c, Project__c, Flat_No__c, Remarks__c
+                    FROM Voucher__c WHERE Id = :voucherId
+                ];
+                if (!EoiBookingAdjustment.apply(full, forLedger[0]).isEmpty()) {
+                    return;
+                }
+            }
             v.Booking__c = b.Id;
             v.Status__c = CONVERTED;
             if (b.Unit_Id__c != null) {

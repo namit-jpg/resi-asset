@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-import { DECLARATIONS, field, formatInr, formatDate, formatDateTime, initials } from 'c/bcfUtils';
+import { DECLARATIONS, field, formatInr, formatDate, formatDateTime, initials, eoiLines } from 'c/bcfUtils';
 
 /** Step 5: review the booking document, accept the declarations and sign (one signature per applicant). */
 export default class BcfSign extends LightningElement {
@@ -52,6 +52,7 @@ export default class BcfSign extends LightningElement {
         const c = this.context || {};
         return [
             { key: 'value', label: 'Booking value', value: formatInr(c.bookingValue) },
+            ...eoiLines(c),
             { key: 'token', label: 'Token advance', value: this.payment?.status === 'Paid' ? `${formatInr(this.payment.amount)} (paid)` : formatInr(c.tokenAmount) },
             { key: 'plan', label: 'Payment plan', value: c.paymentPlan || '—' },
             { key: 'date', label: 'Booking date', value: formatDate(c.bookingDate) }

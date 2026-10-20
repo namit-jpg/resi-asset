@@ -21,6 +21,13 @@ export default class BcfPayment extends LightningElement {
         return formatInr(this.payment?.payable ?? this.context?.tokenAmount);
     }
 
+    /** A paid EOI is adjusted against later instalments, not against this token. */
+    get eoiNote() {
+        const c = this.context || {};
+        if (!(Number(c.eoiPaid) > 0)) return null;
+        return `Your EOI of ${formatInr(c.eoiPaid)}${c.eoiVouchers ? ` (${c.eoiVouchers})` : ''} is adjusted against your later instalments, so the balance payable on this booking is ${formatInr(c.balancePayable)}.`;
+    }
+
     get hasAmount() {
         return Number(this.payment?.payable ?? this.context?.tokenAmount) > 0;
     }

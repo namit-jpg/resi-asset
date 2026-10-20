@@ -1,5 +1,5 @@
 import { LightningElement, api } from 'lwc';
-import { formatInr, formatDate, formatDateTime } from 'c/bcfUtils';
+import { formatInr, formatDate, formatDateTime, eoiLines } from 'c/bcfUtils';
 
 /** Shown after submission, and whenever a submitted link is reopened by the customer. */
 export default class BcfConfirmation extends LightningElement {
@@ -39,6 +39,7 @@ export default class BcfConfirmation extends LightningElement {
             { key: 'applicants', label: 'Applicants', value: (this.data?.applicants || []).map((a) => a.fullLegalName).join(', ') },
             { key: 'project', label: 'Project', value: c.project },
             { key: 'value', label: 'Total booking value', value: formatInr(c.bookingValue) },
+            ...eoiLines(c),
             { key: 'paid', label: 'Paid today', value: this.payment?.status === 'Paid' ? formatInr(this.payment.amount) : '—' },
             { key: 'plan', label: 'Payment plan', value: c.paymentPlan || '—' },
             { key: 'docs', label: 'Documents', value: `${docs} uploaded` },

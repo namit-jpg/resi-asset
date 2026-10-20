@@ -40,6 +40,9 @@
                     <p class="muted small">Booking amount payable</p>
                     <p class="amount">{payable}</p>
                     <p class="muted small">Paid securely through the gateway with {methodLabel}.</p>
+                    <template lwc:if={eoiNote}>
+                        <p class="muted small">{eoiNote}</p>
+                    </template>
                     <button type="button" class="btn btn_primary btn_lg" onclick={openCheckout} disabled={payDisabled}>{payLabel}</button>
                     <template lwc:if={noAmount}>
                         <p class="notice notice_warn">The booking amount has not been set yet. Please contact your relationship manager.</p>

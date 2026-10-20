@@ -6,8 +6,6 @@
 public with sharing class WdGlassCustomerController {
 
     private static final Integer MAX_ROWS = 6;
-    // Rows for the Cases / Invoices / Payments tabs.
-    private static final Integer TAB_ROWS = 200;
 
     public class Profile {
         @AuraEnabled public String name;
@@ -65,45 +63,6 @@ public with sharing class WdGlassCustomerController {
         @AuraEnabled public Datetime at;
     }
 
-    public class CaseRow {
-        @AuraEnabled public Id id;
-        @AuraEnabled public String caseNumber;
-        @AuraEnabled public String subject;
-        @AuraEnabled public String type;
-        @AuraEnabled public String priority;
-        @AuraEnabled public String status;
-        @AuraEnabled public Boolean closed;
-        @AuraEnabled public Date opened;
-        @AuraEnabled public Date closedOn;
-    }
-
-    public class Invoice {
-        @AuraEnabled public Id id;
-        @AuraEnabled public String name;
-        @AuraEnabled public String unit;
-        @AuraEnabled public String milestone;
-        @AuraEnabled public Date dueDate;
-        @AuraEnabled public Date sentOn;
-        @AuraEnabled public Decimal amount;
-        @AuraEnabled public Decimal received;
-        @AuraEnabled public Decimal balance;
-        @AuraEnabled public String status;
-        @AuraEnabled public Boolean overdue;
-    }
-
-    public class Payment {
-        @AuraEnabled public Id id;
-        @AuraEnabled public String name;
-        @AuraEnabled public Date paidOn;
-        @AuraEnabled public String unit;
-        @AuraEnabled public String invoice;
-        @AuraEnabled public String mode;
-        @AuraEnabled public String reference;
-        @AuraEnabled public Decimal amount;
-        @AuraEnabled public String approval;
-        @AuraEnabled public String receiptStatus;
-    }
-
     public class Alert {
         @AuraEnabled public String tone; // negative | warning | info
         @AuraEnabled public String message;
@@ -125,15 +84,6 @@ public with sharing class WdGlassCustomerController {
         @AuraEnabled public List<Item> enquiries = new List<Item>();
         @AuraEnabled public List<Item> cases = new List<Item>();
         @AuraEnabled public List<Alert> alerts = new List<Alert>();
-        // Full lists for the Customer 360 tabs.
-        @AuraEnabled public List<CaseRow> allCases = new List<CaseRow>();
-        @AuraEnabled public List<Invoice> invoices = new List<Invoice>();
-        @AuraEnabled public List<Payment> payments = new List<Payment>();
-        @AuraEnabled public List<Instalment> allDues = new List<Instalment>();
-        @AuraEnabled public Integer openCases = 0;
-        @AuraEnabled public Decimal invoicedTotal = 0;
-        @AuraEnabled public Decimal invoiceBalance = 0;
-        @AuraEnabled public Integer overdueInvoices = 0;
 
         // Summary numbers for the top cards.
         @AuraEnabled public Decimal portfolioValue = 0;
@@ -161,7 +111,6 @@ public with sharing class WdGlassCustomerController {
             Set<Id> leadIds = loadEnquiries(c, accountId);
             loadSiteVisits(c, opportunityIds, leadIds);
             loadCases(c, accountId);
-            loadInvoices(c, accountId, bookingIds);
             loadAlerts(c, accountId, bookingIds);
             return c;
         } catch (Exception e) {
@@ -293,21 +242,16 @@ public with sharing class WdGlassCustomerController {
             if (c.dues.size() < MAX_ROWS) {
                 c.dues.add(i);
             }
-            if (c.allDues.size() < TAB_ROWS) {
-                c.allDues.add(i);
-            }
         }
     }
 
     private static void loadReceipts(Customer c, Id accountId) {
         for (Payment_Receipt__c r : [
             SELECT Id, Name, Amount_Paid__c, Date_Of_Payment__c, Mode_Of_Payment__c, Approval_Status__c,
-                   Receipt_Status__c, CreatedDate, Transaction_Reference__c, ChequeNumber__c, Demand__r.Name,
-                   Demand__r.Unit__r.Name, Booking_Payment_Schedule__r.Booking__r.Unit_Id__r.Name
+                   Receipt_Status__c, CreatedDate
             FROM Payment_Receipt__c
             WHERE Account__c = :accountId
             ORDER BY Date_Of_Payment__c DESC NULLS LAST, CreatedDate DESC
-            LIMIT :TAB_ROWS
         ]) {
             Decimal amount = nz(r.Amount_Paid__c);
             if (r.Approval_Status__c == 'Approved') {
@@ -315,21 +259,6 @@ public with sharing class WdGlassCustomerController {
             } else if (r.Approval_Status__c != 'Rejected') {
                 c.pendingReceipts += amount;
             }
-            Payment p = new Payment();
-            p.id = r.Id;
-            p.name = r.Name;
-            p.paidOn = r.Date_Of_Payment__c != null ? r.Date_Of_Payment__c : r.CreatedDate.date();
-            p.unit = r.Booking_Payment_Schedule__r?.Booking__r?.Unit_Id__r?.Name;
-            if (p.unit == null) {
-                p.unit = r.Demand__r?.Unit__r?.Name;
-            }
-            p.invoice = r.Demand__r?.Name;
-            p.mode = r.Mode_Of_Payment__c;
-            p.reference = String.isNotBlank(r.Transaction_Reference__c) ? r.Transaction_Reference__c : r.ChequeNumber__c;
-            p.amount = amount;
-            p.approval = r.Approval_Status__c;
-            p.receiptStatus = r.Receipt_Status__c;
-            c.payments.add(p);
             if (c.receipts.size() < MAX_ROWS) {
                 Item i = new Item();
                 i.id = r.Id;
@@ -442,88 +371,38 @@ public with sharing class WdGlassCustomerController {
 
     private static void loadCases(Customer c, Id accountId) {
         for (Case k : [
-            SELECT Id, CaseNumber, Subject, Status, Priority, Type, IsClosed, CreatedDate, ClosedDate
+            SELECT Id, CaseNumber, Subject, Status, Priority, CreatedDate
             FROM Case
-            WHERE AccountId = :accountId
-            ORDER BY IsClosed ASC, CreatedDate DESC
-            LIMIT :TAB_ROWS
+            WHERE AccountId = :accountId AND IsClosed = false
+            ORDER BY CreatedDate DESC
+            LIMIT :MAX_ROWS
         ]) {
-            CaseRow row = new CaseRow();
-            row.id = k.Id;
-            row.caseNumber = k.CaseNumber;
-            row.subject = String.isNotBlank(k.Subject) ? k.Subject : 'Case ' + k.CaseNumber;
-            row.type = k.Type;
-            row.priority = k.Priority;
-            row.status = k.Status;
-            row.closed = k.IsClosed;
-            row.opened = k.CreatedDate.date();
-            row.closedOn = k.ClosedDate?.date();
-            c.allCases.add(row);
-            if (k.IsClosed) {
-                continue;
-            }
-            c.openCases++;
-            if (c.cases.size() < MAX_ROWS) {
-                Item i = new Item();
-                i.id = k.Id;
-                i.title = row.subject;
-                i.subtitle = joinParts(new List<String>{ k.CaseNumber, k.Priority == null ? null : k.Priority + ' priority' });
-                i.status = k.Status;
-                i.onDate = row.opened;
-                c.cases.add(i);
-            }
-        }
-    }
-
-    /** Demands raised on the customer's bookings: the customer's invoices. */
-    private static void loadInvoices(Customer c, Id accountId, Set<Id> bookingIds) {
-        Date today = Date.today();
-        for (Demand__c d : [
-            SELECT Id, Name, Unit__r.Name, Booking_Id__r.Unit_Id__r.Name, Milestone_Description__c, Due_Date__c,
-                   DemandLetterSentDate__c, Demand_Amount__c, Total_Value__c, Invoice_Value__c,
-                   Total_Amount_Recieved__c, Status__c, CreatedDate
-            FROM Demand__c
-            WHERE Account__c = :accountId OR Booking_Id__c IN :bookingIds
-            ORDER BY Due_Date__c DESC NULLS LAST, CreatedDate DESC
-            LIMIT :TAB_ROWS
-        ]) {
-            Invoice i = new Invoice();
-            i.id = d.Id;
-            i.name = d.Name;
-            i.unit = d.Unit__r != null ? d.Unit__r.Name : d.Booking_Id__r?.Unit_Id__r?.Name;
-            i.milestone = d.Milestone_Description__c;
-            i.dueDate = d.Due_Date__c;
-            i.sentOn = d.DemandLetterSentDate__c;
-            i.amount = d.Total_Value__c != null ? d.Total_Value__c
-                : d.Demand_Amount__c != null ? d.Demand_Amount__c : nz(d.Invoice_Value__c);
-            i.received = nz(d.Total_Amount_Recieved__c);
-            i.balance = Math.max(0, i.amount - i.received);
-            i.status = d.Status__c;
-            i.overdue = i.balance > 0 && d.Due_Date__c != null && d.Due_Date__c < today;
-            c.invoicedTotal += i.amount;
-            c.invoiceBalance += i.balance;
-            if (i.overdue) {
-                c.overdueInvoices++;
-            }
-            c.invoices.add(i);
+            Item i = new Item();
+            i.id = k.Id;
+            i.title = String.isNotBlank(k.Subject) ? k.Subject : 'Case ' + k.CaseNumber;
+            i.subtitle = joinParts(new List<String>{ k.CaseNumber, k.Priority == null ? null : k.Priority + ' priority' });
+            i.status = k.Status;
+            i.onDate = k.CreatedDate.date();
+            c.cases.add(i);
         }
     }
 
     private static void loadAlerts(Customer c, Id accountId, Set<Id> bookingIds) {
         if (c.overdueCount > 0) {
-            c.alerts.add(new Alert('negative', c.overdueCount + (c.overdueCount == 1 ? ' instalment' : ' instalments')
-                + ' overdue since ' + Datetime.newInstance(c.oldestOverdue, Time.newInstance(0, 0, 0, 0)).format('dd MMM yyyy')));
+            c.alerts.add(new Alert('negative', c.overdueCount + (c.overdueCount == 1 ? ' instalment is' : ' instalments are')
+                + ' overdue since ' + Datetime.newInstance(c.oldestOverdue, Time.newInstance(0, 0, 0, 0)).format('dd MMM yyyy') + '. Raise it before discussing anything new.'));
         }
         if (c.pendingReceipts > 0) {
-            c.alerts.add(new Alert('warning', '₹' + c.pendingReceipts.setScale(0).format() + ' receipts awaiting approval'));
+            c.alerts.add(new Alert('warning', 'Receipts worth ₹' + c.pendingReceipts.setScale(0).format() + ' are waiting for approval.'));
         }
         for (Holding h : c.holdings) {
             if (h.transferInProgress == true) {
-                c.alerts.add(new Alert('info', h.unitName + ' transfer in progress'));
+                c.alerts.add(new Alert('info', h.unitName + ' is going through an ownership transfer.'));
             }
         }
-        if (c.openCases > 0) {
-            c.alerts.add(new Alert('warning', c.openCases + ' open ' + (c.openCases == 1 ? 'case' : 'cases')));
+        if (!c.cases.isEmpty()) {
+            c.alerts.add(new Alert('warning', c.cases.size() + ' open service ' + (c.cases.size() == 1 ? 'case' : 'cases')
+                + ' with this customer.'));
         }
         if (!bookingIds.isEmpty()) {
             Integer waivers = [
@@ -531,7 +410,7 @@ public with sharing class WdGlassCustomerController {
                 WHERE Booking__c IN :bookingIds AND Status__c NOT IN ('Approved', 'Rejected')
             ];
             if (waivers > 0) {
-                c.alerts.add(new Alert('info', waivers + ' interest waiver' + (waivers == 1 ? '' : 's') + ' pending'));
+                c.alerts.add(new Alert('info', waivers + ' interest waiver ' + (waivers == 1 ? 'request is' : 'requests are') + ' pending.'));
             }
         }
     }

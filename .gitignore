@@ -15,3 +15,6 @@ node_modules/
 .secrets/
 __pycache__/
 .pytest_cache/
+
+# local org retrieves used for diffing
+.sfretrieve/

@@ -22,35 +22,31 @@
 .glow {
     position: absolute;
     border-radius: 50%;
+    filter: blur(60px);
 }
 
-/*
- * Soft glows are radial gradients rather than filter: blur(60px): a blur filter on
- * elements this large is re-rasterised on scroll and made glass pages lag.
- * Boxes are 120px larger than before to keep the same spread.
- */
 .glow_a {
-    width: 53.5rem;
-    height: 37.5rem;
-    top: 5.25rem;
-    left: calc(28% - 3.75rem);
-    background: radial-gradient(closest-side, rgba(52, 194, 107, 0.26), rgba(52, 194, 107, 0.12) 55%, rgba(52, 194, 107, 0));
+    width: 46rem;
+    height: 30rem;
+    top: 9rem;
+    left: 28%;
+    background: rgba(52, 194, 107, 0.26);
 }
 
 .glow_b {
-    width: 37.5rem;
-    height: 33.5rem;
-    top: -9.75rem;
-    right: -9.75rem;
-    background: radial-gradient(closest-side, rgba(64, 200, 180, 0.2), rgba(64, 200, 180, 0.09) 55%, rgba(64, 200, 180, 0));
+    width: 30rem;
+    height: 26rem;
+    top: -6rem;
+    right: -6rem;
+    background: rgba(64, 200, 180, 0.2);
 }
 
 .glow_c {
-    width: 41.5rem;
-    height: 29.5rem;
-    bottom: -11.75rem;
-    left: -11.75rem;
-    background: radial-gradient(closest-side, rgba(120, 220, 160, 0.22), rgba(120, 220, 160, 0.1) 55%, rgba(120, 220, 160, 0));
+    width: 34rem;
+    height: 22rem;
+    bottom: -8rem;
+    left: -8rem;
+    background: rgba(120, 220, 160, 0.22);
 }
 
 .mark {

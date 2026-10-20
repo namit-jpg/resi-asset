@@ -1,8 +1,8 @@
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const POSITIVE = ['available', 'qualified', 'converted', 'allotment', 'allotted', 'paid', 'transferred', 'approved', 'closed won', 'allocated', 'registered'];
-const NEGATIVE = ['dropped', 'lost', 'unqualified', 'rejected', 'cancel', 'refund'];
+const POSITIVE = ['available', 'qualified', 'converted', 'allotment', 'transferred', 'approved', 'closed won', 'allocated', 'registered'];
+const NEGATIVE = ['dropped', 'lost', 'unqualified', 'rejected', 'cancel'];
 const WARNING = ['pending', 'draft', 'submitted', 'site visit', 'blocked', 'hold'];
 
 const inrGrouping = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });

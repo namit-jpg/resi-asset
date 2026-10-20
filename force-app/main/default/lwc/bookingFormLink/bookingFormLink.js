@@ -8,6 +8,7 @@ import generateLink from '@salesforce/apex/BookingFormLinkController.generateLin
 import reopen from '@salesforce/apex/BookingFormLinkController.reopen';
 import emailLink from '@salesforce/apex/BookingFormLinkController.emailLink';
 import getShareMessage from '@salesforce/apex/BookingFormLinkController.getShareMessage';
+import advanceStageToShareWelcomeLetter from '@salesforce/apex/BookingFormLinkController.advanceStageToShareWelcomeLetter';
 import { formatInr, formatDate, formatDateTime } from 'c/bcfUtils';
 
 const STEP_LABELS = {
@@ -159,13 +160,25 @@ export default class BookingFormLink extends NavigationMixin(LightningElement) {
         }
     }
 
-    handleOpen() {
+    async handleOpen() {
         window.open(this.s.url, '_blank', 'noopener');
+        try {
+            await advanceStageToShareWelcomeLetter({ opportunityId: this._recordId });
+            notifyRecordUpdateAvailable([{ recordId: this._recordId }]);
+        } catch (e) {
+            // non-fatal
+        }
     }
 
     /** Opens the customer's form inside Salesforce, for demos and internal testing without the public site. */
-    handleOpenInternal() {
+    async handleOpenInternal() {
         const token = new URL(this.s.url).searchParams.get('t');
+        try {
+            await advanceStageToShareWelcomeLetter({ opportunityId: this._recordId });
+            notifyRecordUpdateAvailable([{ recordId: this._recordId }]);
+        } catch (e) {
+            // non-fatal
+        }
         this.dispatchEvent(new CloseActionScreenEvent());
         this[NavigationMixin.Navigate]({
             type: 'standard__component',
@@ -203,7 +216,15 @@ export default class BookingFormLink extends NavigationMixin(LightningElement) {
         }
     }
 
-    handleClose() {
+    async handleClose() {
+        if (this.hasLink) {
+            try {
+                await advanceStageToShareWelcomeLetter({ opportunityId: this._recordId });
+                notifyRecordUpdateAvailable([{ recordId: this._recordId }]);
+            } catch (e) {
+                // non-fatal
+            }
+        }
         this.dispatchEvent(new CloseActionScreenEvent());
     }
 

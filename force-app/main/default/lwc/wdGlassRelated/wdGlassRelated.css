@@ -99,8 +99,3 @@
     background: #fff;
     color: var(--wd-green-deep);
 }
-.empty {
-    margin: 0;
-    font-size: 0.8rem;
-    color: var(--wd-muted);
-}

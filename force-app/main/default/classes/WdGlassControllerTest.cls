@@ -16,8 +16,7 @@ private class WdGlassControllerTest {
         Map<String, List<String>> viewsByPage = new Map<String, List<String>>{
             'leads' => new List<String>{ 'recent', 'open', 'mine', 'month', 'all' },
             'inventory' => new List<String>{ 'all', 'available', 'sold', 'recent' },
-            'bookings' => new List<String>{ 'all', 'pending', 'recent' },
-            'eoi' => new List<String>{ 'all', 'pending', 'paid', 'allotted', 'converted', 'closed' }
+            'bookings' => new List<String>{ 'all', 'pending', 'recent' }
         };
         Test.startTest();
         for (String page : viewsByPage.keySet()) {

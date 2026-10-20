@@ -5,19 +5,14 @@
                 <h2 class="wd-section-title">{list.label}<span class="wd-section-count">{list.count}</span></h2>
                 <button type="button" class="view-all" data-list={list.relatedListId} onclick={handleViewAll}>View all</button>
             </header>
-            <template lwc:if={list.hasRecords}>
-                <ul class="rows">
-                    <template for:each={list.rows} for:item="row">
-                        <li key={row.id} class="row">
-                            <a href="#" class="title" data-id={row.id} onclick={handleOpen}>{row.title}</a>
-                            <span class="meta">{row.meta}</span>
-                        </li>
-                    </template>
-                </ul>
-            </template>
-            <template lwc:else>
-                <p class="empty">{list.emptyText}</p>
-            </template>
+            <ul class="rows">
+                <template for:each={list.rows} for:item="row">
+                    <li key={row.id} class="row">
+                        <a href="#" class="title" data-id={row.id} onclick={handleOpen}>{row.title}</a>
+                        <span class="meta">{row.meta}</span>
+                    </li>
+                </template>
+            </ul>
         </section>
     </template>
 

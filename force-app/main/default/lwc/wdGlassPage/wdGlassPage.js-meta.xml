@@ -3,7 +3,7 @@
     <apiVersion>62.0</apiVersion>
     <isExposed>true</isExposed>
     <masterLabel>WarpDrive Glass List Page</masterLabel>
-    <description>Frosted-glass pipeline page with KPI cards and a searchable list for Leads, Inventory, Bookings or EOI vouchers.</description>
+    <description>Frosted-glass pipeline page with KPI cards and a searchable list for Leads, Inventory or Bookings.</description>
     <targets>
         <target>lightning__AppPage</target>
         <target>lightning__HomePage</target>
@@ -11,7 +11,7 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__AppPage,lightning__HomePage">
-            <property name="pageKey" type="String" label="Page" datasource="leads,inventory,bookings,eoi" default="leads"/>
+            <property name="pageKey" type="String" label="Page" datasource="leads,inventory,bookings" default="leads"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

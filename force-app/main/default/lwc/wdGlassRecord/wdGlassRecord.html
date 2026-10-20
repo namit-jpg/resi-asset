@@ -48,13 +48,7 @@
                         </template>
                     </div>
                 </template>
-                <template lwc:if={editing}>
-                    <button type="button" class="wd-btn wd-btn_ghost" onclick={handleEditToggle}>Cancel</button>
-                    <button type="button" class="wd-btn wd-btn_primary" disabled={saving} onclick={handleSaveAll}>Save</button>
-                </template>
-                <template lwc:else>
-                    <button type="button" class="wd-btn wd-btn_primary" onclick={handleEditToggle}>Edit</button>
-                </template>
+                <button type="button" class="wd-btn wd-btn_primary" onclick={handleEditToggle}>{editLabel}</button>
             </div>
         </header>
 
@@ -75,44 +69,47 @@
                 record-type-id={recordTypeId}
                 value={pathValue}
                 onrequestleadarchive={handleRequestLeadArchive}
+                onrequestfeedback={handleOpenFeedbackModal}
             ></c-wd-glass-path>
         </template>
 
-
-        <template lwc:if={isChannelPartner}>
-            <div class="wd-glass partner-banner">
-                <div class="partner-banner-content">
-                    <div class="partner-banner-icon" aria-hidden="true">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                    </div>
-                    <div class="partner-banner-text">
-                        <div class="partner-banner-title-row">
-                            <span class="partner-banner-title">Authorized Channel Partner Portal</span>
-                            <span class="partner-banner-badge">Active Agency</span>
-                        </div>
-                        <p class="partner-banner-desc">Access real-time inventory feed, customer booking registrations, commission payouts, and site-visit tracking for this partner.</p>
-                    </div>
+        <!-- CONVERTED LEAD 3-WAY NAVIGATION BANNER -->
+        <template lwc:if={isConvertedLead}>
+            <div class="wd-glass converted-hub-banner" role="region" aria-label="Converted Lead Hub">
+                <div class="hub-status">
+                    <span class="hub-pill">✓ CONVERTED LEAD</span>
+                    <span class="hub-title">Unified Customer Journey Links</span>
                 </div>
-                <button
-                    type="button"
-                    class="wd-btn partner-launch-btn"
-                    data-api="Account.Launch_Broker_Portal"
-                    onclick={handleAction}
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="partner-launch-icon">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                        <polyline points="15 3 21 3 21 9"></polyline>
-                        <line x1="10" y1="14" x2="21" y2="3"></line>
-                    </svg>
-                    <span>Launch Broker Portal</span>
-                </button>
+                <div class="hub-links">
+                    <button type="button" class="hub-link-chip" onclick={handleOpenConvertedAccount} title="Open Person Account">
+                        <span class="hub-icon">👤</span>
+                        <span class="hub-chip-label">Account:</span>
+                        <span class="hub-chip-name">{conversionSummary.accountName} ↗</span>
+                    </button>
+                    <button type="button" class="hub-link-chip" onclick={handleOpenConvertedOpportunity} title="Open Opportunity">
+                        <span class="hub-icon">🎯</span>
+                        <span class="hub-chip-label">Opportunity:</span>
+                        <span class="hub-chip-name">{conversionSummary.opportunityName} ↗</span>
+                    </button>
+                    <template lwc:if={conversionSummary.bookingId}>
+                        <button type="button" class="hub-link-chip hub-link-chip_booking" onclick={handleOpenConvertedBooking} title="Open Booking">
+                            <span class="hub-icon">📑</span>
+                            <span class="hub-chip-label">Booking ({conversionSummary.bookingStatus}):</span>
+                            <span class="hub-chip-name">{conversionSummary.bookingName} ↗</span>
+                        </button>
+                    </template>
+                    <template lwc:else>
+                        <div class="hub-link-chip hub-link-chip_muted" title="Booking can be created from the Opportunity">
+                            <span class="hub-icon">⏳</span>
+                            <span class="hub-chip-label">Booking:</span>
+                            <span class="hub-chip-name">Pending Allocation</span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </template>
+
+
 
         <template lwc:if={isCustomer}>
             <div class="customer-summary">
@@ -142,24 +139,57 @@
         <div class="layout">
             <div class="columns">
                 <div class="main">
-                    <template lwc:if={hasTabs}>
-                        <nav class="wd-tabs-nav" role="tablist" aria-label={tabsLabel}>
-                            <template for:each={tabs} for:item="t">
-                                <button
-                                    key={t.key}
-                                    type="button"
-                                    role="tab"
-                                    class={t.cls}
-                                    data-tab={t.key}
-                                    aria-selected={t.selected}
-                                    onclick={handleTabSelect}
-                                >
-                                    <span class="tab-label">{t.label}</span>
-                                    <template lwc:if={t.badge}>
-                                        <span class={t.badgeClass}>{t.badge}</span>
-                                    </template>
-                                </button>
-                            </template>
+                    <template lwc:if={isCustomer}>
+                        <!-- 3 Consolidated Tabs for Customer 360 -->
+                        <nav class="wd-tabs-nav" role="tablist" aria-label="Customer 360 Tabs">
+                            <button
+                                type="button"
+                                role="tab"
+                                class={overviewTabClass}
+                                data-tab="overview"
+                                aria-selected={isOverviewTab}
+                                onclick={handleCustomerTabSelect}
+                            >
+                                <span class="tab-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                                </span>
+                                <span class="tab-label">Overview &amp; Units</span>
+                                <template lwc:if={customerBadges.holdings}>
+                                    <span class="tab-badge">{customerBadges.holdings}</span>
+                                </template>
+                            </button>
+                            <button
+                                type="button"
+                                role="tab"
+                                class={financialsTabClass}
+                                data-tab="financials"
+                                aria-selected={isFinancialsTab}
+                                onclick={handleCustomerTabSelect}
+                            >
+                                <span class="tab-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+                                </span>
+                                <span class="tab-label">Financials &amp; Payments</span>
+                                <template lwc:if={customerBadges.overdue}>
+                                    <span class="tab-badge tab-badge_bad">{customerBadges.overdue} overdue</span>
+                                </template>
+                            </button>
+                            <button
+                                type="button"
+                                role="tab"
+                                class={pipelineTabClass}
+                                data-tab="pipeline"
+                                aria-selected={isPipelineTab}
+                                onclick={handleCustomerTabSelect}
+                            >
+                                <span class="tab-icon" aria-hidden="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+                                </span>
+                                <span class="tab-label">Pipeline &amp; Visits</span>
+                                <template lwc:if={customerBadges.pipeline}>
+                                    <span class="tab-badge">{customerBadges.pipeline}</span>
+                                </template>
+                            </button>
                         </nav>
                     </template>
                     <template lwc:elseif={isBooking}>
@@ -258,49 +288,71 @@
                         </lightning-record-edit-form>
                     </template>
                     <template lwc:else>
-                        <!-- Lead, Opportunity and Customer 360: tabbed main column -->
-                        <template lwc:if={hasTabs}>
-                            <template lwc:if={isDetailsTab}>
-                                <template lwc:if={loaded}>
-                                    <c-wd-glass-sections
-                                        record-id={recordId}
-                                        object-api-name={objectApiName}
-                                        record-type-id={recordTypeId}
-                                        sections={sections}
-                                    ></c-wd-glass-sections>
-                                </template>
-                                <template lwc:else>
-                                    <section class="wd-glass card loading-card">
-                                        <lightning-spinner alternative-text="Loading record" size="small"></lightning-spinner>
-                                    </section>
-                                </template>
-                            </template>
-                            <template lwc:if={isRelatedTab}>
-                                <c-wd-glass-related
+                        <template lwc:if={isCustomer}>
+                            <!-- Customer Tab 1: Overview & Units -->
+                            <template lwc:if={isOverviewTab}>
+                                <c-wd-glass-customer
                                     record-id={recordId}
-                                    object-api-name={objectApiName}
-                                    record-type-id={recordTypeId}
-                                    extra-lists={extraLists}
-                                    pinned-lists={pinnedLists}
-                                ></c-wd-glass-related>
+                                    mode="holdings"
+                                    oncustomerloaded={handleCustomerLoaded}
+                                ></c-wd-glass-customer>
+
+                                <template lwc:if={loaded}>
+                                    <template for:each={sections} for:item="section">
+                                        <section key={section.key} class="wd-glass card">
+                                            <button
+                                                type="button"
+                                                class="section-head"
+                                                data-label={section.label}
+                                                aria-expanded={section.ariaExpanded}
+                                                onclick={handleToggleSection}
+                                            >
+                                                <span class={section.chevronClass} aria-hidden="true"></span>
+                                                <span class="wd-section-title">{section.label}</span>
+                                                <span class="section-count">{section.filled}</span>
+                                            </button>
+                                            <template lwc:if={section.isOpen}>
+                                                <dl class={section.gridClass} ondblclick={handleEditRequest}>
+                                                    <template for:each={section.fields} for:item="f">
+                                                        <div key={f.key} class="field">
+                                                            <dt class="label">{f.label}</dt>
+                                                            <dd class={f.valueClass}>
+                                                                <template lwc:if={f.isRecordLink}>
+                                                                    <a href="#" class="link" data-id={f.linkId} onclick={handleOpenRecord}>{f.text}</a>
+                                                                </template>
+                                                                <template lwc:elseif={f.isHref}>
+                                                                    <a href={f.href} class="link" target="_blank" rel="noopener">{f.text}</a>
+                                                                </template>
+                                                                <template lwc:elseif={f.isBoolean}>
+                                                                    <span class={f.boolClass}><span class="bool-dot"></span>{f.text}</span>
+                                                                </template>
+                                                                <template lwc:else>{f.text}</template>
+                                                            </dd>
+                                                        </div>
+                                                    </template>
+                                                </dl>
+                                            </template>
+                                        </section>
+                                    </template>
+                                </template>
                             </template>
-                            <template lwc:if={isConditionsTab}>
-                                <section class="wd-glass card">
-                                    <h2 class="wd-section-title card-title">Booking conditions</h2>
-                                    <c-booking-condition-manager record-id={recordId} object-api-name={objectApiName}></c-booking-condition-manager>
-                                </section>
+
+                            <!-- Customer Tab 2: Financials & Payments -->
+                            <template lwc:if={isFinancialsTab}>
+                                <c-wd-glass-customer
+                                    record-id={recordId}
+                                    mode="financials"
+                                    oncustomerloaded={handleCustomerLoaded}
+                                ></c-wd-glass-customer>
                             </template>
-                            <template lwc:if={isCasesTab}>
-                                <c-wd-glass-customer record-id={recordId} mode="cases"></c-wd-glass-customer>
-                            </template>
-                            <template lwc:if={isBookingsTab}>
-                                <c-wd-glass-customer record-id={recordId} mode="holdings"></c-wd-glass-customer>
-                            </template>
-                            <template lwc:if={isInvoicesTab}>
-                                <c-wd-glass-customer record-id={recordId} mode="invoices"></c-wd-glass-customer>
-                            </template>
-                            <template lwc:if={isPaymentsTab}>
-                                <c-wd-glass-customer record-id={recordId} mode="payments"></c-wd-glass-customer>
+
+                            <!-- Customer Tab 3: Pipeline & Visits -->
+                            <template lwc:if={isPipelineTab}>
+                                <c-wd-glass-customer
+                                    record-id={recordId}
+                                    mode="pipeline"
+                                    oncustomerloaded={handleCustomerLoaded}
+                                ></c-wd-glass-customer>
                             </template>
                         </template>
 
@@ -309,12 +361,42 @@
                             <!-- Booking Tab 1: Details -->
                             <template lwc:if={isBookingDetailsTab}>
                                 <template lwc:if={loaded}>
-                                    <c-wd-glass-sections
-                                        record-id={recordId}
-                                        object-api-name={objectApiName}
-                                        record-type-id={recordTypeId}
-                                        sections={sections}
-                                    ></c-wd-glass-sections>
+                                    <template for:each={sections} for:item="section">
+                                        <section key={section.key} class="wd-glass card">
+                                            <button
+                                                type="button"
+                                                class="section-head"
+                                                data-label={section.label}
+                                                aria-expanded={section.ariaExpanded}
+                                                onclick={handleToggleSection}
+                                            >
+                                                <span class={section.chevronClass} aria-hidden="true"></span>
+                                                <span class="wd-section-title">{section.label}</span>
+                                                <span class="section-count">{section.filled}</span>
+                                            </button>
+                                            <template lwc:if={section.isOpen}>
+                                                <dl class={section.gridClass} ondblclick={handleEditRequest}>
+                                                    <template for:each={section.fields} for:item="f">
+                                                        <div key={f.key} class="field">
+                                                            <dt class="label">{f.label}</dt>
+                                                            <dd class={f.valueClass}>
+                                                                <template lwc:if={f.isRecordLink}>
+                                                                    <a href="#" class="link" data-id={f.linkId} onclick={handleOpenRecord}>{f.text}</a>
+                                                                </template>
+                                                                <template lwc:elseif={f.isHref}>
+                                                                    <a href={f.href} class="link" target="_blank" rel="noopener">{f.text}</a>
+                                                                </template>
+                                                                <template lwc:elseif={f.isBoolean}>
+                                                                    <span class={f.boolClass}><span class="bool-dot"></span>{f.text}</span>
+                                                                </template>
+                                                                <template lwc:else>{f.text}</template>
+                                                            </dd>
+                                                        </div>
+                                                    </template>
+                                                </dl>
+                                            </template>
+                                        </section>
+                                    </template>
                                 </template>
                                 <template lwc:else>
                                     <section class="wd-glass card loading-card">
@@ -330,16 +412,12 @@
                                     object-api-name={objectApiName}
                                     record-type-id={recordTypeId}
                                     extra-lists={extraLists}
-                                    pinned-lists={pinnedLists}
                                 ></c-wd-glass-related>
                             </template>
 
                             <!-- Booking Tab 3: Booking Condition charges -->
                             <template lwc:if={isBookingConditionsTab}>
-                                <section class="wd-glass card">
-                                    <h2 class="wd-section-title card-title">Booking condition charges</h2>
-                                    <c-booking-condition-manager record-id={recordId} object-api-name={objectApiName}></c-booking-condition-manager>
-                                </section>
+                                <c-booking-condition-manager record-id={recordId} object-api-name={objectApiName} variant="glass"></c-booking-condition-manager>
                             </template>
 
                             <!-- Booking Tab 4: Handover -->
@@ -348,7 +426,7 @@
                             </template>
                         </template>
 
-                        <!-- Every other record -->
+                        <!-- Non-Customer, Non-Booking records -->
                         <template lwc:else>
                             <template lwc:if={extras.schedule}>
                                 <section class="wd-glass card">
@@ -357,20 +435,113 @@
                                 </section>
                             </template>
 
-                            <template lwc:if={extras.conditions}>
-                                <section class="wd-glass card">
-                                    <h2 class="wd-section-title card-title">Booking conditions</h2>
-                                    <c-booking-condition-manager record-id={recordId} object-api-name={objectApiName}></c-booking-condition-manager>
+
+
+                            <!-- Dedicated Compact Payment Plan Selection Card in Negotiation Stage (Above Cost Sheet) -->
+                            <template lwc:if={showNegotiationPaymentPlan}>
+                                <section class="wd-glass card comm-hub-card compact-plan-card">
+                                    <div class="comm-hub-header">
+                                        <div>
+                                            <h2 class="wd-section-title card-title">Select Payment Plan</h2>
+                                            <p class="wd-subtitle">Available payment plans mapped by Tower occupancy status</p>
+                                        </div>
+                                        <span class={towerOcBadgeClass}>{towerOcStatusText}</span>
+                                    </div>
+                                    <template lwc:if={hasPaymentPlans}>
+                                        <div class="plan-grid">
+                                            <template for:each={paymentPlansList} for:item="p">
+                                                <div key={p.id} class={p.cardClass}>
+                                                    <div class="plan-card-header">
+                                                        <div class="plan-card-name">{p.name}</div>
+                                                        <span class={p.badgeClass}>{p.badgeText}</span>
+                                                    </div>
+                                                    <div class="plan-card-desc">{p.description}</div>
+                                                    <div class="plan-card-meta">
+                                                        <span>🔢 {p.installmentCount} Installments</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        class={p.btnClass}
+                                                        data-id={p.id}
+                                                        disabled={p.disabled}
+                                                        onclick={handleSelectPlan}
+                                                    >
+                                                        {p.btnLabel}
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        <template lwc:if={hasSelectedPlan}>
+                                            <div class="plan-confirm-footer">
+                                                <div class="plan-confirm-info">
+                                                    <span class="plan-confirm-icon">✓</span>
+                                                    <div>
+                                                        <div class="plan-confirm-title">Selected Plan: <strong>{currentSelectedPlanName}</strong></div>
+                                                        <div class="plan-confirm-sub">Review commercial terms and Cost Sheet charges below before proceeding.</div>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="wd-btn wd-btn_primary plan-confirm-btn"
+                                                    disabled={saving}
+                                                    onclick={handleProceedFromPaymentPlan}
+                                                >
+                                                    Finalize Terms &amp; Proceed ↗
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </template>
+                                    <template lwc:else>
+                                        <div class="slds-p-around_medium slds-text-align_center">
+                                            <p class="wd-subtitle">Loading available payment plans...</p>
+                                        </div>
+                                    </template>
                                 </section>
                             </template>
 
+                            <!-- Booking Condition Charges (Cost Sheet) -->
+                            <template lwc:if={showBookingConditions}>
+                                <c-booking-condition-manager record-id={recordId} object-api-name={objectApiName} variant="glass"></c-booking-condition-manager>
+                            </template>
+
                             <template lwc:if={loaded}>
-                                <c-wd-glass-sections
-                                    record-id={recordId}
-                                    object-api-name={objectApiName}
-                                    record-type-id={recordTypeId}
-                                    sections={sections}
-                                ></c-wd-glass-sections>
+                                <template for:each={sections} for:item="section">
+                                    <section key={section.key} class="wd-glass card">
+                                        <button
+                                            type="button"
+                                            class="section-head"
+                                            data-label={section.label}
+                                            aria-expanded={section.ariaExpanded}
+                                            onclick={handleToggleSection}
+                                        >
+                                            <span class={section.chevronClass} aria-hidden="true"></span>
+                                            <span class="wd-section-title">{section.label}</span>
+                                            <span class="section-count">{section.filled}</span>
+                                        </button>
+                                        <template lwc:if={section.isOpen}>
+                                            <dl class={section.gridClass} ondblclick={handleEditRequest}>
+                                                <template for:each={section.fields} for:item="f">
+                                                    <div key={f.key} class="field">
+                                                        <dt class="label">{f.label}</dt>
+                                                        <dd class={f.valueClass}>
+                                                            <template lwc:if={f.isRecordLink}>
+                                                                <a href="#" class="link" data-id={f.linkId} onclick={handleOpenRecord}>{f.text}</a>
+                                                            </template>
+                                                            <template lwc:elseif={f.isHref}>
+                                                                <a href={f.href} class="link" target="_blank" rel="noopener">{f.text}</a>
+                                                            </template>
+                                                            <template lwc:elseif={f.isBoolean}>
+                                                                <span class={f.boolClass}><span class="bool-dot"></span>{f.text}</span>
+                                                            </template>
+                                                            <template lwc:else>{f.text}</template>
+                                                        </dd>
+                                                    </div>
+                                                </template>
+                                            </dl>
+                                        </template>
+                                    </section>
+                                </template>
                             </template>
                             <template lwc:else>
                                 <section class="wd-glass card loading-card">
@@ -382,6 +553,7 @@
                 </div>
 
                 <aside class="side">
+
                     <!-- Site Visit & Qualification Gate (SMS OTP Authentication) -->
                     <template lwc:if={isLead}>
                         <c-log-site-visit-modal record-id={recordId}></c-log-site-visit-modal>
@@ -402,7 +574,11 @@
 
                     <!-- Customer Profile Card at top of sidebar -->
                     <template lwc:if={isCustomer}>
-                        <c-wd-glass-customer record-id={recordId} mode="sidebar-profile"></c-wd-glass-customer>
+                        <c-wd-glass-customer
+                            record-id={recordId}
+                            mode="sidebar-profile"
+                            oncustomerloaded={handleCustomerLoaded}
+                        ></c-wd-glass-customer>
                     </template>
 
                     <!-- Payment schedule in sidebar for Booking -->
@@ -420,9 +596,47 @@
                         is-who={isWhoRecord}
                     ></c-wd-glass-activity>
 
-                    <!-- Customer pipeline (open deals, site visits, enquiries) below Activity -->
+                    <!-- Approval Records Timeline in Sidebar -->
+                    <template lwc:if={hasApprovalHistory}>
+                        <section class="wd-glass card approval-history-card">
+                            <h2 class="wd-section-title card-title">Approval Steps</h2>
+                            <div class="approval-timeline">
+                                <template for:each={approvalHistory} for:item="appr">
+                                    <div key={appr.id} class="appr-step-item">
+                                        <div class="appr-step-header">
+                                            <span class={appr.statusBadgeClass}>{appr.status}</span>
+                                            <span class="appr-step-date">{appr.formattedDate}</span>
+                                        </div>
+                                        <div class="appr-step-body">
+                                            <div class="appr-step-name">{appr.stepName}</div>
+                                            <div class="appr-actor">Approver: <strong>{appr.assignedTo}</strong></div>
+                                            <template lwc:if={appr.comments}>
+                                                <div class="appr-comments">"{appr.comments}"</div>
+                                            </template>
+                                            <template lwc:if={appr.isPending}>
+                                                <div class="appr-actions-row">
+                                                    <button class="wd-btn wd-btn_success-sm" data-workitem-id={appr.workitemId} onclick={handleApproveStep}>
+                                                        ✓ Approve
+                                                    </button>
+                                                    <button class="wd-btn wd-btn_danger-sm" data-workitem-id={appr.workitemId} onclick={handleRejectStep}>
+                                                        ✕ Reject
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </section>
+                    </template>
+
+                    <!-- Open service cases card below Activity -->
                     <template lwc:if={isCustomer}>
-                        <c-wd-glass-customer record-id={recordId} mode="sidebar-pipeline"></c-wd-glass-customer>
+                        <c-wd-glass-customer
+                            record-id={recordId}
+                            mode="sidebar-support"
+                            oncustomerloaded={handleCustomerLoaded}
+                        ></c-wd-glass-customer>
                     </template>
 
                     <template lwc:if={extras.interest}>
@@ -438,11 +652,18 @@
                             object-api-name={objectApiName}
                             record-type-id={recordTypeId}
                             extra-lists={extraLists}
-                            pinned-lists={pinnedLists}
                         ></c-wd-glass-related>
                     </template>
                 </aside>
             </div>
         </div>
+
+        <template lwc:if={showSiteVisitFeedbackModal}>
+            <c-site-visit-feedback-modal
+                record-id={recordId}
+                onclose={handleCloseFeedbackModal}
+                onsaved={handleFeedbackSaved}
+            ></c-site-visit-feedback-modal>
+        </template>
     </c-wd-glass-canvas>
 </template>

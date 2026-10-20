@@ -97,7 +97,6 @@ public with sharing class WdGlassController {
             switch on pageKey {
                 when 'inventory' { return inventoryPage(view); }
                 when 'bookings' { return bookingsPage(view); }
-                when 'eoi' { return eoiPage(view); }
                 when else { return leadsPage(view); }
             }
         } catch (Exception e) {
@@ -408,78 +407,6 @@ public with sharing class WdGlassController {
         };
     }
 
-    private static PageData eoiPage(String view) {
-        PageData p = new PageData();
-        p.eyebrow = 'Pre-launch';
-        p.title = 'EOI Vouchers';
-        p.objectApiName = 'Voucher__c';
-        p.newLabel = 'New voucher';
-        p.views = new List<Option>{
-            new Option('All vouchers', 'all'),
-            new Option('Awaiting payment', 'pending'),
-            new Option('Paid, awaiting allotment', 'paid'),
-            new Option('Allotted', 'allotted'),
-            new Option('Converted to booking', 'converted'),
-            new Option('Cancelled or refunded', 'closed')
-        };
-
-        EoiStats es = new EoiStats();
-        p.facts.add(es.count + ' vouchers');
-        p.facts.add(es.projects.size() + ' projects');
-        p.facts.add(es.pending + ' awaiting payment');
-
-        Kpi issued = new Kpi('EOIs issued', 'count', es.count, null, es.pending + ' awaiting payment');
-        issued.live = true;
-        p.kpis.add(issued);
-        p.kpis.add(new Kpi('EOI collected', 'inr', es.collected, null, 'Received, net of refunds'));
-        p.kpis.add(new Kpi('Awaiting allotment', 'count', es.paid, null, 'Paid in full, no unit yet'));
-        Long conversion = es.count == 0 ? 0 : Math.round(100.0 * es.converted / es.count);
-        p.kpis.add(new Kpi('Converted to bookings', 'count', es.converted, null, conversion + '% of vouchers issued'));
-
-        p.columns = new List<Column>{
-            new Column('name', 'Voucher', 'link'),
-            new Column('applicant', 'Applicant', 'text'),
-            new Column('project', 'Project', 'text'),
-            new Column('configuration', 'Configuration', 'text'),
-            new Column('priority', 'Priority', 'number'),
-            new Column('amount', 'EOI amount', 'inr'),
-            new Column('paid', 'Received', 'inr'),
-            new Column('status', 'Status', 'status'),
-            new Column('created', 'Issued', 'date')
-        };
-
-        String base = 'SELECT Id, Name, Applicant_Name__c, Project__r.Name, Preferred_Configuration__c, Priority_Number__c, '
-            + 'Amount__c, Amount_Paid__c, Status__c, CreatedDate FROM Voucher__c ';
-        String key = String.isBlank(view) ? 'all' : view;
-        String filter;
-        switch on key {
-            when 'pending' { filter = 'WHERE Status__c = \'Payment Pending\' ORDER BY Valid_Until__c ASC NULLS LAST LIMIT :lim'; }
-            when 'paid' { filter = 'WHERE Status__c = \'Paid\' ORDER BY Project__r.Name, Priority_Number__c ASC LIMIT :lim'; }
-            when 'allotted' { filter = 'WHERE Status__c = \'Allotted\' ORDER BY Project__r.Name, Priority_Number__c ASC LIMIT :lim'; }
-            when 'converted' { filter = 'WHERE Status__c = \'Converted to Booking\' ORDER BY LastModifiedDate DESC LIMIT :lim'; }
-            when 'closed' { filter = 'WHERE Status__c IN (\'Cancelled\', \'Refunded\') ORDER BY LastModifiedDate DESC LIMIT :lim'; }
-            when else { key = 'all'; filter = 'ORDER BY CreatedDate DESC LIMIT :lim'; }
-        }
-        setView(p, key);
-
-        for (Voucher__c v : (List<Voucher__c>) Database.queryWithBinds(base + filter, new Map<String, Object>{ 'lim' => ROW_LIMIT }, AccessLevel.SYSTEM_MODE)) {
-            p.rows.add(new Map<String, Object>{
-                'id' => v.Id,
-                'name' => v.Name,
-                'applicant' => v.Applicant_Name__c,
-                'project' => v.Project__r?.Name,
-                'configuration' => v.Preferred_Configuration__c,
-                'priority' => v.Priority_Number__c,
-                'amount' => v.Amount__c,
-                'paid' => v.Amount_Paid__c,
-                'status' => v.Status__c,
-                'created' => v.CreatedDate
-            });
-        }
-        p.totalRecords = p.rows.size();
-        return p;
-    }
-
     // ---------- Aggregates ----------
 
     private class LeadStats {
@@ -583,38 +510,6 @@ public with sharing class WdGlassController {
                 }
                 if (project != null) {
                     byProject.put(project, (byProject.containsKey(project) ? byProject.get(project) : 0) + c);
-                }
-            }
-        }
-    }
-
-    private class EoiStats {
-        Integer count = 0;
-        Integer pending = 0;
-        Integer paid = 0;
-        Integer converted = 0;
-        Decimal collected = 0;
-        Set<String> projects = new Set<String>();
-
-        EoiStats() {
-            for (AggregateResult ar : [
-                SELECT Project__r.Name p, Status__c s, COUNT(Id) c, SUM(Amount_Paid__c) a, SUM(Refund_Amount__c) r
-                FROM Voucher__c
-                GROUP BY Project__r.Name, Status__c
-            ]) {
-                Integer c = (Integer) ar.get('c');
-                String status = (String) ar.get('s');
-                count += c;
-                collected += (ar.get('a') == null ? 0 : (Decimal) ar.get('a')) - (ar.get('r') == null ? 0 : (Decimal) ar.get('r'));
-                if (status == 'Payment Pending') {
-                    pending += c;
-                } else if (status == 'Paid') {
-                    paid += c;
-                } else if (status == 'Converted to Booking') {
-                    converted += c;
-                }
-                if (ar.get('p') != null) {
-                    projects.add((String) ar.get('p'));
                 }
             }
         }

@@ -21,10 +21,7 @@ function daysUntil(date) {
 
 export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
     @api recordId;
-    /**
-     * summary (alerts + KPI cards) | holdings | cases | invoices | payments (Customer 360 tabs)
-     * | sidebar-profile | sidebar-pipeline (side column)
-     */
+    /** summary (alerts + KPI cards) | holdings (units owned) | sidebar (context stack) */
     @api mode = 'summary';
 
     data;
@@ -35,19 +32,22 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         if (data) {
             this.data = data;
             this.error = undefined;
-            if (this.isSummary) {
-                // Tab badges on the record page.
-                this.dispatchEvent(
-                    new CustomEvent('customerloaded', {
-                        detail: {
-                            openCases: data.openCases,
-                            bookings: data.holdings.length,
-                            invoices: data.invoices.length,
-                            payments: data.payments.length
-                        }
-                    })
-                );
-            }
+            this.dispatchEvent(
+                new CustomEvent('customerloaded', {
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        holdingsCount: data.holdings?.length || 0,
+                        duesCount: data.dues?.length || 0,
+                        overdueCount: data.overdueCount || 0,
+                        receiptsCount: data.receipts?.length || 0,
+                        opportunitiesCount: data.opportunities?.length || 0,
+                        siteVisitsCount: data.siteVisits?.length || 0,
+                        casesCount: data.cases?.length || 0,
+                        isBuyer: data.isBuyer
+                    }
+                })
+            );
         } else if (error) {
             this.error = error?.body?.message || 'Could not load the customer summary.';
         }
@@ -61,24 +61,24 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         return this.mode === 'holdings';
     }
 
-    get isCases() {
-        return this.mode === 'cases';
+    get isFinancials() {
+        return this.mode === 'financials';
     }
 
-    get isInvoices() {
-        return this.mode === 'invoices';
+    get isPipeline() {
+        return this.mode === 'pipeline';
     }
 
-    get isPayments() {
-        return this.mode === 'payments';
+    get isSidebar() {
+        return this.mode === 'sidebar';
     }
 
     get isSidebarProfile() {
-        return this.mode === 'sidebar-profile';
+        return this.mode === 'sidebar-profile' || this.mode === 'sidebar';
     }
 
-    get isSidebarPipeline() {
-        return this.mode === 'sidebar-pipeline';
+    get isSidebarSupport() {
+        return this.mode === 'sidebar-support' || this.mode === 'sidebar';
     }
 
     get loaded() {
@@ -91,12 +91,8 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         return (this.data?.alerts || []).map((a, i) => ({
             key: `a${i}`,
             message: a.message,
-            className: `alert alert_${a.tone}`
+            className: `wd-glass alert alert_${a.tone}`
         }));
-    }
-
-    get hasAlerts() {
-        return this.alerts.length > 0;
     }
 
     get cards() {
@@ -239,107 +235,6 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         return this.holdings.length > 0;
     }
 
-    get showHoldingsEmpty() {
-        return this.loaded && !this.hasHoldings;
-    }
-
-    // ---------- cases / invoices / payments tabs ----------
-
-    get caseColumns() {
-        return [
-            { key: 'caseNumber', label: 'Case', type: 'link' },
-            { key: 'subject', label: 'Subject' },
-            { key: 'type', label: 'Type' },
-            { key: 'priority', label: 'Priority' },
-            { key: 'status', label: 'Status', type: 'status' },
-            { key: 'opened', label: 'Opened', type: 'date' },
-            { key: 'closedOn', label: 'Closed', type: 'date' }
-        ];
-    }
-
-    get caseRows() {
-        return this.data?.allCases || [];
-    }
-
-    get casesSummary() {
-        const all = this.caseRows.length;
-        const open = this.data?.openCases || 0;
-        return all ? `${open} open · ${all - open} closed` : 'No cases yet';
-    }
-
-    get invoiceColumns() {
-        return [
-            { key: 'name', label: 'Demand note', type: 'link' },
-            { key: 'unit', label: 'Unit' },
-            { key: 'milestone', label: 'Milestone' },
-            { key: 'dueDate', label: 'Due', type: 'date' },
-            { key: 'amount', label: 'Demand value', type: 'inr' },
-            { key: 'received', label: 'Received', type: 'inr' },
-            { key: 'balance', label: 'Balance', type: 'inr' },
-            { key: 'state', label: 'Status', type: 'status' }
-        ];
-    }
-
-    get invoiceRows() {
-        return (this.data?.invoices || []).map((i) => ({
-            ...i,
-            state: i.overdue ? 'Overdue' : i.balance > 0 ? i.status || 'Open' : 'Paid'
-        }));
-    }
-
-    get invoicesSummary() {
-        const d = this.data;
-        if (!d?.invoices.length) {
-            return 'No demands yet';
-        }
-        const parts = [`${formatInr(d.invoicedTotal)} demanded`, `${formatInr(d.invoiceBalance)} outstanding`];
-        if (d.overdueInvoices) {
-            parts.push(`${d.overdueInvoices} overdue`);
-        }
-        return parts.join(' · ');
-    }
-
-    get paymentColumns() {
-        return [
-            { key: 'name', label: 'Receipt', type: 'link' },
-            { key: 'paidOn', label: 'Paid on', type: 'date' },
-            { key: 'unit', label: 'Unit' },
-            { key: 'invoice', label: 'Against' },
-            { key: 'mode', label: 'Mode' },
-            { key: 'reference', label: 'Reference' },
-            { key: 'amount', label: 'Amount', type: 'inr' },
-            { key: 'approval', label: 'Approval', type: 'status' }
-        ];
-    }
-
-    get paymentRows() {
-        return this.data?.payments || [];
-    }
-
-    get paymentsSummary() {
-        const d = this.data;
-        if (!d?.payments.length) {
-            return 'Nothing received yet';
-        }
-        return d.pendingReceipts ? `${this.paidSummary} · ${formatInr(d.pendingReceipts)} awaiting approval` : this.paidSummary;
-    }
-
-    get allDues() {
-        return this.duesFrom(this.data?.allDues);
-    }
-
-    get hasAllDues() {
-        return this.allDues.length > 0;
-    }
-
-    handleNewCase() {
-        this[NavigationMixin.Navigate]({
-            type: 'standard__objectPage',
-            attributes: { objectApiName: 'Case', actionName: 'new' },
-            state: { defaultFieldValues: `AccountId=${this.recordId}`, navigationLocation: 'RELATED_LIST' }
-        });
-    }
-
     // ---------- sidebar ----------
 
     get profile() {
@@ -361,8 +256,8 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         };
     }
 
-    duesFrom(list) {
-        return (list || []).map((i) => {
+    get dues() {
+        return (this.data?.dues || []).map((i) => {
             const inDays = daysUntil(i.dueDate);
             let when = formatDate(i.dueDate);
             if (i.overdue) {
@@ -395,6 +290,10 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         }));
     }
 
+    get receipts() {
+        return this.listOf(this.data?.receipts, { amount: true });
+    }
+
     get opportunities() {
         return this.listOf(this.data?.opportunities, { amount: true });
     }
@@ -407,6 +306,18 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         return this.listOf(this.data?.enquiries);
     }
 
+    get cases() {
+        return this.listOf(this.data?.cases, { relative: true });
+    }
+
+    get hasDues() {
+        return this.dues.length > 0;
+    }
+
+    get hasReceipts() {
+        return this.receipts.length > 0;
+    }
+
     get hasOpportunities() {
         return this.opportunities.length > 0;
     }
@@ -417,6 +328,10 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
 
     get hasEnquiries() {
         return this.enquiries.length > 0;
+    }
+
+    get hasCases() {
+        return this.cases.length > 0;
     }
 
     get paidSummary() {
@@ -447,6 +362,13 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
             type: 'standard__objectPage',
             attributes: { objectApiName: 'Opportunity', actionName: 'new' },
             state: { defaultFieldValues: `AccountId=${this.recordId}`, navigationLocation: 'RELATED_LIST' }
+        });
+    }
+
+    handleNewSiteVisit() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__objectPage',
+            attributes: { objectApiName: 'Site_Visit__c', actionName: 'new' }
         });
     }
 }

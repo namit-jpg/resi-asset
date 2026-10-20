@@ -39,8 +39,10 @@ private class WdGlassRecordControllerTest {
     }
 
     @IsTest
-    static void handoverLookupReturnsNullWithoutBooking() {
-        Id missingBooking = Booking__c.SObjectType.getDescribe().getKeyPrefix() + '000000000001AAA';
-        Assert.isNull(WdGlassRecordController.getHandoverForBooking(missingBooking));
+    static void testApprovalHistory() {
+        Lead l = new Lead(LastName = 'ApprovalTester', Company = 'WarpDrive', Status = 'New');
+        insert l;
+        List<WdGlassRecordController.ApprovalHistoryItem> history = WdGlassRecordController.getApprovalHistory(l.Id);
+        Assert.isNotNull(history);
     }
 }

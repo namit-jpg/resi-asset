@@ -36,11 +36,11 @@ public without sharing class BookingFormService {
             throw new BookingFormException('This booking link is not valid. Please use the link shared by your relationship manager.');
         }
         List<Opportunity> opps = [
-            SELECT Id, Name, OwnerId, Owner.Name, Owner.Email, Owner.MobilePhone, AccountId, CloseDate,
+            SELECT Id, Name, StageName, OwnerId, Owner.Name, Owner.Email, Owner.MobilePhone, AccountId, CloseDate,
                 Booking_Form_Token__c, Booking_Form_Status__c, Booking_Form_Step__c, Booking_Form_Data__c,
                 Booking_Form_Expires_On__c, Booking_Form_Submitted_At__c, Booking_Form_Generated_At__c,
                 Token_Amount__c, Total_Amount__c, Chargeable_Area__c, Payment_Plan__r.Name,
-                Token_Payment_Status__c, Token_Payment_Mode__c, Token_Payment_Reference__c, Token_Amount_Paid__c, Token_Paid_At__c,
+                Token_Payment_Status__c, Payment_Mode__c, Transaction_Reference__c, Token_Amount_Paid__c, Token_Payment_Date__c,
                 Interested_Unit__c, Interested_Unit__r.Name, Interested_Unit__r.BHK_Configuration__c,
                 Interested_Unit__r.Saleable_Area__c, Interested_Unit__r.Carpet_Area__c, Interested_Unit__r.Total_Cost__c,
                 Interested_Unit__r.Tower__r.Name, Interested_Unit__r.Floor__r.Name,
@@ -150,10 +150,10 @@ public without sharing class BookingFormService {
     public static Map<String, Object> paymentState(Opportunity o) {
         return new Map<String, Object>{
             'status' => String.isBlank(o.Token_Payment_Status__c) ? 'Pending' : o.Token_Payment_Status__c,
-            'method' => o.Token_Payment_Mode__c,
-            'paymentId' => o.Token_Payment_Reference__c,
+            'method' => o.Payment_Mode__c,
+            'paymentId' => o.Transaction_Reference__c,
             'amount' => o.Token_Amount_Paid__c,
-            'paidAt' => o.Token_Paid_At__c,
+            'paidAt' => o.Token_Payment_Date__c,
             'payable' => o.Token_Amount__c
         };
     }
@@ -204,6 +204,9 @@ public without sharing class BookingFormService {
             upd.Nominee_Share__c = null;
             upd.Nominee_Mobile__c = null;
             upd.Nominee_Guardian__c = null;
+        }
+        if (o.StageName == 'Booking form' || o.StageName == 'Negotiation') {
+            upd.StageName = 'Share welcome letter';
         }
         update upd;
         return coApplicantAccounts;

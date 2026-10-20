@@ -16,9 +16,6 @@ private class WdGlassCustomerControllerTest {
         Assert.areEqual(1, c.openOpportunities);
         Assert.isTrue(c.holdings.isEmpty());
         Assert.areEqual(0, c.overdueCount);
-        Assert.areEqual(0, c.openCases);
-        Assert.isTrue(c.invoices.isEmpty());
-        Assert.isTrue(c.payments.isEmpty());
     }
 
     @IsTest

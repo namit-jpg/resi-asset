@@ -4,32 +4,26 @@ import { getRecord, deleteRecord, notifyRecordUpdateAvailable } from 'lightning/
 import { getObjectInfo } from 'lightning/uiObjectInfoApi';
 import getActions from '@salesforce/apex/WdGlassRecordController.getActions';
 import submitForApproval from '@salesforce/apex/WdGlassRecordController.submitForApproval';
-import getHandoverForBooking from '@salesforce/apex/WdGlassRecordController.getHandoverForBooking';
-import assignLeadViaRoundRobin from '@salesforce/apex/RoundRobinActionController.assignLeadViaRoundRobin';
+import processWorkitem from '@salesforce/apex/WdGlassRecordController.processWorkitem';
+import { refreshApex } from '@salesforce/apex';
+import getOrCreateHandoverForBooking from '@salesforce/apex/HandoverWorkspaceController.getOrCreateHandoverForBooking';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import LightningConfirm from 'lightning/confirm';
-import { SECTIONS, CUSTOMER_SECTIONS, RECORD_CONFIG } from 'c/wdGlassLayouts';
+import convertLeadDirect from '@salesforce/apex/SiteVisitController.convertLeadDirect';
+import getLeadConversionSummary from '@salesforce/apex/WdGlassRecordController.getLeadConversionSummary';
+import getOpportunityJourney from '@salesforce/apex/WdGlassRecordController.getOpportunityJourney';
+import createBookingAndSyncSap from '@salesforce/apex/WdGlassRecordController.createBookingAndSyncSap';
+import getApprovalHistory from '@salesforce/apex/WdGlassRecordController.getApprovalHistory';
+import getAvailablePaymentPlans from '@salesforce/apex/UnitSelectionQuoteController.getAvailablePaymentPlans';
+import assignPaymentPlanToOpp from '@salesforce/apex/UnitSelectionQuoteController.assignPaymentPlanToOpp';
+import evaluateAndSubmitDiscountApproval from '@salesforce/apex/UnitSelectionQuoteController.evaluateAndSubmitDiscountApproval';
+import shareWelcomeLetterAndConfirmBooking from '@salesforce/apex/UnitSelectionQuoteController.shareWelcomeLetterAndConfirmBooking';
+import { SECTIONS, RECORD_CONFIG } from 'c/wdGlassLayouts';
 import { formatDate, formatTime, formatInr, inrParts } from 'c/wdGlassFormat';
 
 const VISIBLE_ACTIONS = 2;
 const ADDRESS_ORDER = ['Street', 'City', 'StateCode', 'State', 'PostalCode', 'CountryCode', 'Country'];
 const WHO_OBJECTS = new Set(['Lead', 'Contact']);
-const LEAD_TABS = [
-    { key: 'details', label: 'Details' },
-    { key: 'related', label: 'Related' }
-];
-const OPPORTUNITY_TABS = [
-    { key: 'details', label: 'Details' },
-    { key: 'related', label: 'Related' },
-    { key: 'conditions', label: 'Booking Conditions' }
-];
-const CUSTOMER_TABS = [
-    { key: 'details', label: 'Details' },
-    { key: 'cases', label: 'Cases', badge: 'cases', badgeTone: 'bad' },
-    { key: 'bookings', label: 'Bookings', badge: 'bookings' },
-    { key: 'invoices', label: 'Demand Notes', badge: 'invoices' },
-    { key: 'payments', label: 'Demand Receipts', badge: 'payments' }
-];
 
 function errorMessage(error) {
     const body = error?.body;
@@ -51,9 +45,11 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
     editing = false;
     saving = false;
     menuOpen = false;
-    activeTab = 'details';
+    collapsed = {};
+    customerTab = 'overview';
     customerBadges = {};
     bookingTab = 'details';
+    showSiteVisitFeedbackModal = false;
 
     // ---------- data ----------
 
@@ -84,14 +80,292 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
         }
     }
 
+    conversionSummary;
+
+    @wire(getLeadConversionSummary, { leadId: '$recordId' })
+    wiredConversionSummary({ data }) {
+        if (data) {
+            this.conversionSummary = data;
+        } else {
+            this.conversionSummary = null;
+        }
+    }
+
+    get isConvertedLead() {
+        return this.objectApiName === 'Lead' && !!this.conversionSummary?.isConverted;
+    }
+
+    oppJourney;
+    _wiredOppJourneyResult;
+
+    @wire(getOpportunityJourney, { oppId: '$recordId' })
+    wiredOppJourney(result) {
+        this._wiredOppJourneyResult = result;
+        if (result.data) {
+            this.oppJourney = result.data;
+        } else {
+            this.oppJourney = null;
+        }
+    }
+
+    get isOpportunity() {
+        return this.objectApiName === 'Opportunity';
+    }
+
+    get hasOppBooking() {
+        return this.isOpportunity && !!this.oppJourney?.bookingId;
+    }
+
+    get canGenerateBookingNow() {
+        if (!this.isOpportunity || this.hasOppBooking) return false;
+        const stage = this.pathValue || this.oppJourney?.stageName;
+        return stage === 'Closed Won' || stage === 'Booking Form & Token Confirmation';
+    }
+
+    get oppUnitName() {
+        return this.oppJourney?.unitName;
+    }
+
+    get oppUnitStatus() {
+        return this.oppJourney?.unitStatus;
+    }
+
+    get oppTowerName() {
+        return this.oppJourney?.towerName;
+    }
+
+    get oppAccountId() {
+        return this.oppJourney?.accountId;
+    }
+
+    get oppAccountName() {
+        return this.oppJourney?.accountName || 'Customer Account';
+    }
+
+    get oppBookingId() {
+        return this.oppJourney?.bookingId;
+    }
+
+    get oppBookingRefNo() {
+        return this.oppJourney?.bookingRefNo;
+    }
+
+    get oppBookingStatus() {
+        return this.oppJourney?.bookingStatus;
+    }
+
+    get oppSapSalesOrder() {
+        return this.oppJourney?.sapSalesOrder;
+    }
+
+    get isResidentialSalesOpp() {
+        if (!this.isOpportunity) return false;
+        const rt = this.oppJourney?.recordTypeDeveloperName;
+        if (rt === 'Rental' || rt === 'Resale_Assistance') return false;
+        return true;
+    }
+
+    get isRentalOpp() {
+        return this.isOpportunity && this.oppJourney?.recordTypeDeveloperName === 'Rental';
+    }
+
+    get isResaleOpp() {
+        return this.isOpportunity && this.oppJourney?.recordTypeDeveloperName === 'Resale_Assistance';
+    }
+
+    get oppStage() {
+        return this.pathValue || this.oppJourney?.stageName || this.raw('StageName');
+    }
+
+    get isUnitSelectionStage() {
+        if (!this.isOpportunity) return false;
+        const stage = this.oppStage;
+        return stage === 'Unit Selection' || (!this.oppUnitName && !this.raw('Interested_Unit__c'));
+    }
+
+    get showBookingConditions() {
+        if (!this.extras.conditions) {
+            return false;
+        }
+        if (this.isOpportunity && this.isUnitSelectionStage) {
+            return false;
+        }
+        return true;
+    }
+
+    get isNegotiationStage() {
+        return this.isResidentialSalesOpp && this.oppStage === 'Negotiation';
+    }
+
+    get isPaymentPlanStage() {
+        return this.isResidentialSalesOpp && this.oppStage === 'Payment Plan Finalization';
+    }
+
+    get isDiscountApprovalStage() {
+        return this.isResidentialSalesOpp && this.oppStage === 'Discount Approval';
+    }
+
+    get isTokenConfirmationStage() {
+        return this.isResidentialSalesOpp && (this.oppStage === 'Token Amount Confirmation' || this.oppStage === 'Booking Form & Token Confirmation');
+    }
+
+    get isBookingFormStage() {
+        return this.isResidentialSalesOpp && (this.oppStage === 'Booking form' || this.oppStage === 'Booking Form & Token Confirmation' || this.oppStage === 'Token Amount Confirmation');
+    }
+
+    get isShareWelcomeLetterStage() {
+        return this.isResidentialSalesOpp && this.oppStage === 'Share welcome letter';
+    }
+
+    get isClosedWonStage() {
+        return this.isOpportunity && this.oppStage === 'Closed Won';
+    }
+
+    get opportunityDiscountPct() {
+        const actual = this.raw('Actual_Discount_Percentage__c');
+        if (actual != null && Number(actual) > 0) {
+            return Number(actual);
+        }
+        const base = this.raw('BasePrice__c');
+        const disc = this.raw('BasePriceDiscount__c');
+        if (base && disc && Number(base) > 0) {
+            return (Number(disc) / Number(base)) * 100;
+        }
+        return 0;
+    }
+
+    get formattedDiscountPct() {
+        return this.opportunityDiscountPct.toFixed(1);
+    }
+
+    get requiresDiscountApproval() {
+        return this.opportunityDiscountPct > 7.5;
+    }
+
+    get showSidebarDiscountApproval() {
+        return false;
+    }
+
+    get showNegotiationPaymentPlan() {
+        return this.isResidentialSalesOpp && (this.isNegotiationStage || this.isPaymentPlanStage);
+    }
+
+    // Approval records in sidebar
+    approvalHistoryRaw = [];
+    _wiredApprovalHistoryResult;
+
+    @wire(getApprovalHistory, { recordId: '$recordId' })
+    wiredApprovalHistory(result) {
+        this._wiredApprovalHistoryResult = result;
+        if (result.data) {
+            this.approvalHistoryRaw = result.data;
+        } else {
+            this.approvalHistoryRaw = [];
+        }
+    }
+
+    get approvalHistory() {
+        return (this.approvalHistoryRaw || []).map((item) => {
+            let badgeClass = 'appr-badge appr-badge_pending';
+            if (item.status === 'Approved') {
+                badgeClass = 'appr-badge appr-badge_approved';
+            } else if (item.status === 'Rejected') {
+                badgeClass = 'appr-badge appr-badge_rejected';
+            }
+            return {
+                ...item,
+                isPending: item.isPending,
+                workitemId: item.workitemId,
+                statusBadgeClass: badgeClass
+            };
+        });
+    }
+
+    get hasApprovalHistory() {
+        return this.approvalHistory && this.approvalHistory.length > 0;
+    }
+
+    // Payment Plans
+    paymentPlansData = null;
+    submittingDiscount = false;
+    discountComments = '';
+    tokenAmountInput = 200000;
+    tokenPaymentMode = 'RTGS';
+    tokenPaymentRef = '';
+    sharingWelcomeLetter = false;
+
+    get paymentPlanModeOptions() {
+        return [
+            { label: 'RTGS / NEFT / IMPS', value: 'RTGS' },
+            { label: 'Net Banking', value: 'Net Banking' },
+            { label: 'Cheque', value: 'Cheque' }
+        ];
+    }
+
+    @wire(getAvailablePaymentPlans, { oppId: '$recordId' })
+    wiredPaymentPlans({ data, error }) {
+        if (data) {
+            this.paymentPlansData = data;
+        } else {
+            this.paymentPlansData = null;
+        }
+    }
+
+    get hasPaymentPlans() {
+        return !!(this.paymentPlansData?.availablePlans && this.paymentPlansData.availablePlans.length > 0);
+    }
+
+    get paymentPlansList() {
+        if (!this.paymentPlansData?.availablePlans) return [];
+        const currentId = this.paymentPlansData.currentPlanId || this.raw('Payment_Plan__c');
+        return this.paymentPlansData.availablePlans.map((p) => {
+            const isSelected = p.isSelected || (currentId && p.planId === currentId);
+            return {
+                id: p.planId,
+                name: p.planName,
+                category: p.planCategory,
+                description: p.description || `${p.installmentCount || 0} Installments · Milestone-Based Payment Structure`,
+                installmentCount: p.installmentCount,
+                isSelected: isSelected,
+                cardClass: isSelected ? 'plan-card plan-card_selected' : 'plan-card',
+                badgeText: isSelected ? '✓ Active Selection' : (p.planCategory ? p.planCategory : 'Milestone-Based'),
+                badgeClass: isSelected ? 'plan-badge plan-badge_active' : 'plan-badge',
+                btnClass: isSelected ? 'wd-btn wd-btn_selected' : 'wd-btn wd-btn_secondary',
+                btnLabel: isSelected ? '✓ Selected' : 'Select Plan ↗',
+                disabled: isSelected
+            };
+        });
+    }
+
+    get currentSelectedPlanName() {
+        if (this.paymentPlansData?.currentPlanName) {
+            return this.paymentPlansData.currentPlanName;
+        }
+        const active = this.paymentPlansList.find((p) => p.isSelected);
+        return active ? active.name : (this.raw('Payment_Plan__c') ? '40X60' : 'None Selected');
+    }
+
+    get hasSelectedPlan() {
+        return !!(this.paymentPlansData?.currentPlanId || this.raw('Payment_Plan__c') || this.paymentPlansList.some((p) => p.isSelected));
+    }
+
+    get towerOcStatusText() {
+        if (!this.paymentPlansData) return '';
+        if (this.paymentPlansData.ocReceived) {
+            return `🏛️ ${this.paymentPlansData.towerName || 'Tower'} (OC Received) — Time-Linked / Date-Based Plans Activated`;
+        }
+        return `🏗️ ${this.paymentPlansData.towerName || 'Tower'} (Under Construction) — Construction Milestone / CLP Plans Activated`;
+    }
+
+    get towerOcBadgeClass() {
+        return this.paymentPlansData?.ocReceived ? 'oc-badge oc-badge_received' : 'oc-badge oc-badge_pending';
+    }
+
     get config() {
         return RECORD_CONFIG[this.objectApiName] || {};
     }
 
     get sectionDefs() {
-        if (this.isCustomer && CUSTOMER_SECTIONS.length) {
-            return CUSTOMER_SECTIONS;
-        }
         return SECTIONS[this.objectApiName] || [];
     }
 
@@ -110,9 +384,7 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
     buildFieldList(info) {
         const obj = this.objectApiName;
         const wanted = new Set(['CreatedDate', 'LastModifiedDate', ...(info.nameFields || [])]);
-        // Accounts load both layouts: whether this is a customer or a channel partner is only known once the record is in.
-        const defs = obj === 'Account' ? [...(SECTIONS.Account || []), ...CUSTOMER_SECTIONS] : this.sectionDefs;
-        defs.forEach((s) => s.fields.forEach((f) => wanted.add(f)));
+        this.sectionDefs.forEach((s) => s.fields.forEach((f) => wanted.add(f)));
         this.highlightFields.forEach((f) => wanted.add(f));
         (this.config.facts || []).forEach((f) => wanted.add(f));
         (this.config.alerts || []).forEach((a) => wanted.add(a.field));
@@ -309,6 +581,26 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
                     const parts = inrParts(v.raw);
                     text = `${parts.value} ${parts.unit}`.trim();
                 }
+                if (v.api === 'Token_Amount_Paid__c') {
+                    const paid = Number(v.raw) || 0;
+                    const due = Number(this.raw('Token_Amount__c')) || 0;
+                    const status = this.raw('Token_Payment_Status__c');
+                    if (paid > 0) {
+                        const parts = inrParts(paid);
+                        text = `${parts.value} ${parts.unit} · ${status || 'Paid'}`.trim();
+                        v.empty = false;
+                    } else if (due > 0) {
+                        const parts = inrParts(due);
+                        text = `${parts.value} ${parts.unit} · Due`.trim();
+                        v.empty = false;
+                    } else {
+                        text = 'Pending';
+                    }
+                }
+                if (v.api === 'Payment_Plan__c' && (v.empty || text === '—') && this.currentSelectedPlanName && this.currentSelectedPlanName !== 'None Selected') {
+                    text = this.currentSelectedPlanName;
+                    v.empty = false;
+                }
                 return { ...v, text, valueClass: v.empty ? 'hl-value hl-value_empty' : 'hl-value' };
             });
     }
@@ -352,7 +644,7 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
     }
 
     get showRelatedLists() {
-        return !this.hasTabs && !this.isBooking;
+        return !this.isCustomer && !this.isBooking;
     }
 
     get extraLists() {
@@ -360,10 +652,6 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
             return ['Handover__c.Booking__c', 'Handovers__r', 'Handovers', ...(this.config.relatedLists || [])];
         }
         return this.config.relatedLists || [];
-    }
-
-    get pinnedLists() {
-        return this.config.pinnedLists || [];
     }
 
     get extras() {
@@ -376,10 +664,6 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
 
     get isLead() {
         return this.objectApiName === 'Lead';
-    }
-
-    get isOpportunity() {
-        return this.objectApiName === 'Opportunity';
     }
 
     get isLeadOrContact() {
@@ -441,76 +725,50 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
         }
     }
 
-    // ---------- tabs (Lead, Opportunity and Customer 360) ----------
-
-    get hasTabs() {
-        return this.isLead || this.isOpportunity || this.isCustomer;
-    }
-
-    get tabsLabel() {
-        return this.isCustomer ? 'Customer 360 tabs' : `${this.objectInfo?.label || 'Record'} tabs`;
-    }
-
-    get tabs() {
-        const defs = this.isCustomer ? CUSTOMER_TABS : this.isOpportunity ? OPPORTUNITY_TABS : LEAD_TABS;
-        return defs.map((t) => {
-            const selected = t.key === this.activeTab;
-            const badge = t.badge ? this.customerBadges[t.badge] : null;
-            return {
-                key: t.key,
-                label: t.label,
-                badge,
-                badgeClass: t.badgeTone === 'bad' ? 'tab-badge tab-badge_bad' : 'tab-badge',
-                selected: String(selected),
-                cls: `wd-tab-btn${selected ? ' wd-tab-btn_active' : ''}`
-            };
-        });
-    }
-
-    handleTabSelect(event) {
+    handleCustomerTabSelect(event) {
         const tab = event.currentTarget.dataset.tab;
         if (tab) {
-            this.activeTab = tab;
+            this.customerTab = tab;
         }
     }
 
-    get isDetailsTab() {
-        return this.activeTab === 'details';
-    }
-
-    get isRelatedTab() {
-        return this.activeTab === 'related';
-    }
-
-    get isConditionsTab() {
-        return this.activeTab === 'conditions';
-    }
-
-    get isCasesTab() {
-        return this.activeTab === 'cases';
-    }
-
-    get isBookingsTab() {
-        return this.activeTab === 'bookings';
-    }
-
-    get isInvoicesTab() {
-        return this.activeTab === 'invoices';
-    }
-
-    get isPaymentsTab() {
-        return this.activeTab === 'payments';
-    }
-
     handleCustomerLoaded(event) {
-        const d = event.detail || {};
-        const count = (n) => (n ? String(n) : null);
-        this.customerBadges = {
-            cases: count(d.openCases),
-            bookings: count(d.bookings),
-            invoices: count(d.invoices),
-            payments: count(d.payments)
-        };
+        const detail = event.detail;
+        if (detail) {
+            const holdingsText = detail.holdingsCount ? `${detail.holdingsCount} ${detail.holdingsCount === 1 ? 'unit' : 'units'}` : null;
+            const overdueText = detail.overdueCount > 0 ? String(detail.overdueCount) : null;
+            const pipelineTotal = (detail.opportunitiesCount || 0) + (detail.siteVisitsCount || 0);
+            const pipelineText = pipelineTotal > 0 ? `${pipelineTotal}` : null;
+            this.customerBadges = {
+                holdings: holdingsText,
+                overdue: overdueText,
+                pipeline: pipelineText
+            };
+        }
+    }
+
+    get isOverviewTab() {
+        return this.customerTab === 'overview';
+    }
+
+    get isFinancialsTab() {
+        return this.customerTab === 'financials';
+    }
+
+    get isPipelineTab() {
+        return this.customerTab === 'pipeline';
+    }
+
+    get overviewTabClass() {
+        return `wd-tab-btn ${this.isOverviewTab ? 'wd-tab-btn_active' : ''}`;
+    }
+
+    get financialsTabClass() {
+        return `wd-tab-btn ${this.isFinancialsTab ? 'wd-tab-btn_active' : ''}`;
+    }
+
+    get pipelineTabClass() {
+        return `wd-tab-btn ${this.isPipelineTab ? 'wd-tab-btn_active' : ''}`;
     }
 
     // ---------- sections ----------
@@ -522,15 +780,27 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
         return this.sectionDefs
             .map((s, i) => {
                 const fields = s.fields.map((f) => this.fieldView(f)).filter(Boolean);
+                const isCollapsed = !!this.collapsed[s.label];
                 return {
                     key: `s${i}`,
                     label: s.label,
                     fields,
+                    isCollapsed,
+                    isOpen: !isCollapsed,
+                    ariaExpanded: String(!isCollapsed),
+                    chevronClass: isCollapsed ? 'chevron chevron_closed' : 'chevron',
                     gridClass: s.columns === 1 ? 'fields fields_one' : 'fields',
                     filled: `${fields.filter((f) => !f.empty).length}/${fields.length}`
                 };
             })
             .filter((s) => s.fields.length);
+    }
+
+    handleToggleSection(event) {
+        const label = event.currentTarget.dataset.label;
+        if (label) {
+            this.collapsed = { ...this.collapsed, [label]: !this.collapsed[label] };
+        }
     }
 
     // ---------- actions ----------
@@ -548,34 +818,163 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
             ];
             const first = partnerOrder.map((n) => byName.get(n)).filter(Boolean);
             ordered = [...first, ...this.actions.filter((a) => !first.includes(a))];
+        } else if (this.isOpportunity) {
+            const stage = this.pathValue || this.oppJourney?.stageName;
+            const dynamicPrimary = [];
+
+            if (stage === 'Booking form' || stage === 'Booking Form & Token Confirmation' || stage === 'Token Amount Confirmation') {
+                const bForm = byName.get('Opportunity.Booking_Form');
+                if (bForm) {
+                    dynamicPrimary.push({
+                        ...bForm,
+                        btnClass: 'wd-btn wd-btn_primary'
+                    });
+                } else {
+                    dynamicPrimary.push({
+                        key: 'Opportunity.Booking_Form',
+                        apiName: 'Opportunity.Booking_Form',
+                        label: 'Booking Form',
+                        type: 'Custom',
+                        btnClass: 'wd-btn wd-btn_primary'
+                    });
+                }
+            } else if (stage === 'Share welcome letter') {
+                dynamicPrimary.push({
+                    key: 'Generate_Welcome_Letter',
+                    apiName: 'Generate_Welcome_Letter',
+                    label: '⚡ Generate Welcome Letter ↗',
+                    type: 'Custom',
+                    btnClass: 'wd-btn wd-btn_primary'
+                });
+            } else if (stage === 'Unit Shortlisting' || stage === 'Unit Selection' || (!this.oppJourney?.unitId && !this.raw('Interested_Unit__c'))) {
+                const selInv = byName.get('Opportunity.Select_Inventory');
+                if (selInv) dynamicPrimary.push(selInv);
+            } else if (stage === 'Qualification' || stage === 'Site Visit') {
+                const sVisit = byName.get('Opportunity.Site_Visit');
+                if (sVisit) dynamicPrimary.push(sVisit);
+            } else if (stage === 'Discount Approval') {
+                dynamicPrimary.push({
+                    key: 'Submit',
+                    apiName: 'Submit',
+                    label: 'Submit for Approval ↗',
+                    type: 'Standard',
+                    btnClass: 'wd-btn wd-btn_primary'
+                });
+            }
+
+            if (stage === 'Closed Won') {
+                dynamicPrimary.push({
+                    key: 'Go_To_Booking',
+                    apiName: 'Go_To_Booking',
+                    label: 'Go to Booking ↗',
+                    type: 'Custom',
+                    btnClass: 'wd-btn wd-btn_primary'
+                });
+            } else if (this.hasOppBooking) {
+                dynamicPrimary.push({
+                    key: 'Go_To_Booking',
+                    apiName: 'Go_To_Booking',
+                    label: 'Go to Booking ↗',
+                    type: 'Custom',
+                    btnClass: 'wd-btn wd-btn_ghost'
+                });
+            }
+
+            // Standard utilities strictly reserved for More menu
+            const standardMenu = [byName.get('Clone'), byName.get('Delete')].filter(Boolean);
+
+            let result = [...dynamicPrimary, ...standardMenu];
+
+            // Strict sanitization: ensure no legacy, resale, or flow actions leak in
+            result = result.filter((a) => {
+                const name = a.apiName || '';
+                if (
+                    name.includes('Generate_Sales_Offer') ||
+                    name.includes('Generate_Sales_Order') ||
+                    name.includes('Mark_Closed_Won') ||
+                    name.includes('Transfer') ||
+                    name.includes('Builder_NOC') ||
+                    name.includes('No_Dues') ||
+                    name.includes('Dues_Clearance') ||
+                    name.includes('New_Owner') ||
+                    name.includes('Initiate_Resale') ||
+                    name.includes('Initiate_Rental') ||
+                    name.includes('Add_Payment') ||
+                    name.includes('KYC') ||
+                    name.includes('Resale') ||
+                    name.includes('runtime_appointmentbooking') ||
+                    name.includes('SDO_') ||
+                    name.includes('EMC_') ||
+                    name.includes('MERL_')
+                ) {
+                    return false;
+                }
+                return true;
+            });
+
+            return result.map((a) => {
+                const isPrimary = a.btnClass?.includes('wd-btn_primary') ||
+                    (a.apiName === 'Generate_Welcome_Letter') ||
+                    ((stage === 'Unit Shortlisting' || stage === 'Unit Selection') && a.apiName === 'Opportunity.Select_Inventory') ||
+                    ((stage === 'Booking form' || stage === 'Booking Form & Token Confirmation' || stage === 'Token Amount Confirmation') && a.apiName === 'Opportunity.Booking_Form') ||
+                    (stage === 'Discount Approval' && a.apiName === 'Submit') ||
+                    (stage === 'Closed Won' && a.apiName === 'Go_To_Booking') ||
+                    (a.apiName === 'Create_Booking_Sync_Sap');
+                return {
+                    key: a.apiName,
+                    apiName: a.apiName,
+                    label: a.label,
+                    type: a.type,
+                    btnClass: isPrimary ? 'wd-btn wd-btn_primary' : 'wd-btn wd-btn_ghost'
+                };
+            });
         } else if (this.config.actions) {
             ordered = this.config.actions.map((n) => byName.get(n)).filter(Boolean);
         } else if (this.config.primaryActions) {
             const first = this.config.primaryActions.map((n) => byName.get(n)).filter(Boolean);
             ordered = [...first, ...this.actions.filter((a) => !first.includes(a))];
         }
+
+        // Strict enforcement: Only Channel Partner accounts can have Launch Broker Portal
+        if (!this.isChannelPartner) {
+            ordered = ordered.filter(
+                (a) => a.apiName !== 'Account.Launch_Broker_Portal' && a.apiName !== 'Launch_Broker_Portal'
+            );
+        }
         return ordered.map((a) => {
             const isPortal = a.apiName === 'Account.Launch_Broker_Portal' || a.apiName === 'Launch_Broker_Portal';
+            const isFeedback = a.apiName === 'Site_Visit__c.Add_Feedback' || a.apiName === 'Add_Feedback';
+            const isHighlight = isPortal || isFeedback ||
+                a.apiName === 'Booking__c.Initiate_Resale' || a.apiName === 'Booking__c.Initiate_Rental' ||
+                a.apiName === 'Initiate_Resale' || a.apiName === 'Initiate_Rental';
             return {
                 key: a.apiName,
                 apiName: a.apiName,
                 label: a.label,
                 type: a.type,
-                btnClass: isPortal ? 'wd-btn wd-btn_primary' : 'wd-btn wd-btn_ghost'
+                btnClass: isHighlight ? 'wd-btn wd-btn_primary' : 'wd-btn wd-btn_ghost'
             };
         });
     }
 
+    get visibleActionsCount() {
+        return this.config.visibleActions || VISIBLE_ACTIONS;
+    }
+
     get visibleActions() {
-        return this.actionItems.slice(0, VISIBLE_ACTIONS);
+        return this.actionItems.slice(0, this.visibleActionsCount);
     }
 
     get menuActions() {
-        return this.actionItems.slice(VISIBLE_ACTIONS);
+        return this.actionItems.slice(this.visibleActionsCount);
     }
 
     get hasMenu() {
         return this.menuActions.length > 0;
+    }
+
+    get editLabel() {
+        return this.editing ? 'Cancel' : 'Edit';
     }
 
     toggleMenu() {
@@ -607,12 +1006,21 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
             case 'Submit':
                 this.submitApproval();
                 return;
+            case 'Convert_Lead':
             case 'Convert':
-                this.navigateToUrl(`/lightning/cmp/runtime_sales_lead__convertDesktopConsole?leadConvert__leadId=${this.recordId}`);
+                this.handleConvertLead();
                 return;
-            case 'Lead.Assign_using_Round_Robin':
-                // Headless LWC actions never run when opened through the quick-action URL, so call the Apex directly.
-                this.assignRoundRobin();
+            case 'Go_To_Booking':
+                this.handleOpenOppBooking();
+                return;
+            case 'View_Opp_Account':
+                this.handleOpenOppAccount();
+                return;
+            case 'Create_Booking_Sync_Sap':
+                this.handleCreateBookingAndSyncSap();
+                return;
+            case 'Generate_Welcome_Letter':
+                this.handleShareWelcomeLetter();
                 return;
             case 'Booking__c.View_Handover':
             case 'View_Handover':
@@ -622,14 +1030,180 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
             case 'Launch_Broker_Portal':
                 this.openQuickAction('Account.Launch_Broker_Portal');
                 return;
+            case 'Site_Visit__c.Add_Feedback':
+            case 'Add_Feedback':
+                this.showSiteVisitFeedbackModal = true;
+                return;
             default:
         }
         this.openQuickAction(api);
     }
 
+    async handleConvertLead() {
+        if (this.isConvertedLead) {
+            this.toast('Already Converted', 'This lead has already been converted to an Opportunity.', 'info');
+            return;
+        }
+
+        const confirmed = await LightningConfirm.open({
+            message: 'Convert this Qualified Lead into a Residential Sales Opportunity and Person Account?',
+            variant: 'header',
+            label: 'Convert Lead',
+            theme: 'default'
+        });
+        if (!confirmed) return;
+
+        this.saving = true;
+        try {
+            const res = await convertLeadDirect({ leadId: this.recordId });
+            this.toast(
+                'Lead Converted Successfully',
+                'Residential Sales Opportunity and Person Account created.',
+                'success'
+            );
+            if (res && res.opportunityId) {
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: res.opportunityId,
+                        objectApiName: 'Opportunity',
+                        actionName: 'view'
+                    }
+                });
+            } else {
+                notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+            }
+        } catch (error) {
+            this.toast('Conversion Blocked', errorMessage(error), 'warning');
+        } finally {
+            this.saving = false;
+        }
+    }
+
+    handleOpenConvertedAccount() {
+        if (this.conversionSummary?.accountId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: this.conversionSummary.accountId,
+                    objectApiName: 'Account',
+                    actionName: 'view'
+                }
+            });
+        }
+    }
+
+    handleOpenConvertedOpportunity() {
+        if (this.conversionSummary?.opportunityId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: this.conversionSummary.opportunityId,
+                    objectApiName: 'Opportunity',
+                    actionName: 'view'
+                }
+            });
+        }
+    }
+
+    handleOpenConvertedBooking() {
+        if (this.conversionSummary?.bookingId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: this.conversionSummary.bookingId,
+                    objectApiName: 'Booking__c',
+                    actionName: 'view'
+                }
+            });
+        }
+    }
+
+    handleOpenOppAccount() {
+        const accId = this.oppJourney?.accountId || this.raw('AccountId');
+        if (accId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: accId,
+                    objectApiName: 'Account',
+                    actionName: 'view'
+                }
+            });
+        }
+    }
+
+    async handleOpenOppBooking() {
+        if (this.oppJourney?.bookingId) {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: {
+                    recordId: this.oppJourney.bookingId,
+                    objectApiName: 'Booking__c',
+                    actionName: 'view'
+                }
+            });
+            return;
+        }
+        this.saving = true;
+        try {
+            const res = await createBookingAndSyncSap({ oppId: this.recordId });
+            if (res && res.bookingId) {
+                this[NavigationMixin.Navigate]({
+                    type: 'standard__recordPage',
+                    attributes: {
+                        recordId: res.bookingId,
+                        objectApiName: 'Booking__c',
+                        actionName: 'view'
+                    }
+                });
+                return;
+            }
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (err) {
+            this.toast('Opening Booking', errorMessage(err), 'error');
+        } finally {
+            this.saving = false;
+        }
+    }
+
+    async handleCreateBookingAndSyncSap() {
+        if (this.oppJourney?.bookingId) {
+            this.handleOpenOppBooking();
+            return;
+        }
+        this.saving = true;
+        try {
+            const res = await createBookingAndSyncSap({ oppId: this.recordId });
+            this.toast(
+                'Booking Confirmed & SAP Synced',
+                res?.message || 'SAP Sales Order created and Booking confirmed.',
+                'success'
+            );
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (err) {
+            this.toast('Booking Creation Failed', errorMessage(err), 'error');
+        } finally {
+            this.saving = false;
+        }
+    }
+
+    handleOpenFeedbackModal() {
+        this.showSiteVisitFeedbackModal = true;
+    }
+
+    handleCloseFeedbackModal() {
+        this.showSiteVisitFeedbackModal = false;
+    }
+
+    handleFeedbackSaved() {
+        this.showSiteVisitFeedbackModal = false;
+        notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+    }
+
     async handleViewHandover() {
         try {
-            const handoverId = await getHandoverForBooking({ bookingId: this.recordId });
+            const handoverId = await getOrCreateHandoverForBooking({ bookingId: this.recordId });
             if (handoverId) {
                 this[NavigationMixin.Navigate]({
                     type: 'standard__recordPage',
@@ -649,7 +1223,7 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
     openQuickAction(actionName) {
         const recordPath = `/lightning/r/${this.objectApiName}/${this.recordId}/view`;
         const url =
-            `/lightning/action/quick/${encodeURIComponent(actionName)}?objectApiName&context=RECORD_DETAIL` +
+            `/lightning/action/quick/${encodeURIComponent(actionName)}?objectApiName=${encodeURIComponent(this.objectApiName || '')}&context=RECORD_DETAIL` +
             `&recordId=${this.recordId}&backgroundContext=${encodeURIComponent(recordPath)}`;
         this.navigateToUrl(url);
     }
@@ -659,21 +1233,9 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
         this.menuOpen = false;
     }
 
-    handleSaveAll() {
-        const form = this.template.querySelector('lightning-record-edit-form');
-        if (form) {
-            this.saving = true;
-            form.submit();
-        }
-    }
-
-    async assignRoundRobin() {
-        try {
-            const ownerName = await assignLeadViaRoundRobin({ leadId: this.recordId });
-            this.toast('Lead assigned', `${this.title} is now with ${ownerName}.`, 'success');
-            await notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
-        } catch (e) {
-            this.toast('Could not assign the lead', errorMessage(e), 'error');
+    handleEditRequest() {
+        if (!this.editing) {
+            this.editing = true;
         }
     }
 
@@ -751,5 +1313,130 @@ export default class WdGlassRecord extends NavigationMixin(LightningElement) {
 
     toast(title, message, variant) {
         this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
+    }
+
+    async handleSelectPlan(event) {
+        const planId = event.currentTarget.dataset.id;
+        if (!planId) return;
+        this.saving = true;
+        try {
+            const res = await assignPaymentPlanToOpp({ oppId: this.recordId, planId: planId });
+            this.toast('Payment Plan Assigned', res?.message || 'Payment plan assigned and stage advanced.', 'success');
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (err) {
+            this.toast('Error Assigning Plan', errorMessage(err), 'error');
+        } finally {
+            this.saving = false;
+        }
+    }
+
+    async handleProceedFromPaymentPlan() {
+        this.saving = true;
+        try {
+            const res = await evaluateAndSubmitDiscountApproval({ oppId: this.recordId, comments: '' });
+            if (res.requiresApproval) {
+                this.toast('Submitted for Approval', res.message || 'Submitted for management discount approval.', 'warning');
+            } else {
+                this.toast('Stage Advanced', res.message || 'Payment plan finalized. Advanced to Booking form.', 'success');
+            }
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (err) {
+            this.toast('Error Advancing Stage', errorMessage(err), 'error');
+        } finally {
+            this.saving = false;
+        }
+    }
+
+    handleDiscountCommentsChange(event) {
+        this.discountComments = event.target.value;
+    }
+
+    submitApproval() {
+        this.handleSubmitDiscountApproval();
+    }
+
+    async handleSubmitDiscountApproval() {
+        this.submittingDiscount = true;
+        try {
+            const res = await evaluateAndSubmitDiscountApproval({ oppId: this.recordId, comments: this.discountComments });
+            if (res.requiresApproval) {
+                this.toast('Approval Submitted', res.message || 'Discount exceeds 7.5% threshold. Submitted to real.resi@wd.demo.', 'warning');
+            } else {
+                this.toast('Discount Auto-Cleared', res.message || 'Discount is compliant (<=7.5%). Advanced to Booking form.', 'success');
+            }
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (err) {
+            this.toast('Discount Approval Failed', errorMessage(err), 'error');
+        } finally {
+            this.submittingDiscount = false;
+        }
+    }
+
+    get formattedTokenPaid() {
+        const amt = this.oppJourney?.tokenAmountPaid || this.tokenAmountInput || 1339300;
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amt);
+    }
+
+    handleTokenAmountChange(event) {
+        this.tokenAmountInput = parseFloat(event.target.value) || 0;
+    }
+
+    handleTokenModeChange(event) {
+        this.tokenPaymentMode = event.target.value;
+    }
+
+    handleTokenRefChange(event) {
+        this.tokenPaymentRef = event.target.value;
+    }
+
+    handleShareWelcomeLetter() {
+        if (this.recordId) {
+            window.open(`/apex/WelcomeLetter?id=${this.recordId}`, '_blank');
+        }
+    }
+
+    connectedCallback() {
+        this._pageShowListener = () => {
+            if (this.recordId) {
+                notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+                if (this._wiredOppJourneyResult) refreshApex(this._wiredOppJourneyResult);
+                if (this._wiredApprovalHistoryResult) refreshApex(this._wiredApprovalHistoryResult);
+            }
+        };
+        window.addEventListener('pageshow', this._pageShowListener);
+        window.addEventListener('focus', this._pageShowListener);
+    }
+
+    disconnectedCallback() {
+        if (this._pageShowListener) {
+            window.removeEventListener('pageshow', this._pageShowListener);
+            window.removeEventListener('focus', this._pageShowListener);
+        }
+    }
+
+    async handleApproveStep(event) {
+        const workitemId = event.target.dataset.workitemId;
+        try {
+            await processWorkitem({ workitemId, action: 'Approve', comments: 'Approved by Management' });
+            this.toast('Discount Approved', 'Approval granted. Stage advancing to Booking form.', 'success');
+            if (this._wiredApprovalHistoryResult) await refreshApex(this._wiredApprovalHistoryResult);
+            if (this._wiredOppJourneyResult) await refreshApex(this._wiredOppJourneyResult);
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (e) {
+            this.toast('Approval Failed', errorMessage(e), 'error');
+        }
+    }
+
+    async handleRejectStep(event) {
+        const workitemId = event.target.dataset.workitemId;
+        try {
+            await processWorkitem({ workitemId, action: 'Reject', comments: 'Rejected by Management' });
+            this.toast('Discount Rejected', 'Discount approval request rejected.', 'warning');
+            if (this._wiredApprovalHistoryResult) await refreshApex(this._wiredApprovalHistoryResult);
+            if (this._wiredOppJourneyResult) await refreshApex(this._wiredOppJourneyResult);
+            notifyRecordUpdateAvailable([{ recordId: this.recordId }]);
+        } catch (e) {
+            this.toast('Rejection Failed', errorMessage(e), 'error');
+        }
     }
 }

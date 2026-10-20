@@ -46,8 +46,6 @@ export default class WdGlassRelated extends NavigationMixin(LightningElement) {
     @api recordTypeId;
     /** Related lists the old record page placed directly (Dynamic Related Lists), shown before layout lists. */
     @api extraLists = [];
-    /** Lists that always get their own card, even with no records. */
-    @api pinnedLists = [];
 
     listIds;
     listInfos = [];
@@ -111,8 +109,6 @@ export default class WdGlassRelated extends NavigationMixin(LightningElement) {
                 failed: !!res && !ok,
                 count: more ? `${records.length}+` : `${records.length}`,
                 hasRecords: records.length > 0,
-                pinned: (this.pinnedLists || []).includes(info.relatedListId),
-                emptyText: `No ${(info.label || 'records').toLowerCase()} yet.`,
                 rows: records.map((rec) => ({
                     id: rec.id || rec.fields?.Id?.value,
                     title: (primary ? readPath(rec, primary.fieldApiName) : null) || rec.fields?.Name?.value || rec.id,
@@ -126,11 +122,11 @@ export default class WdGlassRelated extends NavigationMixin(LightningElement) {
     }
 
     get populated() {
-        return this.lists.filter((l) => l.hasRecords || (l.pinned && l.loaded && !l.failed));
+        return this.lists.filter((l) => l.hasRecords);
     }
 
     get emptyLists() {
-        return this.lists.filter((l) => l.loaded && !l.failed && !l.hasRecords && !l.pinned);
+        return this.lists.filter((l) => l.loaded && !l.failed && !l.hasRecords);
     }
 
     get hasEmpty() {

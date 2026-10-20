@@ -913,8 +913,14 @@ public with sharing class CustomerLedgerController {
                 inst.Installment_Number__c = ps.Installment_Number__c;
                 Decimal pct = (ps.Payment_Percentage__c != null ? ps.Payment_Percentage__c : 10);
                 inst.Installment_Amount__c = (agreementValue * (pct / 100.0)).setScale(2, System.RoundingMode.HALF_UP);
-                inst.Amount_Paid__c = 0;
-                inst.Payment_Status__c = (ps.Installment_Number__c == 1) ? 'Paid' : 'Pending';
+                if (ps.Installment_Number__c == 1) {
+                    inst.Payment_Status__c = 'Paid';
+                    inst.Amount_Paid__c = inst.Installment_Amount__c;
+                    inst.Mode_Of_Payment__c = 'RTGS';
+                } else {
+                    inst.Payment_Status__c = 'Pending';
+                    inst.Amount_Paid__c = 0;
+                }
                 inst.Is_Token_Amount__c = (ps.Installment_Number__c == 1);
                 inst.Description__c = String.isNotBlank(ps.Milestone_Code__c) ? ps.Milestone_Code__c : ('Milestone ' + ps.Installment_Number__c);
                 if (ps.Due_In_Days__c != null) {
@@ -1331,8 +1337,10 @@ public with sharing class CustomerLedgerController {
             Messaging.sendEmail(new Messaging.SingleEmailMessage[] { mail });
 
             Opportunity opp = [SELECT Id, StageName FROM Opportunity WHERE Id = :opportunityId LIMIT 1];
-            opp.StageName = 'Quotation Agreed';
-            update opp;
+            if (opp.StageName != 'Closed Won' && opp.StageName != 'Token Amount Confirmation' && opp.StageName != 'Booking Form & Token Confirmation') {
+                opp.StageName = 'Quotation Agreed';
+                update opp;
+            }
 
             res.success = true;
             res.recordId = opp.Id;

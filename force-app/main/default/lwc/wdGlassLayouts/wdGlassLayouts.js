@@ -269,73 +269,43 @@ export const SECTIONS = {
     ],
     "Opportunity": [
         {
-            "label": "About",
+            "label": "Opportunity Information",
             "columns": 2,
             "fields": [
                 "Name",
-                "Discount_Approval_Status__c",
                 "AccountId",
-                "Token_Amount__c",
-                "CloseDate",
-                "Payment_Plan__c",
-                "OwnerId"
-            ]
-        },
-        {
-            "label": "Unit Details",
-            "columns": 2,
-            "fields": [
-                "Interested_Unit__r.Property__c",
-                "Interested_Unit__r.Floor__c",
-                "Interested_Unit__r.Tower__c",
-                "Interested_Unit__c"
-            ]
-        },
-        {
-            "label": "Source Details",
-            "columns": 2,
-            "fields": [
-                "LeadSource",
-                "Updated_Source__c",
-                "Agent_s_Name__c",
-                "Approved_Channel_Partner__c",
-                "Event_Name__c",
-                "Existing_Customer_s_Name__c",
-                "Employee_s_name__c"
-            ]
-        },
-        {
-            "label": "BP Pricing",
-            "columns": 2,
-            "fields": [
-                "BasePrice__c",
-                "Base_Cost__c",
-                "BasePriceDiscount__c",
-                "BaseCostAfterDiscount__c",
-                "Actual_Discount_Percentage__c",
-                "Land_Cost__c",
-                "Chargeable_Area__c",
-                "TaxOnLandCostPercentage__c",
-                "OtherCharges__c",
-                "Tax_on_Land_Cost__c",
-                "Tax_on_Other_Charges__c",
-                "Construction_Cost__c",
-                "TaxOnOtherCharges__c",
-                "TaxOnConstructionCostPercentage__c",
-                "Total_Amount__c",
-                "TaxOnConstructionCost__c"
-            ]
-        },
-        {
-            "label": "Status",
-            "columns": 2,
-            "fields": [
+                "Interested_Unit__c",
+                "Amount",
                 "StageName",
+                "CloseDate",
+                "OwnerId",
                 "Probability"
             ]
         },
         {
-            "label": "History",
+            "label": "Commercial & Payment Terms",
+            "columns": 2,
+            "fields": [
+                "Payment_Plan__c",
+                "Token_Amount__c",
+                "Discount_Approval_Status__c",
+                "Token_Payment_Status__c"
+            ]
+        },
+        {
+            "label": "Source & Channel Attribution",
+            "columns": 2,
+            "fields": [
+                "LeadSource",
+                "Approved_Channel_Partner__c",
+                "Agent_s_Name__c",
+                "Updated_Source__c",
+                "Event_Name__c",
+                "Employee_s_name__c"
+            ]
+        },
+        {
+            "label": "System Information",
             "columns": 2,
             "fields": [
                 "CreatedById",
@@ -649,120 +619,72 @@ export const SECTIONS = {
     ]
 };
 
-// EOI vouchers had no Dynamic Forms page to mirror; sections follow the voucher lifecycle.
-SECTIONS.Voucher__c = [
-    {
-        label: 'Voucher',
-        columns: 2,
-        fields: ['Name', 'Status__c', 'Voucher_Type__c', 'Project__c', 'Preferred_Configuration__c', 'Priority_Number__c', 'Valid_Until__c', 'Refundable__c']
-    },
-    {
-        label: 'Applicant',
-        columns: 2,
-        fields: ['Applicant_Name__c', 'Applicant_Mobile__c', 'Applicant_Email__c', 'Lead__c', 'Account__c', 'Opportunity__c', 'Channel_Partner__c', 'Applicable_To__c']
-    },
-    {
-        label: 'Payment',
-        columns: 2,
-        fields: ['Amount__c', 'Amount_Paid__c', 'Balance_Due__c', 'Payment_Mode__c', 'Payment_Reference__c', 'Payment_Date__c']
-    },
-    {
-        label: 'Allotment & booking',
-        columns: 2,
-        fields: ['Flat_No__c', 'Booking__c']
-    },
-    {
-        label: 'Cancellation & refund',
-        columns: 2,
-        fields: ['Cancellation_Reason__c', 'Refund_Amount__c', 'Refund_Reference__c', 'Refund_Date__c']
-    },
-    {
-        label: 'Notes',
-        columns: 1,
-        fields: ['Remarks__c']
-    },
-    {
-        label: 'History',
-        columns: 2,
-        fields: ['CreatedById', 'LastModifiedById']
-    }
-];
-
-// Customer 360 (person accounts). The Account layout above carries channel-partner and SAP fields,
-// which stay on partner records only.
-export const CUSTOMER_SECTIONS = [
-    {
-        label: 'Personal details',
-        columns: 2,
-        fields: ['Name', 'PersonBirthdate', 'PersonGender', 'PersonMaritalStatus', 'PAN_Number__c', 'Aadhar_Number__c', 'Language__c', 'Interested_Projects__c']
-    },
-    {
-        label: 'Contact details',
-        columns: 2,
-        fields: [
-            'PersonMobilePhone',
-            'PersonEmail',
-            'Phone',
-            'Other_Email__c',
-            'PersonOtherPhone',
-            'Other_Email_2__c',
-            'PersonMailingAddress',
-            'Office_Address__c'
-        ]
-    },
-    {
-        label: 'Relationship',
-        columns: 2,
-        fields: ['OwnerId', 'PersonLeadSource', 'RecordTypeId', 'Type']
-    },
-    {
-        label: 'Bank & tax',
-        columns: 2,
-        fields: ['BANK_ACCOUNT_NO__c', 'IFSC_Code__c', 'Beneficiary_Name_Account_Holder_Name__c', 'GST_No__c']
-    },
-    {
-        label: 'History',
-        columns: 2,
-        fields: ['CreatedById', 'LastModifiedById']
-    }
-];
-
 // Per-object hero configuration. Objects without an entry fall back to the first
 // four fields of their first section and no path. `actions` is a whitelist (in order) of
 // what the page layout exposes; without it every object-specific action is offered.
 export const RECORD_CONFIG = {
     Lead: {
         eyebrow: 'Residential lead',
-        highlights: ['Projects__c', 'Type_of_Units__c', 'LeadSource', 'OwnerId'],
+        highlights: ['Projects__c', 'Budget__c', 'Type_of_Units__c', 'OwnerId'],
         facts: ['MobilePhone', 'Email', 'Preferred_City__c'],
         pathField: 'Status',
-        // Site visits are logged from the sidebar gate and calls from the dialer, so those actions are not repeated here.
-        actions: ['Convert', 'Lead.Generate_EOI_Voucher', 'Lead.Assign_using_Round_Robin', 'Lead.Mark_as_Dropped', 'Delete']
+        visibleActions: 4,
+        actions: [
+            'Convert_Lead',
+            'Lead.Assign_using_Round_Robin',
+            'Lead.Mark_as_Dropped',
+            'Lead.Generate_EOI_Voucher',
+            'Lead.Call_Customer',
+            'Lead.runtime_appointmentbooking__Flow',
+            'Submit',
+            'Clone',
+            'Delete'
+        ]
     },
     Opportunity: {
         eyebrow: 'Residential opportunity',
-        highlights: ['Total_Amount__c', 'Interested_Unit__c', 'CloseDate', 'OwnerId'],
-        facts: ['AccountId', 'Payment_Plan__c'],
+        highlights: ['Total_Amount__c', 'Interested_Unit__c', 'Payment_Plan__c', 'Token_Amount_Paid__c'],
+        facts: ['AccountId', 'Actual_Discount_Percentage__c', 'BasePrice__c', 'BasePriceDiscount__c', 'Token_Amount__c', 'CloseDate', 'OwnerId'],
         pathField: 'StageName',
-        // Booking Form shares this opportunity's own customer link; Select Inventory tags a unit from the stack.
-        // Ownership transfer and appointments belong on the booking, not the deal.
-        actions: ['Opportunity.Booking_Form', 'Opportunity.Select_Inventory', 'Opportunity.Generate_Sales_Offer', 'Opportunity.Site_Visit', 'Submit', 'Clone', 'Delete']
+        visibleActions: 4,
+        actions: [
+            'Opportunity.Select_Inventory',
+            'Opportunity.Booking_Form',
+            'Generate_Welcome_Letter',
+            'Submit',
+            'Clone',
+            'Delete'
+        ],
+        primaryActions: [
+            'Opportunity.Select_Inventory',
+            'Opportunity.Booking_Form',
+            'Generate_Welcome_Letter',
+            'Submit'
+        ]
     },
     Account: {
         eyebrow: 'Customer',
         // Top cards, units owned and the sidebar come from wdGlassCustomer (bookings, dues, receipts, deals, visits).
         customer360: true,
         facts: ['PersonMobilePhone', 'PersonEmail', 'OwnerId'],
-        // Customers only get Edit; channel partners keep their own action order (see wdGlassRecord.actionItems).
-        actions: []
+        actions: ['Account.Retry_SAP_Sync', 'Account.runtime_appointmentbooking__Flow', 'Clone', 'Delete']
     },
     Booking__c: {
         eyebrow: 'Booking',
         highlights: ['Final_Amount__c', 'Token_Amount__c', 'Unit_Id__c', 'Booking_Date__c'],
         facts: ['Account_Id__c', 'Project__c'],
         pathField: 'Status__c',
+        visibleActions: 6,
         // Shown first; the booking's remaining actions follow in the More menu.
-        primaryActions: ['Booking__c.View_Handover', 'Booking__c.Generate_Welcome_Letter', 'Booking__c.View_Payment_Ledger', 'Submit'],
+        primaryActions: [
+            'Booking__c.Initiate_Resale',
+            'Booking__c.Initiate_Rental',
+            'Booking__c.Initiate_Ownership_Transfer',
+            'Booking__c.View_Handover',
+            'Booking__c.Generate_Welcome_Letter',
+            'Booking__c.View_Payment_Ledger',
+            'Submit'
+        ],
         alerts: [
             {
                 field: 'Is_Payment_Plan_Linked__c',
@@ -797,38 +719,30 @@ export const RECORD_CONFIG = {
         eyebrow: 'Building',
         facts: ['Property__c']
     },
-    Voucher__c: {
-        eyebrow: 'EOI voucher',
-        // No clickable path: status moves only through the voucher actions, which enforce the EOI rules.
-        highlights: ['Status__c', 'Amount__c', 'Balance_Due__c', 'Valid_Until__c'],
-        facts: ['Applicant_Name__c', 'Project__c', 'Voucher_Type__c'],
-        // Allotting a unit or adjusting against a booking is premature at lead stage, so only payment is offered.
-        actions: ['Voucher__c.Record_EOI_Payment']
-    },
     Site_Visit__c: {
         eyebrow: 'Site visit',
         highlights: ['Project__c', 'Unit__c', 'Rating__c', 'Interest_Level__c'],
         facts: ['Lead__c', 'Closing_Manager_Name__c', 'Visit_DateTime__c'],
-        pathField: 'Status__c'
+        pathField: 'Status__c',
+        actions: ['Site_Visit__c.Add_Feedback', 'Edit', 'Delete']
     }
 };
 
-// Opportunities get Details / Related / Booking Conditions tabs; the condition manager lives in the last one.
+// These pages also carried the booking condition manager.
 RECORD_CONFIG.Opportunity.extras = { conditions: true };
 
 // Dynamic related lists placed directly on the RES_* record pages (beyond the page layout's lists).
-// Ids are child relationship names (Site_Visits__r, not Site_Visits); unknown ids are dropped silently.
-RECORD_CONFIG.Lead.relatedLists = ['Site_Visits__r'];
+RECORD_CONFIG.Lead.relatedLists = ['Site_Visits'];
 RECORD_CONFIG.Opportunity.relatedLists = [
+    'Bookings',
+    'Site_Visits',
     'Quotes',
-    'Bookings__r',
-    'Site_Visits__r',
-    'Booking_Payment_Schedules__r',
+    'Booking_Payment_Schedules',
+    'Booking_Conditions',
+    'Opportunity_Parkings',
+    'Structural_Civil_Changes',
     'OpportunityTeamMembers'
 ];
-// Shown as a card even when empty, so the list is always visible.
-RECORD_CONFIG.Lead.pinnedLists = ['Site_Visits__r'];
-RECORD_CONFIG.Opportunity.pinnedLists = ['Quotes'];
 RECORD_CONFIG.Booking__c.relatedLists = ['Handover__c.Booking__c', 'Handovers__r', 'Handovers', 'Interest_Waiver_Requests'];
 RECORD_CONFIG.Handover__c.relatedLists = [
     'Inspections__r',

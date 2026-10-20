@@ -49,7 +49,7 @@ public with sharing class BookingFormLinkController {
             s.project = o.Interested_Unit__r?.Property__r?.Name;
             s.tokenAmount = o.Token_Amount__c;
             s.paymentStatus = String.isBlank(o.Token_Payment_Status__c) ? 'Pending' : o.Token_Payment_Status__c;
-            s.paymentReference = o.Token_Payment_Reference__c;
+            s.paymentReference = o.Transaction_Reference__c;
             if (String.isNotBlank(o.Booking_Form_Data__c)) {
                 summarise(s, (Map<String, Object>) JSON.deserializeUntyped(o.Booking_Form_Data__c));
             }
@@ -78,7 +78,7 @@ public with sharing class BookingFormLinkController {
                 throw new BookingFormService.BookingFormException('The "' + BookingFormService.SITE_NAME + '" site is not live yet.');
             }
             String token = BookingFormService.newToken();
-            saveWithRetry(new Opportunity(
+            Opportunity upd = new Opportunity(
                 Id = o.Id,
                 Booking_Form_Token__c = token,
                 Booking_Form_URL__c = base + '/?t=' + token,
@@ -87,10 +87,25 @@ public with sharing class BookingFormLinkController {
                     : (o.Booking_Form_Status__c == BookingFormService.STATUS_REOPENED ? BookingFormService.STATUS_REOPENED : BookingFormService.STATUS_IN_PROGRESS),
                 Booking_Form_Generated_At__c = Datetime.now(),
                 Booking_Form_Expires_On__c = Date.today().addDays(BookingFormService.LINK_VALIDITY_DAYS)
-            ));
+            );
+            if (o.StageName == 'Negotiation') {
+                upd.StageName = 'Booking form';
+            }
+            saveWithRetry(upd);
             return getStatus(opportunityId);
         } catch (Exception e) {
             throw BookingFormService.auraError(e);
+        }
+    }
+
+    /** Advances stage to Share welcome letter when returning from Booking form link */
+    @AuraEnabled
+    public static void advanceStageToShareWelcomeLetter(Id opportunityId) {
+        if (opportunityId == null) return;
+        Opportunity o = [SELECT Id, StageName FROM Opportunity WHERE Id = :opportunityId LIMIT 1];
+        if (o.StageName == 'Booking form' || o.StageName == 'Negotiation') {
+            o.StageName = 'Share welcome letter';
+            update o;
         }
     }
 
@@ -226,12 +241,12 @@ public with sharing class BookingFormLinkController {
 
     private static Opportunity load(Id opportunityId) {
         return [
-            SELECT Id, Name, AccountId, Account.Name, Account.FirstName, Account.PersonEmail, Account.PersonMobilePhone,
+            SELECT Id, Name, StageName, AccountId, Account.Name, Account.FirstName, Account.PersonEmail, Account.PersonMobilePhone,
                 Account.Phone, Account.PersonContactId, Interested_Unit__c, Interested_Unit__r.Name,
                 Interested_Unit__r.Property__r.Name, Token_Amount__c,
                 Booking_Form_URL__c, Booking_Form_Status__c, Booking_Form_Step__c, Booking_Form_Data__c,
                 Booking_Form_Generated_At__c, Booking_Form_Expires_On__c, Booking_Form_Last_Saved_At__c,
-                Booking_Form_Submitted_At__c, Token_Payment_Status__c, Token_Payment_Reference__c
+                Booking_Form_Submitted_At__c, Token_Payment_Status__c, Transaction_Reference__c
             FROM Opportunity WHERE Id = :opportunityId
         ];
     }

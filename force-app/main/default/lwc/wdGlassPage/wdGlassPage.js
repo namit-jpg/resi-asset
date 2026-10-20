@@ -6,19 +6,17 @@ import { formatTime } from 'c/wdGlassFormat';
 const NOUNS = {
     leads: ['lead', 'leads'],
     inventory: ['unit', 'units'],
-    bookings: ['booking', 'bookings'],
-    eoi: ['voucher', 'vouchers']
+    bookings: ['booking', 'bookings']
 };
 
 const SEARCH_HINTS = {
     leads: 'Search name, project, source, owner',
     inventory: 'Search unit, project, building, type',
-    bookings: 'Search booking, customer, project, unit',
-    eoi: 'Search voucher, applicant, project, status'
+    bookings: 'Search booking, customer, project, unit'
 };
 
 export default class WdGlassPage extends NavigationMixin(LightningElement) {
-    /** leads | inventory | bookings | eoi — set in Lightning App Builder. */
+    /** leads | inventory | bookings — set in Lightning App Builder. */
     @api pageKey = 'leads';
 
     data;

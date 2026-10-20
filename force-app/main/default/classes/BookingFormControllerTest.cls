@@ -190,6 +190,50 @@ private class BookingFormControllerTest {
     }
 
     @IsTest
+    static void submitCreatesCoApplicantAndNomineeContacts() {
+        Opportunity o = BookingFormService.resolve(token());
+        Map<String, Object> data = (Map<String, Object>) JSON.deserializeUntyped(payload(true));
+
+        Test.startTest();
+        BookingFormService.apply(o, data);
+        // Re-submitting updates the same contacts; dropping the nominee removes theirs.
+        data.put('nominee', new Map<String, Object>{ 'provided' => false });
+        BookingFormService.apply(o, data);
+        Test.stopTest();
+
+        List<Contact> contacts = [
+            SELECT FirstName, LastName, Booking_Role__c, Relationship_to_Applicant__c, Customer_Account__c, Booking_Opportunity__c, AccountId
+            FROM Contact WHERE Booking_Opportunity__c = :o.Id
+        ];
+        Assert.areEqual(1, contacts.size(), 'One co-applicant contact, no duplicates, nominee removed');
+        Contact co = contacts[0];
+        Assert.areEqual('Co-Applicant', co.Booking_Role__c);
+        Assert.areEqual('Riya', co.FirstName);
+        Assert.areEqual('Spouse', co.Relationship_to_Applicant__c);
+        Assert.areEqual(o.AccountId, co.Customer_Account__c);
+        Assert.isNull(co.AccountId, 'Person accounts cannot hold contacts');
+
+        WdGlassCustomerController.Customer c = WdGlassCustomerController.getCustomer(o.AccountId);
+        Assert.areEqual(1, c.bookingContacts.size());
+        Assert.areEqual('Co-Applicant', c.bookingContacts[0].status);
+    }
+
+    @IsTest
+    static void nomineeContactIsCreated() {
+        Opportunity o = BookingFormService.resolve(token());
+        Test.startTest();
+        BookingFormService.apply(o, (Map<String, Object>) JSON.deserializeUntyped(payload(true)));
+        Test.stopTest();
+        Contact n = [SELECT Name, Booking_Role__c, Relationship_to_Applicant__c, Birthdate, Description, Customer_Account__c
+            FROM Contact WHERE Booking_Opportunity__c = :o.Id AND Booking_Role__c = 'Nominee'];
+        Assert.areEqual('Arya Mukherjee', n.Name);
+        Assert.areEqual('Child', n.Relationship_to_Applicant__c);
+        Assert.areEqual(Date.newInstance(2015, 6, 1), n.Birthdate);
+        Assert.isTrue(n.Description.contains('Riya Mukherjee'), n.Description);
+        Assert.areEqual(o.AccountId, n.Customer_Account__c);
+    }
+
+    @IsTest
     static void siteGuestCanSaveUploadAndPay() {
         List<User> guests = [
             SELECT Id FROM User

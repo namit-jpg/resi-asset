@@ -75,6 +75,28 @@
                 <p class="empty">No residential units booked yet. Active deals and site visits are tracked under the Pipeline &amp; Visits tab.</p>
             </section>
         </template>
+
+        <template lwc:if={hasBookingContacts}>
+            <section class="wd-glass card">
+                <header class="head">
+                    <h2 class="wd-section-title">Co-applicants &amp; nominees</h2>
+                    <span class="head-note">From the booking form</span>
+                </header>
+                <ul class="rows">
+                    <template for:each={bookingContacts} for:item="k">
+                        <li key={k.key} class="row">
+                            <div class="row-main">
+                                <a href="#" class="row-title" data-id={k.id} onclick={handleOpen}>{k.title}</a>
+                                <span class="row-meta">{k.meta}</span>
+                            </div>
+                            <div class="row-side">
+                                <span class={k.statusClass}>{k.status}</span>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </section>
+        </template>
     </template>
 
     <!-- Tab 2: Financials & Payments (Dues + Receipts) -->

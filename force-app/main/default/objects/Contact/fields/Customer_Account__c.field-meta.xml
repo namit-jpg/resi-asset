@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Customer_Account__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Customer this co-applicant or nominee belongs to. Set by the booking form. Used instead of AccountId because person accounts cannot hold contacts.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>The buyer's account this co-applicant or nominee was added for.</inlineHelpText>
+    <label>Customer Account</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Co-applicants &amp; Nominees</relationshipLabel>
+    <relationshipName>Booking_Contacts</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

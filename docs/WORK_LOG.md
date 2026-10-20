@@ -128,6 +128,19 @@ Source: Granola notes from 08 Oct 2026 (Residential Asset Enhancement Plan revie
 - Likely a platform fault on instance USA712S (Winter '27 maintenance until 12 Oct 2026, 04:00 UTC).
 - Next steps: retest after that time, and if it persists raise a Salesforce support case for org `00DVa000006tORF`.
 
+## 7a. Co-applicant and nominee Contacts (20 Oct 2026)
+
+- Pulled the latest booking form and `wdGlass` code from the org first. This included Prajwal's 14-16 Oct 2026 changes, which are committed separately.
+- Submitting the booking form now creates one **Contact** per co-applicant and per nominee.
+  - Each Contact links to the opportunity's account through a new **Customer Account** lookup. Salesforce does not allow Contacts under person accounts, so the standard `AccountId` is set only when the account is a business account.
+  - New Contact fields: `Customer_Account__c`, `Booking_Opportunity__c`, `Booking_Role__c` (Co-Applicant / Nominee), `Relationship_to_Applicant__c`, and `Booking_Form_Key__c` (a unique key, so re-submitting updates the same Contacts).
+  - People removed from the form are removed from the Contacts. A failure here never blocks the booking submission.
+- The existing behaviour is unchanged: co-applicant person accounts, contact roles, the booking's Co_Applicant fields, and the nominee fields on the Opportunity.
+- The Account 360 page has a "Co-applicants & nominees" card on the Overview & Units tab, shown only when such Contacts exist.
+- New permission set **Nikoo Booking Contacts** gives access to the new fields. It is not assigned to anyone yet.
+- Deployed to UAT. `BookingFormControllerTest` and `WdGlassCustomerControllerTest` pass 12/12.
+- **Parked:** deducting the paid EOI from the token amount. This waits on the team's decision.
+
 ## 8. Working rules agreed
 
 - Work only in the Nikoo Homes app.

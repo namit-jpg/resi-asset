@@ -209,7 +209,118 @@ public without sharing class BookingFormService {
             upd.StageName = 'Share welcome letter';
         }
         update upd;
+        syncBookingContacts(o, applicants, nominee);
         return coApplicantAccounts;
+    }
+
+    // ---------- Co-applicant and nominee contacts ----------
+
+    /**
+     * Keeps one Contact per co-applicant and nominee, tagged to the opportunity's account through
+     * Customer_Account__c (person accounts cannot hold contacts, so AccountId is only set for business
+     * accounts). Re-submitting updates the same contacts; anyone removed from the form is removed here.
+     * A failure here never blocks the booking submission.
+     */
+    @TestVisible
+    private static void syncBookingContacts(Opportunity o, List<Object> applicants, Map<String, Object> nominee) {
+        Savepoint sp = Database.setSavepoint();
+        try {
+            Boolean businessAccount = false;
+            if (o.AccountId != null) {
+                businessAccount = ![SELECT IsPersonAccount FROM Account WHERE Id = :o.AccountId].IsPersonAccount;
+            }
+            List<Contact> contacts = new List<Contact>();
+            for (Object item : applicants) {
+                Map<String, Object> ap = (Map<String, Object>) item;
+                if (str(ap, 'role') == 'PRIMARY') {
+                    continue;
+                }
+                Contact c = bookingContact(o, businessAccount, 'Co-Applicant', str(ap, 'key'), str(ap, 'fullLegalName'));
+                String salutation = SALUTATIONS.get(str(ap, 'salutation'));
+                if (salutation != null) c.Salutation = salutation;
+                if (String.isNotBlank(str(ap, 'email'))) c.Email = str(ap, 'email');
+                c.MobilePhone = str(ap, 'mobile');
+                c.Birthdate = toDate(str(ap, 'dob'));
+                c.Relationship_to_Applicant__c = left(str(ap, 'relationship'), 80);
+                Map<String, Object> addr = (Map<String, Object>) ap.get('address');
+                if (addr != null && String.isNotBlank(str(addr, 'line1'))) {
+                    List<String> street = new List<String>();
+                    for (String k : new List<String>{ 'line1', 'line2', 'landmark', 'locality' }) {
+                        if (String.isNotBlank(str(addr, k))) {
+                            street.add(str(addr, k));
+                        }
+                    }
+                    c.MailingStreet = String.join(street, ', ');
+                    c.MailingCity = str(addr, 'city');
+                    c.MailingPostalCode = str(addr, 'pincode');
+                    c.MailingState = str(addr, 'state');
+                    c.MailingCountry = str(addr, 'country');
+                }
+                contacts.add(c);
+            }
+            if (nominee != null && nominee.get('provided') == true && String.isNotBlank(str(nominee, 'fullName'))) {
+                Contact c = bookingContact(o, businessAccount, 'Nominee', 'NOMINEE', str(nominee, 'fullName'));
+                c.MobilePhone = str(nominee, 'mobile');
+                c.Birthdate = toDate(str(nominee, 'dob'));
+                c.Relationship_to_Applicant__c = left(str(nominee, 'relationship'), 80);
+                List<String> notes = new List<String>();
+                if (String.isNotBlank(str(nominee, 'sharePct'))) {
+                    notes.add('Nominee share: ' + str(nominee, 'sharePct') + '%');
+                }
+                if (nominee.get('isMinor') == true) {
+                    notes.add('Minor. Guardian: ' + str(nominee, 'guardianName') + ' (' + str(nominee, 'guardianRelationship') + ')');
+                }
+                c.Description = notes.isEmpty() ? null : String.join(notes, '\n');
+                contacts.add(c);
+            }
+
+            Set<String> keep = new Set<String>();
+            for (Contact c : contacts) {
+                keep.add(c.Booking_Form_Key__c);
+            }
+            try {
+                upsert contacts Booking_Form_Key__c;
+            } catch (DmlException e) {
+                // Retry without the address if the state or country does not match the org's picklists.
+                for (Contact c : contacts) {
+                    c.MailingStreet = null;
+                    c.MailingCity = null;
+                    c.MailingPostalCode = null;
+                    c.MailingState = null;
+                    c.MailingCountry = null;
+                }
+                upsert contacts Booking_Form_Key__c;
+            }
+            delete [
+                SELECT Id FROM Contact
+                WHERE Booking_Opportunity__c = :o.Id AND Booking_Form_Key__c != null AND Booking_Form_Key__c NOT IN :keep
+            ];
+        } catch (Exception e) {
+            Database.rollback(sp);
+            System.debug(LoggingLevel.WARN, 'Booking form contacts not synced for ' + o.Id + ': ' + e.getMessage());
+        }
+    }
+
+    private static Contact bookingContact(Opportunity o, Boolean businessAccount, String role, String slot, String fullName) {
+        String name = String.isBlank(fullName) ? role : fullName.trim();
+        Integer split = name.lastIndexOf(' ');
+        Contact c = new Contact(
+            Booking_Form_Key__c = o.Id + ':' + (String.isBlank(slot) ? role : slot),
+            FirstName = split > 0 ? name.substring(0, split).left(40) : null,
+            LastName = (split > 0 ? name.substring(split + 1) : name).left(80),
+            Booking_Role__c = role,
+            Customer_Account__c = o.AccountId,
+            Booking_Opportunity__c = o.Id,
+            OwnerId = o.OwnerId
+        );
+        if (businessAccount) {
+            c.AccountId = o.AccountId;
+        }
+        return c;
+    }
+
+    private static String left(String value, Integer size) {
+        return value == null ? null : value.left(size);
     }
 
     private static Account findOrCreatePerson(Map<String, Object> ap, Id ownerId) {

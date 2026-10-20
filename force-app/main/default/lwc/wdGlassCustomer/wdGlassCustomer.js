@@ -310,6 +310,14 @@ export default class WdGlassCustomer extends NavigationMixin(LightningElement) {
         return this.listOf(this.data?.cases, { relative: true });
     }
 
+    get bookingContacts() {
+        return this.listOf(this.data?.bookingContacts);
+    }
+
+    get hasBookingContacts() {
+        return this.bookingContacts.length > 0;
+    }
+
     get hasDues() {
         return this.dues.length > 0;
     }

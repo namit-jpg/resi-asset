@@ -83,6 +83,7 @@ public with sharing class WdGlassCustomerController {
         @AuraEnabled public List<Item> siteVisits = new List<Item>();
         @AuraEnabled public List<Item> enquiries = new List<Item>();
         @AuraEnabled public List<Item> cases = new List<Item>();
+        @AuraEnabled public List<Item> bookingContacts = new List<Item>();
         @AuraEnabled public List<Alert> alerts = new List<Alert>();
 
         // Summary numbers for the top cards.
@@ -111,6 +112,7 @@ public with sharing class WdGlassCustomerController {
             Set<Id> leadIds = loadEnquiries(c, accountId);
             loadSiteVisits(c, opportunityIds, leadIds);
             loadCases(c, accountId);
+            loadBookingContacts(c, accountId);
             loadAlerts(c, accountId, bookingIds);
             return c;
         } catch (Exception e) {
@@ -384,6 +386,29 @@ public with sharing class WdGlassCustomerController {
             i.status = k.Status;
             i.onDate = k.CreatedDate.date();
             c.cases.add(i);
+        }
+    }
+
+    /** Co-applicants and nominees the booking form added for this customer. */
+    private static void loadBookingContacts(Customer c, Id accountId) {
+        for (Contact k : [
+            SELECT Id, Name, Booking_Role__c, Relationship_to_Applicant__c, MobilePhone, Email,
+                   Booking_Opportunity__r.Name, CreatedDate
+            FROM Contact
+            WHERE Customer_Account__c = :accountId
+            ORDER BY Booking_Role__c, CreatedDate
+            LIMIT 20
+        ]) {
+            Item i = new Item();
+            i.id = k.Id;
+            i.title = k.Name;
+            i.subtitle = joinParts(new List<String>{
+                k.Relationship_to_Applicant__c,
+                String.isNotBlank(k.MobilePhone) ? k.MobilePhone : k.Email,
+                k.Booking_Opportunity__r?.Name
+            });
+            i.status = k.Booking_Role__c;
+            c.bookingContacts.add(i);
         }
     }
 
